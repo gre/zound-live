@@ -1,7 +1,27 @@
 @(message: String)
 
 @main("Welcome to Play 2.1") {
+
+  <div id="wrapper">
+    <div id="tracker"></div>
+    <div id="modules-panel">
+      <div id="module-properties"></div>
+      <div id="node-editor"></div>
+    </div>
+  </div>
     
-    @play20.welcome(message)
-    
+  <script src="@routes.Assets.at("javascripts/models/module.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/moduleProperty.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/pattern.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/song.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/track.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/midiControllerNotification.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/modulePropertiesEditor.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/nodeEditor.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/tracker.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/network.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/keyboardController.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/midiController.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/playerController.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
 }
