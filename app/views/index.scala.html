@@ -1,6 +1,6 @@
 @(message: String)
 
-@main("Welcome to Play 2.1") {
+@main("ZOUND live") {
 
   <div id="wrapper">
     <div id="tracker"></div>
@@ -9,12 +9,21 @@
       <div id="node-editor"></div>
     </div>
   </div>
-    
-  <script src="@routes.Assets.at("javascripts/models/module.js")" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+  window.zound = {};
+  zound.models = {};
+  zound.modules = {};
+  zound.ui = {};
+  </script>
+
   <script src="@routes.Assets.at("javascripts/models/moduleProperty.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/module.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/models/pattern.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/models/song.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/models/track.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/modules/Output.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/modules/Generator.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/midiControllerNotification.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/modulePropertiesEditor.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/nodeEditor.js")" type="text/javascript"></script>

@@ -1,3 +1,59 @@
 html, body {
+  padding: 0;
+  margin: 0;
+}
 
+#wrapper {
+  position: absolute;
+  top: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 800px;
+  min-height: 600px;
+
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+#tracker {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+#modules-panel {
+  -webkit-flex: 2 2 auto;
+  flex: 2 2 auto;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+#module-properties {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  max-width: 200px;
+}
+
+#node-editor {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+
+#wrapper {
+  background: #333;
+  color: #eee;
+}
+#tracker {
+  background: #111;
+}
+#module-properties {
+  background: #333;
+}
+#node-editor {
+  background: #666;
 }
