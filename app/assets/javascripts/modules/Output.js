@@ -6,6 +6,9 @@ zound.modules.Output = Module.extend({
   }, Module.prototype.defaults),
   initialize: function () {
     Module.prototype.initialize.call(this);
+  },
+  canHaveOutputs: function () {
+    return false;
   }
 }, { moduleName: "Output" });
 
