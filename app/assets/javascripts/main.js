@@ -29,6 +29,12 @@
     el: '#node-editor'
   });
 
+  nodeEditor.on("selectModule", function (module) {
+    console.log("TODO: init module properties view", module);
+  });
+
+  window.nodeEditor=nodeEditor;
+
   // for DEBUG only
   window._song = song;
 

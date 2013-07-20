@@ -25,6 +25,18 @@ zound.ui.NodeEditor = Backbone.View.extend({
     this.paper = Raphael(this.el, this.w, this.h);
   },
 
+  selectModule: function (module) {
+    if (module === this.selectedModule) return;
+    if (this.selectedModule) {
+      this.trigger("unselectModule", this.selectedModule);
+      this.selectedModule = null;
+    }
+    if (module) {
+      this.selectedModule = module;
+      this.trigger("selectModule", module);
+    }
+  },
+
   // FIXME TODO: split into multiple function for a better event binding
   // we need to avoid always redrawing everything for performance
   //
@@ -99,6 +111,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
           }, function () {
             startX = x;
             startY = y;
+            self.selectModule(module);
           }, function () {
             module.set({ x: x, y: y });
           });
@@ -121,7 +134,6 @@ zound.ui.NodeEditor = Backbone.View.extend({
           var outputDotPath = paper.path("");
           all.push(outputDot, outputDotPath);
 
-          outputDot.attr("cursor", "pointer");
           outputDotPath.attr("stroke", "#fff");
           outputDotPath.attr("stroke-dasharray", "- ");
           outputDotPath.attr("stroke-width", 1);
@@ -150,8 +162,10 @@ zound.ui.NodeEditor = Backbone.View.extend({
           });
         }(w+1, h));
 
+        // Set initial position
         all.transform("t"+[x,y]);
 
+        // Save for cache
         module.$box = box;
       }
     });
