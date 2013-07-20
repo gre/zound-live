@@ -38,7 +38,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // draw links
     this.model.modules.each(function (module) {
       var startx = module.get("x") + module.get("w");
-      var starty = module.get("y") + module.get("h") / 2;
+      var starty = module.get("y") + module.get("h");
 
       // FIXME, the connect lines are not supporting new connections yet
       //if (!module.$outputs) {
@@ -49,7 +49,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       }
         module.$outputs = module.outputs.map(function (out) {
           var endx = out.get("x");
-          var endy = out.get("y") + out.get("h") / 2;
+          var endy = out.get("y");
           var path = paper.path("M"+startx+" "+starty+"L"+endx+" "+endy);
           path.attr("stroke", "#fff");
           path.attr("stroke-width", 1);
@@ -61,7 +61,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
           var out = o[0];
           var path = o[1];
           var endx = out.get("x");
-          var endy = out.get("y") + out.get("h") / 2;
+          var endy = out.get("y") + out.get("h");
           path.attr("path", "M"+startx+" "+starty+"L"+endx+" "+endy);
         });
       }*/
@@ -106,15 +106,15 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
         // Display the dot input
         module.canHaveInputs() && (function (startx, starty, endx, endy) {
-          var inputDot = paper.circle(0, h/2, 4);
-          inputDot.attr("fill", "#000");
+          var inputDot = paper.circle(0, 0, 4);
+          inputDot.attr("fill", "#fff");
           inputDot.attr("stroke-width", 0);
           all.push(inputDot);
         }());
 
         // Handle for connecting with the dot
         module.canHaveOutputs() && (function (startx, starty, endx, endy) {
-          var outputDot = paper.circle(w+2, h/2, 8);
+          var outputDot = paper.circle(w+2, h, 8);
           outputDot.attr("fill", "#ccc");
           outputDot.attr("stroke", "#000");
           outputDot.attr("stroke-width", 1);
@@ -148,7 +148,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
                 module.connect(out);
             }
           });
-        }(w+1, h/2));
+        }(w+1, h));
 
         all.transform("t"+[x,y]);
 
