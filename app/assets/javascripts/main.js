@@ -29,11 +29,21 @@
     el: '#node-editor'
   });
 
+  var currentPropertiesEditor;
+
+  var $moduleProperties = $('#module-properties');
+
   nodeEditor.on("selectModule", function (module) {
-    console.log("TODO: init module properties view", module);
+    if (currentPropertiesEditor) {
+      currentPropertiesEditor.remove();
+    }
+    currentPropertiesEditor = new zound.ui.ModulePropertiesEditor({
+      model: module
+    });
+    $moduleProperties.append(currentPropertiesEditor.el);
   });
 
-  window.nodeEditor=nodeEditor;
+  window.nodeEditor = nodeEditor;
 
   // for DEBUG only
   window._song = song;

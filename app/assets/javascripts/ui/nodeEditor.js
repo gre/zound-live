@@ -1,7 +1,9 @@
 
 zound.ui.NodeEditor = Backbone.View.extend({
-  w: 700,
-  h: 400,
+  options: {
+    w: 700,
+    h: 400
+  },
   initialize: function () {
     this.init();
     this.listenTo(this.model, "change", this.render);
@@ -22,7 +24,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   init: function () {
-    this.paper = Raphael(this.el, this.w, this.h);
+    this.paper = Raphael(this.el, this.options.w, this.options.h);
   },
 
   selectModule: function (module) {
@@ -44,8 +46,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
     var self = this;
     var paper = this.paper;
 
-    var W = this.w;
-    var H = this.h;
+    var W = this.options.w;
+    var H = this.options.h;
 
     // draw links
     this.model.modules.each(function (module) {
