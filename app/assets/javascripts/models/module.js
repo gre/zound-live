@@ -5,6 +5,13 @@ zound.models.Modules = Backbone.Collection.extend({
 });
 
 zound.models.Module = Backbone.Model.extend({
+  defaults: {
+    x: 0,
+    y: 0,
+    w: 70,
+    h: 40,
+    title: "Untitled"
+  },
   initialize: function () {
     this.outputs = new zound.models.Modules();
     this.properties = new zound.models.ModuleProperties();
