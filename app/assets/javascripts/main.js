@@ -111,18 +111,24 @@
     user: CURRENT_USER
   });
 
-  keyboardController.on({
-    note: function (note) {
-      var module = CURRENT_USER.getCurrentModule();
-      var slot = CURRENT_USER.getSelectedSlot();
-      if (module && slot) {
-        slot.model.set({
-          note: note,
-          module: module
-        });
-        CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
-      }
+  var handleNote = function (note) {
+    var module = CURRENT_USER.getCurrentModule();
+    var slot = CURRENT_USER.getSelectedSlot();
+    if (module && slot) {
+      slot.model.set({
+        note: note,
+        module: module
+      });
+      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
     }
+  };
+
+  keyboardController.on({
+    note: handleNote
+  });
+
+  midiController.on({
+    noteOn: handleNote
   });
 
   // Handle selection

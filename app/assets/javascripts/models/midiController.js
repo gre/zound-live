@@ -26,11 +26,11 @@ zound.models.MIDIController = Backbone.Model.extend({
   },
 
   noteOn: function (noteNumber, noteVelocity) {
-    console.log("TODO noteOn", noteNumber, noteVelocity);
+    this.trigger("noteOn", noteNumber, noteVelocity);
   },
 
   noteOff: function (noteNumber, noteVelocity) {
-    console.log("TODO noteOff", noteNumber, noteVelocity);
+    this.trigger("noteOff", noteNumber, noteVelocity);
   },
 
   control: function (controlNumber, value) {
