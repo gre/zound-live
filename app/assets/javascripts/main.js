@@ -159,11 +159,12 @@
       }
     });
     */
-    // Spacebar toggle the user tracker selection
     $(window).on("keydown", function (e) {
-      if (e.which===32) {
+      var slot = CURRENT_USER.getSelectedSlot();
+
+      // Spacebar toggle the user tracker selection
+      if (e.which===32) { // SPACE
         e.preventDefault();
-        var slot = CURRENT_USER.getSelectedSlot();
         if (slot) {
           lastSelection = slot;
           CURRENT_USER.unselectCurrentTrackerSlot();
@@ -171,34 +172,49 @@
         else {
           lastSelection && CURRENT_USER.selectTrackerSlot(lastSelection);
         }
+        return;
+      }
+
+      if (e.which==8) { // BACKSPACE
+        e.preventDefault();
+        if (slot) {
+          slot.model.set({ note: null, module: null });
+          CURRENT_USER.moveTrackerSelection(0, -1);
+        }
+        return;
+      }
+
+      if (e.which==46 && slot) { // DELETE
+        if (slot) {
+          e.preventDefault();
+          slot.model.set({ note: null, module: null });
+          CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
+        }
+        return;
+      }
+
+      var incrX = 0, incrY = 0;
+      switch (e.which) {
+        case 37: // left
+          incrX = -1;
+          break;
+        case 39: // right
+          incrX = 1;
+          break;
+        case 38: // up
+          incrY = -1;
+          break;
+        case 40: // down
+          incrY = 1;
+          break;
+      }
+      if ((incrX || incrY) && slot) {
+        e.preventDefault();
+        CURRENT_USER.moveTrackerSelection(incrX, incrY);
       }
     });
   }());
 
-
-  // Handle tracker navigation
-  $(window).on("keydown", function (e) {
-    var slot = CURRENT_USER.getSelectedSlot();
-    var incrX = 0, incrY = 0;
-    switch (e.which) {
-      case 37: // left
-        incrX = -1;
-        break;
-      case 39: // right
-        incrX = 1;
-        break;
-      case 38: // up
-        incrY = -1;
-        break;
-      case 40: // down
-        incrY = 1;
-        break;
-    }
-    if (slot) {
-      e.preventDefault();
-      CURRENT_USER.moveTrackerSelection(incrX, incrY);
-    }
-  });
 
   // for DEBUG only
   window._song = song;
