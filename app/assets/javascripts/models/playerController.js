@@ -1,63 +1,73 @@
-(function (models, modules, ui) {
 
-  var playing = false,
-      timerID = null,
-      nextLineTime = null,
-      tempo = 70,
-      lookAhead = 25,  //How frequently to call scheduling  (ms)
-      scheduleAheadTime = 0.1, // How far ahead to schedule audio (sec)
-      currentLine,
-      ctx = new webkitAudioContext();
+zound.models.PlayerController = Backbone.Model.extend({
+  defaults: {
+  },
 
-  function scheduler() {
-    while (nextLineTime < ctx.currentTime + scheduleAheadTime) {
-      scheduleNote(currentLine, nextLineTime);
-      nextNote();
-    }
-    timerID = window.setTimeout(scheduler, lookAhead);
-  }
+  initialize: function () {
+  	this.lookAhead = 25; // Call shedule every ms
+  	this.scheduleAhead = 0.1; // Audio schedule (sec)
+  	this.nextLineTime = 0;
+  	this.playing = false;
+  	this.timerId = null;
+  	this.currentLine = 0;
+  },
 
-  function nextNote() {
-    // Advance current note and time by a 16th note...
-    var secondsPerBeat = 60.0 / tempo;
-    nextLineTime += 0.25 * secondsPerBeat;
+  setSong: function(song) {
+  	this.set("song", song);
+  },
 
-    currentLine++;
-    if (currentLine == 32) {
-        currentLine = 0;
-    }
-  }
+  play: function () {
+  	this.playing = true;
+  	this.currentLine = 0;
+  	this.nextLineTime = ctx.currentTime;
+  	this.scheduler();
+  },
 
-  function scheduleNote(beatNumber, time) {
+  stop: function () {
+  	this.playing = false;
+  	window.clearTimeout(this.timerID);
+  },
 
-    var osc = ctx.createOscillator();
-    osc.connect(ctx.destination);
-    osc.frequency.value = beatNumber % 4 === 0 ? 440.0 : 220.0;
-    osc.start(time);
-    osc.stop(time + 0.05);
+  scheduler: function () {
+  	while (this.nextLineTime < ctx.currentTime + this.scheduleAhead) {
+  	  this.scheduleNote(this.currentLine, this.nextLineTime);
+  	  this.nextNote();
+  	}
+  	var self = this,
+  		timerId = window.setTimeout(function () {
+  			self.scheduler();
+  		}, this.lookAhead);
+  	this.timerId = timerId;
+  },
 
-  }
+  nextNote: function() {
+  	var pattern = this.get("song").patterns.models[0],
+  			secondsPerBeat = 60.0 / this.get("song").get("bpm");
+		this.nextLineTime = this.nextLineTime + 0.25 * secondsPerBeat;
 
-  window.player = {
+		this.currentLine = this.currentLine + 1;
+		if (this.currentLine == pattern.get("length")) {
+			this.currentLine = 0;
+		}
+	},
 
-    ctx: ctx,
+	scheduleNote: function(lineNumber, time) {
+		var pattern = this.get("song").patterns.models[0],
+				notes = [];
 
-    play: function () {
+		for (var i = 0; i < 3; i++) {
+			notes[i] = pattern.tracks.models[i].slots.models[lineNumber].get("note");
 
-      playing = true;
-      currentLine = 0;
-      nextLineTime = ctx.currentTime;
-      scheduler();
+			if (notes[i]) {
+				var osc = ctx.createOscillator();
+				osc.type = i;
+				osc.connect(ctx.destination);
+				osc.frequency.value = 220 + (notes[i] * 5);
+				osc.start(time);
+				osc.stop(time + 0.05);
+			}
+		}
+	}
+});
 
-    },
 
-    stop: function () {
-
-      playing = false;
-      window.clearTimeout(timerID);
-
-    }
-
-  }
-
-}(zound.models, zound.modules, zound.ui));

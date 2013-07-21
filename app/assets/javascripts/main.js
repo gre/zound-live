@@ -1,5 +1,13 @@
 (function (models, modules, ui) {
 
+  // Set context as global, for now
+
+  window.ctx = new webkitAudioContext();
+  // Seems to be a weird bug in ctx if never start an osc == never start ctx.currentTime.
+  var osc = ctx.createOscillator();
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.001);
+
   // models
 
   var midiController = new models.MIDIController();
@@ -55,6 +63,12 @@
       { name: "jto", color: 255 }]);
 
   window.CURRENT_USER = users.at(0);
+
+
+  window.player = new zound.models.PlayerController();
+  player.setSong(song);
+  //player.play();
+
 
   // views
 
