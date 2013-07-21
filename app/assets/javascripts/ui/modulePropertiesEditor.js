@@ -1,20 +1,21 @@
 
 zound.ui.ModulePropertyEditor = Backbone.View.extend({
   tagName: 'li',
-  DENSITY: 1000,
   initialize: function () {
     this.render();
   },
   template: _.template('<span class="title"><%= title %></span><div class="component"></div>'),
   render: function() {
     // FIXME We use an input[type=range] for quick impl. - this can be replaced in the future.
+    var granularity = this.model.getValueGranularity();
+    if (!isFinite(granularity)) granularity = 1000;
     this.$el.html(this.template(this.model.attributes));
     this.$component = this.$el.find(".component");
-    var value = Math.round(this.DENSITY*this.model.getPercent());
+    var value = Math.round(granularity*this.model.getPercent());
     var $valueText = $('<span class="valueText">'+this.model.getText()+'</span>');
-    var $range = $('<input type="range" min="0" max="'+this.DENSITY+'" value="'+value+'" />');
+    var $range = $('<input type="range" min="0" max="'+granularity+'" value="'+value+'" />');
     $range.on("change", _.bind(function (e) {
-      this.model.setPercent(parseInt($range.val())/this.DENSITY);
+      this.model.setPercent(parseInt($range.val())/granularity);
       $valueText.text(this.model.getText());
     }, this));
     this.$component.append($valueText);
