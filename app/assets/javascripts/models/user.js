@@ -63,8 +63,8 @@ zound.models.User = Backbone.Model.extend({
   },
 
   unselectModule: function () {
-    var view = this.currentModule;
-    if (view) {
+    var model = this.currentModule;
+    if (model) {
       model.trigger("user-unselect", this.get("name"));
       this.currentModule = null;
     }

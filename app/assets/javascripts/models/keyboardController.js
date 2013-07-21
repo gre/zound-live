@@ -21,7 +21,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
         var tone = this.get("keyCodeByTones").indexOf(e.which);
         if (tone > -1) {
           var note = this.get("octave")*12+tone;
-          this.trigger("note", note);
+          this.trigger("note", note, 127);
         }
       }
     }

@@ -6,7 +6,7 @@ zound.ui.TrackerIncrement = Backbone.View.extend({
     "click": "onClick"
   },
   options: {
-    increments: [1,2,4,8]
+    increments: [0,1,2,4,8]
   },
   initialize: function () {
     this.$el.attr("href", "#");

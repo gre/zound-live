@@ -132,13 +132,35 @@
   });
 
   // Handle selection
-  $(window).click(function (e) {
-    if (CURRENT_USER.getSelectedSlot()) {
-      if (!$(e.target).parents('#tracker:first').size()) {
-        CURRENT_USER.unselectCurrentTrackerSlot();
+  (function(){
+    var lastSelection = tracker.tracks[0].slots[0];
+    /*
+    $(window).click(function (e) {
+      var slot = CURRENT_USER.getSelectedSlot();
+      if (slot) {
+        lastSelection = slot;
+        if (!$(e.target).parents('#tracker:first').size()) {
+          CURRENT_USER.unselectCurrentTrackerSlot();
+        }
       }
-    }
-  });
+    });
+    */
+    // Spacebar toggle the user tracker selection
+    $(window).on("keydown", function (e) {
+      if (e.which===32) {
+        e.preventDefault();
+        var slot = CURRENT_USER.getSelectedSlot();
+        if (slot) {
+          lastSelection = slot;
+          CURRENT_USER.unselectCurrentTrackerSlot();
+        }
+        else {
+          lastSelection && CURRENT_USER.selectTrackerSlot(lastSelection);
+        }
+      }
+    });
+  }());
+
 
   // Handle tracker navigation
   $(window).on("keydown", function (e) {
