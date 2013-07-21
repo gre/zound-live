@@ -1,5 +1,9 @@
 (function (models, modules, ui) {
 
+  // models
+
+  var midiController = new models.MIDIController();
+
   var song = new models.Song();
 
   var generator1 = new modules.Generator({
@@ -24,14 +28,23 @@
   song.modules.add(generator2);
   song.modules.add(output);
 
+  // views
+
+  var $midiNotification = $("#midiNotification");
+  var $moduleProperties = $('#module-properties');
+
+  var midiControllerNotification = new ui.MIDIControllerNotification({
+    model: midiController
+  });
+
+  $midiNotification.append(midiControllerNotification.el);
+
   var nodeEditor = new ui.NodeEditor({
     model: song,
     el: '#node-editor'
   });
 
   var currentPropertiesEditor;
-
-  var $moduleProperties = $('#module-properties');
 
   nodeEditor.on("selectModule", function (module) {
     if (currentPropertiesEditor) {

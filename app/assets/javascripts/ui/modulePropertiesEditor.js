@@ -3,8 +3,9 @@ zound.ui.ModulePropertyEditor = Backbone.View.extend({
   tagName: 'li',
   initialize: function () {
     this.render();
+    this.listenTo(this.model, "change:value", this.onValueChange);
   },
-  template: _.template('<span class="title"><%= title %></span><div class="component"></div>'),
+  template: _.template('<span class="title"><%= title %></span><div class="component" data-assignable></div>'),
   render: function() {
     // FIXME We use an input[type=range] for quick impl. - this can be replaced in the future.
     var granularity = this.model.getValueGranularity();
@@ -12,15 +13,31 @@ zound.ui.ModulePropertyEditor = Backbone.View.extend({
     this.$el.html(this.template(this.model.attributes));
     this.$component = this.$el.find(".component");
     var value = Math.round(granularity*this.model.getPercent());
-    var $valueText = $('<span class="valueText">'+this.model.getText()+'</span>');
-    var $range = $('<input type="range" min="0" max="'+granularity+'" value="'+value+'" />');
-    $range.on("change", _.bind(function (e) {
-      this.model.setPercent(parseInt($range.val())/granularity);
-      $valueText.text(this.model.getText());
+    this.$valueText = $('<span class="valueText">'+this.model.getText()+'</span>');
+    this.$range = $('<input type="range" min="0" max="'+granularity+'" value="'+value+'" />');
+    this.$component.append(this.$valueText);
+    this.$component.append(this.$range);
+
+    this.$range.on("change", _.bind(function (e) {
+      this._dontSetInputValue = true;
+      this.model.setPercent(parseInt(this.$range.val())/granularity);
+      this._dontSetInputValue = false;
     }, this));
-    this.$component.append($valueText);
-    this.$component.append($range);
+
+    this.$component.data("assignable", {
+      handleMessage: _.bind(function (midiValue) {
+        this.model.setPercent(midiValue / 127);
+      }, this)
+    });
     return this;
+  },
+  onValueChange: function (model, rawValue) {
+    var granularity = model.getValueGranularity();
+    var value = Math.round(granularity*model.getPercent());
+    if (!this._dontSetInputValue) {
+      this.$range.val(value);
+    }
+    this.$valueText.text(model.getText());
   }
 });
 
@@ -34,7 +51,6 @@ zound.ui.ModulePropertiesEditor = Backbone.View.extend({
   },
 
   init: function () {
-    console.log("TODO: init module properties view", this.model);
     var $title = $('<h3/>');
     $title.text(this.model.get("title"));
     var $ul = $('<ul/>');
@@ -43,10 +59,9 @@ zound.ui.ModulePropertiesEditor = Backbone.View.extend({
         model: property
       });
       $ul.append(propertyView.el);
-
-      this.$el.append($title);
-      this.$el.append($ul);
     }, this);
+    this.$el.append($title);
+    this.$el.append($ul);
   },
 
   render: function () {
