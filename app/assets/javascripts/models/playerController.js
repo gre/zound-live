@@ -25,7 +25,7 @@ zound.models.PlayerController = Backbone.Model.extend({
 
   stop: function () {
   	this.playing = false;
-  	window.clearTimeout(this.timerID);
+  	window.clearTimeout(this.timerId);
   },
 
   scheduler: function () {
@@ -33,11 +33,11 @@ zound.models.PlayerController = Backbone.Model.extend({
   	  this.scheduleNote(this.currentLine, this.nextLineTime);
   	  this.nextNote();
   	}
-  	var self = this,
-  		timerId = window.setTimeout(function () {
-  			self.scheduler();
-  		}, this.lookAhead);
-  	this.timerId = timerId;
+  	var self = this;
+
+  	this.timerId = window.setTimeout(function () {
+  		self.scheduler();
+  	}, this.lookAhead);
   },
 
   nextNote: function() {
