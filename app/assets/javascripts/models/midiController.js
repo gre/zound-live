@@ -10,6 +10,9 @@ zound.models.MIDIController = Backbone.Model.extend({
     this.midiAccessPromise = navigator.requestMIDIAccess();
     this.midiAccessPromise.then(_.bind(this.onMidiSuccess, this), _.bind(this.onMidiError, this));
     this.assignables = [];
+    this.on("change:assignMode", _.bind(function () {
+      this.assignables = [];
+    }, this));
   },
 
   bindInput: function (input) {
@@ -31,12 +34,11 @@ zound.models.MIDIController = Backbone.Model.extend({
   },
 
   control: function (controlNumber, value) {
-    if (this.get("assignMode")) {
+    if (this.assignables.length) {
       var assign = this.assignables.pop();
-      if (assign) {
-        this.on("control:"+controlNumber, assign[0].handleMessage);
-        assign[1]("cn="+controlNumber);
-      }
+      this.off("control:"+controlNumber);
+      this.on("control:"+controlNumber, assign[0].handleMessage);
+      assign[1]("cn="+controlNumber);
     }
     this.trigger("control:"+controlNumber, value);
   },

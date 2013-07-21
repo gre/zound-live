@@ -11,7 +11,7 @@ a {
 #wrapper {
   margin: 0 auto;
   width: 900px;
-  height: 600px;
+  height: 750px;
 
   display: -webkit-flex;
   display: flex;
@@ -21,8 +21,9 @@ a {
 }
 
 #tracker {
-  height: 200px;
+  height: 350px;
   position: relative;
+  overflow: scroll;
 }
 
 #modules-panel {
@@ -62,6 +63,53 @@ body {
   background: #666;
 }
 
+#tracker {
+  .tracker {
+
+  }
+  font-family: monospace;
+  font-size: 10px;
+
+  .lineNumbers {
+    width: 20px;
+    color: #666;
+  }
+  .head {
+    text-align: center;
+    height: 15px;
+    color: #aaa;
+  }
+  ul {
+    display: inline-block;
+    width: 36px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    float: left;
+    box-sizing: border-box;
+  }
+  li {
+    margin: 0;
+    height: 10px;
+    line-height: 8px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #111;
+  }
+  .track {
+    text-align: center;
+    background: #000;
+    &:nth-child(odd) {
+      background: #222;
+    }
+    .note {
+      color: #ff0;
+    }
+    .module {
+      color: #f0f;
+    }
+  }
+}
+
 #module-properties {
   ul {
     padding: 0;
@@ -96,7 +144,7 @@ body {
     color: #fff;
     vertical-align: top;
     line-height: 24px;
-    margin-right: 5px;
+    margin: 0 5px;
   }
   
   .notification {

@@ -1,9 +1,5 @@
 
 
-zound.models.Modules = Backbone.Collection.extend({
-  model: zound.models.Module
-});
-
 zound.models.Module = Backbone.Model.extend({
   defaults: {
     x: 0,
@@ -31,3 +27,8 @@ zound.models.Module = Backbone.Model.extend({
     return true;
   }
 });
+
+zound.models.Modules = Backbone.Collection.extend({
+  model: zound.models.Module
+});
+

@@ -4,7 +4,7 @@ zound.models.Song = Backbone.Model.extend({
     bpm: 125
   },
   initialize: function () {
-    //this.pattern = new zound.models.Pattern();
+    this.patterns = new zound.models.Patterns();
     this.modules = new zound.models.Modules();
   }
 });

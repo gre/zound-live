@@ -1,8 +1,4 @@
 
-zound.models.ModuleProperties = Backbone.Collection.extend({
-  model: zound.models.ModuleProperty
-});
-
 zound.models.ModuleProperty = Backbone.Model.extend({
   initialize: function () {
 
@@ -83,3 +79,8 @@ zound.models.ModulePropertySelect = zound.models.ModuleProperty.extend({
     return this.get("values").length-1;
   }
 });
+
+zound.models.ModuleProperties = Backbone.Collection.extend({
+  model: zound.models.ModuleProperty
+});
+
