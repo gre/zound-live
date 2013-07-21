@@ -9,6 +9,9 @@ zound.modules.Generator = Module.extend({
   },
   canHaveInputs: function () {
     return false;
+  },
+  canPlayNote: function () {
+    return true;
   }
 }, { moduleName: "Generator" });
 

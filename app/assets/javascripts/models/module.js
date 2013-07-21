@@ -25,6 +25,9 @@ zound.models.Module = Backbone.Model.extend({
   },
   canHaveOutputs: function () {
     return true;
+  },
+  canPlayNote: function () {
+    return false;
   }
 });
 

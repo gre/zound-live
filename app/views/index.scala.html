@@ -3,13 +3,32 @@
 @main("ZOUND live") {
 
   <div id="wrapper">
-    <div id="tracker"></div>
+    <div id="tracker">
+    </div>
     <div id="modules-panel">
       <div id="midiNotification"></div>
       <div id="module-properties"></div>
       <div id="node-editor"></div>
     </div>
   </div>
+
+  <script type="text/css" id="users_style_template">
+  [user-select="<%=name%>"] {
+    border-color: hsla(<%=color%>, 60%, 50%, 0.8) !important;
+    position: relative;
+  }
+  [user-select="<%=name%>"]:after {
+    color: hsla(<%=color%>, 60%, 50%, 0.8);
+    content: "<%=name%>";
+    font-size: 8px;
+    font-family: monospace;
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+  }
+  </script>
+
+  <style type="text/css" id="users_style"></style>
   
   <script type="text/javascript">
   window.zound = {
@@ -27,12 +46,14 @@
   <script src="@routes.Assets.at("javascripts/models/midiController.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/modules/Output.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/modules/Generator.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/keyboardController.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/playerController.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/models/user.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/midiControllerNotification.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/modulePropertiesEditor.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/nodeEditor.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/tracker.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/trackerIncrement.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/network.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/keyboardController.js")" type="text/javascript"></script>
-  <script src="@routes.Assets.at("javascripts/playerController.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
 }

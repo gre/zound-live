@@ -7,6 +7,9 @@ zound.ui.Slot = Backbone.View.extend({
     this.listenTo(this.model, "change", this.render);
     this.render(this.model);
   },
+  events: {
+    "click": "onClick"
+  },
   TONE_SYMBOLS: "CcDdEFfGgAaB",
   noteToText: function (note) {
     var octave = Math.floor(note / 12);
@@ -31,6 +34,9 @@ zound.ui.Slot = Backbone.View.extend({
     else {
       this.$el.empty();
     }
+  },
+  onClick: function () {
+    CURRENT_USER.selectTrackerSlot(this);
   }
 });
 
@@ -53,6 +59,7 @@ zound.ui.Track = Backbone.View.extend({
       var slotUI = new zound.ui.Slot({
         model: slot
       });
+      slotUI.track = this;
       this.$el.append(slotUI.el);
       return slotUI;
     }, this);
@@ -74,16 +81,18 @@ zound.ui.Tracker = Backbone.View.extend({
     }));
     this.$el.append($lineNumbers);
 
-    this.tracksUI = this.model.tracks.map(function (track, i) {
+    this.tracks = this.model.tracks.map(function (track, i) {
       var trackUI = new zound.ui.Track({
         model: track
       }, {
         title: ""+i
       });
+      trackUI.tracker = this;
       this.$el.append(trackUI.el);
       return trackUI;
     }, this);
   },
+
   onChange: function () {
     console.log("ui.Tracker.onChange not implemented:", arguments);
   }

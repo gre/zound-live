@@ -14,6 +14,7 @@ zound.models.Track = Backbone.Model.extend({
     slot.set({ note: note, module: module });
   },
   removeNote: function (position) {
+    var slot = this.slots.at(position);
     slot.set({ note: null, module: null });
   }
 });
