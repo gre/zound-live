@@ -1,7 +1,8 @@
 
 zound.models.Track = Backbone.Model.extend({
   defaults: {
-    length: 32
+    length: 32,
+    offmode: false
   },
   initialize: function () {
     this.slots = new zound.models.Slots(_.chain(_.range(0, this.get("length"))).map(function () {

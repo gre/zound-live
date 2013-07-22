@@ -46,12 +46,24 @@ zound.ui.Track = Backbone.View.extend({
   options: {
     title: "Track"
   },
+  events: {
+    "click .off-mode": "onClickOffMode"
+  },
   initialize: function (attrs, options) {
     _.extend(this.options, options);
+    this.listenTo(this.model, "change:offmode", this.onChangeOffmode);
     this.render();
-    this.listenTo(this.model, "change", this.onChange);
+    this.onChangeOffmode();
   },
   headerTmpl: _.template('<li class="head"><%= title %></li>'),
+  footerTmpl: _.template('<li class="foot"><a href="#" class="off-mode"><i class="icon-bullhorn"></i></a></li>'),
+  onClickOffMode: function (e) {
+    var enabled = !!this.model.get("offmode");
+    this.model.set("offmode", !enabled);
+  },
+  onChangeOffmode: function () {
+    this.$el.find(".off-mode").toggleClass("enabled", !!this.model.get("offmode"));
+  },
   render: function () {
     var $header = $(this.headerTmpl(this.options));
     this.$el.append($header);
@@ -63,6 +75,8 @@ zound.ui.Track = Backbone.View.extend({
       this.$el.append(slotUI.el);
       return slotUI;
     }, this);
+    var $footer = $(this.footerTmpl(this.options));
+    this.$el.append($footer);
   }
 });
 

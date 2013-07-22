@@ -94,8 +94,14 @@ body {
   }
   .head {
     text-align: center;
-    height: 15px;
+    height: 12px;
+    background: #000;
+    border: none;
     color: #aaa;
+  }
+  .foot {
+    text-align: center;
+    background: #000;
   }
   ul {
     display: inline-block;
@@ -125,6 +131,14 @@ body {
     }
     .module {
       color: #f0f;
+    }
+    .off-mode {
+      opacity: 1;
+      color: #fff;
+      &.enabled {
+        color: #f33;
+        opacity: 0.5;
+      }
     }
   }
 }

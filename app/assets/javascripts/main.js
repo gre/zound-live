@@ -1,12 +1,13 @@
 (function (models, modules, ui) {
 
+  // FIXME Put that in song.js
   // Set context as global, for now
-
   window.ctx = new webkitAudioContext();
   // Seems to be a weird bug in ctx if never start an osc == never start ctx.currentTime.
   var osc = ctx.createOscillator();
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.001);
+
 
   // models
 
