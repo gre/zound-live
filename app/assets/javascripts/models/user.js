@@ -2,7 +2,17 @@
 zound.models.User = Backbone.Model.extend({
 
   defaults: {
+    name: "Unknown",
     trackerIncrement: 1
+  },
+
+  initialize: function () {
+    if (!this.get("color"))
+      this.set("color", this.generateColorFromName());
+  },
+
+  generateColorFromName: function () {
+    return _.reduce(this.get("name"), function (sum, b) { return 13*sum+b.charCodeAt(0) }, 0) % 256;
   },
 
   getSelectedSlot: function () {

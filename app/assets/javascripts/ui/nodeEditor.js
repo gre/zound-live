@@ -12,7 +12,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       this.listenModule(module);
       this.render();
     });
-    this.listenTo(this.model.modules, "remove", this.render);
+    this.listenTo(this.model.modules, "remove", this.onModuleRemove);
     this.model.modules.each(this.listenModule, this);
     this.render();
   },
@@ -25,6 +25,13 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
   init: function () {
     this.paper = Raphael(this.el, this.options.w, this.options.h);
+  },
+
+  onModuleRemove: function (module) {
+    if (module.$box) {
+      module.$box.remove();
+      this.render();
+    }
   },
 
   selectModule: function (module) {
@@ -88,18 +95,33 @@ zound.ui.NodeEditor = Backbone.View.extend({
         var y = module.get("y");
         var w = module.get("w");
         var h = module.get("h");
-        var title = module.get("title");
 
         var all = paper.set();
 
         var box = paper.rect(0, 0, w, h);
-        box.attr("fill", "#f00");
-        box.attr("stroke", "#fff");
+        box.attr("fill", module.get("color"));
+        box.attr("stroke-width", 1);
+        box.attr("stroke", "#000");
 
-        var titleText = paper.text(w/2, 10, title);
+        var titleText = paper.text(w/2, 10, module.get("title"));
         titleText.attr("fill", "#fff");
 
-        all.push(box, titleText);
+        var numberText = paper.text(w, -6, module.getDisplayId());
+        numberText.attr("fill", "#f0f");
+        numberText.attr("text-anchor", "end");
+        numberText.attr("font-family", "monospace");
+        numberText.attr("font-weight", "bold");
+
+        all.push(box, titleText, numberText);
+
+        module.on("user-select", function (name) {
+          box.attr("stroke-width", 2);
+          box.attr("stroke", "#f00");
+        });
+        module.on("user-unselect", function (name) {
+          box.attr("stroke-width", 1);
+          box.attr("stroke", "#000");
+        });
 
         // Handle drag of a module
         (function (startX, startY) {
@@ -168,7 +190,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
         all.transform("t"+[x,y]);
 
         // Save for cache
-        module.$box = box;
+        module.$box = all;
       }
     });
     

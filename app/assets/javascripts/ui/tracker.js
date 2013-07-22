@@ -16,16 +16,10 @@ zound.ui.Slot = Backbone.View.extend({
     var tone = note % 12;
     return this.TONE_SYMBOLS[tone]+octave;
   },
-  moduleToText: function (module) {
-    var name = ""+module.id;
-    if (name.length>2) name=name.substring(name.length-2);
-    else if (name.length==1) name = "0"+name;
-    return name;
-  },
   render: function (model) {
     if (model.get("note")) {
       var note = this.noteToText(model.get("note"));
-      var module = this.moduleToText(model.get("module"));
+      var module = model.get("module").getDisplayId();
       this.$el.html(this.tmpl({
         note: note,
         module: module
@@ -56,13 +50,21 @@ zound.ui.Track = Backbone.View.extend({
     this.onChangeOffmode();
   },
   headerTmpl: _.template('<li class="head"><%= title %></li>'),
-  footerTmpl: _.template('<li class="foot"><a href="#" class="off-mode"><i class="icon-bullhorn"></i></a></li>'),
+  footerTmpl: _.template('<li class="foot"><a href="#" class="off-mode"><i class="icon-microphone-off"></i></a></li>'),
   onClickOffMode: function (e) {
-    var enabled = !!this.model.get("offmode");
-    this.model.set("offmode", !enabled);
+    e.preventDefault();
+    var offmode = this.model.get("offmode");
+    var me = CURRENT_USER.get("name");
+    if (!offmode) {
+      this.model.set("offmode", me);
+    }
+    else if(offmode===me) {
+      this.model.set("offmode", null);
+    }
   },
   onChangeOffmode: function () {
-    this.$el.find(".off-mode").toggleClass("enabled", !!this.model.get("offmode"));
+    var offmode = this.model.get("offmode");
+    this.$el.find(".off-mode").toggleClass("enabled", !!offmode).toggleClass("controlByMe", !!offmode && offmode===CURRENT_USER.get("name"));
   },
   render: function () {
     var $header = $(this.headerTmpl(this.options));

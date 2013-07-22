@@ -6,11 +6,18 @@ zound.models.Module = Backbone.Model.extend({
     y: 0,
     w: 70,
     h: 40,
-    title: "Untitled"
+    title: "Untitled",
+    color: "#000"
   },
   initialize: function () {
     this.outputs = new zound.models.Modules();
     this.properties = new zound.models.ModuleProperties();
+  },
+  getDisplayId: function (module) {
+    var name = ""+this.id;
+    if (name.length>2) name=name.substring(name.length-2);
+    else if (name.length==1) name = "0"+name;
+    return name;
   },
   disconnect: function (outModule) {
     this.outputs.remove(outModule);

@@ -52,16 +52,24 @@
   song.modules.add(generator2);
   song.modules.add(output);
 
+  var queryStringParams = (function (queryString) {
+    return _.reduce(queryString.substring(1).split("&"), function (obj, param) {
+      var parts = param.split("=");
+      obj[parts[0]] = parts[1];
+      return obj;
+    }, {});
+  }(location.search));
+
   // FIXME: mock: init from the server?
   var users = new zound.models.Users([
-      { name: "gre", color: 0 },
-      { name: "pvo", color: 40 },
-      { name: "ast", color: 80 },
-      { name: "eca", color: 120 },
-      { name: "aau", color: 160 },
-      { name: "aau", color: 200 },
-      { name: "vbr", color: 240 },
-      { name: "jto", color: 255 }]);
+      { name: queryStringParams.user || "gre" },
+      { name: "pvo" },
+      { name: "ast" },
+      { name: "eca" },
+      { name: "aau" },
+      { name: "aau" },
+      { name: "vbr" },
+      { name: "jto" }]);
 
   window.CURRENT_USER = users.at(0);
 
@@ -129,7 +137,7 @@
   var handleNote = function (note) {
     var module = CURRENT_USER.getCurrentModule();
     var slot = CURRENT_USER.getSelectedSlot();
-    if (module && slot) {
+    if (module && module.canPlayNote() && slot) {
       slot.model.set({
         note: note,
         module: module

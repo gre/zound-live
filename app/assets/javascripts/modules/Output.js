@@ -1,9 +1,10 @@
 (function (Module) {
 
 zound.modules.Output = Module.extend({
-  defaults: _.extend({
-    title: "Output"
-  }, Module.prototype.defaults),
+  defaults: _.extend({}, Module.prototype.defaults, {
+    title: "Output",
+    color: "#222"
+  }),
   initialize: function () {
     Module.prototype.initialize.call(this);
   },

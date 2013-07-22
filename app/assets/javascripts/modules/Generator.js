@@ -1,6 +1,10 @@
 (function (Module) {
 
 zound.modules.Generator = Module.extend({
+  defaults: _.extend({}, Module.prototype.defaults, {
+    title: "Generator",
+    color: "#622"
+  }),
   initialize: function () {
     Module.prototype.initialize.call(this);
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume" });
