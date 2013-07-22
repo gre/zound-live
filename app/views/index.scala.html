@@ -5,15 +5,16 @@
   <div id="wrapper">
     <div id="tracker"></div>
     <div id="toolbar">
+      <label class="volume">
+        <i class="icon-volume-up"></i>
+        <input id="volume" type="range" min=0 max=100 value=100 />
+      </label>
+      <span class="sep"></span>
       <!-- FIXME this are mocks and could be replace with a Backbone.View -->
       <span id="controls">
         <a href="#"><i class="icon-play"></i></a>
         <a href="#"><i class="icon-stop"></i></a>
       </span>
-      <label class="volume">
-        <i class="icon-volume-up"></i>
-        <input id="volume" type="range" min=0 max=100 value=100 />
-      </label>
       <div id="midiNotification"></div>
     </div>
     <div id="modules-panel">
