@@ -4,8 +4,19 @@
 
   <div id="wrapper">
     <div id="tracker"></div>
-    <div id="modules-panel">
+    <div id="toolbar">
+      <!-- FIXME this are mocks and could be replace with a Backbone.View -->
+      <span id="controls">
+        <a href="#"><i class="icon-play"></i></a>
+        <a href="#"><i class="icon-stop"></i></a>
+      </span>
+      <label class="volume">
+        <i class="icon-volume-up"></i>
+        <input id="volume" type="range" min=0 max=100 value=100 />
+      </label>
       <div id="midiNotification"></div>
+    </div>
+    <div id="modules-panel">
       <div id="module-properties"></div>
       <div id="node-editor"></div>
     </div>
