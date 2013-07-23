@@ -2,11 +2,13 @@
 
   // FIXME Put that in song.js
   // Set context as global, for now
+  /*
   window.ctx = new webkitAudioContext();
   // Seems to be a weird bug in ctx if never start an osc == never start ctx.currentTime.
   var osc = ctx.createOscillator();
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.001);
+  */
 
 
   // models
@@ -37,11 +39,11 @@
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  _.each(_.range(0, 40), function (i) {
-    var track = pattern.tracks.at(Math.floor(Math.random()*pattern.tracks.size()));
+  _.each(_.range(0, 10), function (i) {
+    var track = pattern.tracks.at(Math.floor(Math.random()*3));
     track.addNote(
       Math.floor(Math.random()*track.slots.size()),
-      Math.floor(20+40*Math.random()),
+      Math.floor(50+20*Math.random()),
       Math.random()<0.5 ? generator1 : generator2
     );
   });
@@ -74,8 +76,10 @@
   window.CURRENT_USER = users.at(0);
 
 
+  /*
   window.player = new zound.models.PlayerController();
   player.setSong(song);
+  */
   //player.play();
 
 

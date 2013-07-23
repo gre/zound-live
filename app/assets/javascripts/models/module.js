@@ -21,11 +21,9 @@ zound.models.Module = Backbone.Model.extend({
   },
   disconnect: function (outModule) {
     this.outputs.remove(outModule);
-    console.log("disconnect should be overrided for module "+this.constructor.moduleName);
   },
   connect: function (outModule) {
     this.outputs.add(outModule);
-    console.log("connect should be overrided for module "+this.constructor.moduleName);
   },
   canHaveInputs: function () {
     return true;
@@ -35,6 +33,12 @@ zound.models.Module = Backbone.Model.extend({
   },
   canPlayNote: function () {
     return false;
+  },
+  noteOn: function (note) {
+    throw "noteOn not implemented";
+  },
+  noteOff: function () {
+    throw "noteOff not implemented";
   }
 });
 
