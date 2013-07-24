@@ -39,6 +39,15 @@ zound.models.Module = Backbone.Model.extend({
   },
   noteOff: function () {
     throw "noteOff not implemented";
+  },
+  broadcastToOutputs: function (node, ctx) {
+    this.outputs.each(function (outModule) {
+      outModule.playThrough(node, ctx);
+    });
+  },
+  playThrough: function (nodeInput, ctx) {
+    // do nothing but connect to outputs
+    this.broadcastToOutputs(nodeInput, ctx);
   }
 });
 

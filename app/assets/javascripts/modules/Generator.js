@@ -16,7 +16,7 @@ zound.modules.Generator = Module.extend({
   }),
   initialize: function () {
     Module.prototype.initialize.call(this);
-    this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume" });
+    this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
     this.pType = new zound.models.ModulePropertySelect({ values: GENERATOR_TYPES_NAME, title: "Type" });
     this.properties.add([this.pVolume, this.pType]);
   },
@@ -29,14 +29,23 @@ zound.modules.Generator = Module.extend({
   noteOn: function (note, ctx, time) {
     var osc = ctx.createOscillator();
     osc.type = GENERATOR_TYPES_OSCVALUE[this.pType.get("value")];
-    osc.connect(ctx.destination);
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
     osc.start(time);
-    osc.stop(time + 0.1);
+    osc.stop(time + 0.2);
+    var gain = ctx.createGain();
+    gain.gain.value = this.pVolume.getPercent();
+
+    osc.connect(gain);
+    this.broadcastToOutputs(gain, ctx);
   },
   noteOff: function () {
-    // FIXME
+    // needed?
   }
-}, { moduleName: "Generator" });
+}, {
+  moduleName: "Generator",
+  GENERATOR_TYPES: GENERATOR_TYPES,
+  GENERATOR_TYPES_NAME: GENERATOR_TYPES_NAME,
+  GENERATOR_TYPES_OSCVALUE: GENERATOR_TYPES_OSCVALUE
+});
 
 }(zound.models.Module));

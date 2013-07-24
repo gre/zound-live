@@ -5,11 +5,11 @@ zound.modules.Output = Module.extend({
     title: "Output",
     color: "#222"
   }),
-  initialize: function () {
-    Module.prototype.initialize.call(this);
-  },
   canHaveOutputs: function () {
     return false;
+  },
+  playThrough: function (nodeInput, ctx) {
+    nodeInput.connect(ctx.destination);
   }
 }, { moduleName: "Output" });
 

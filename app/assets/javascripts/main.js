@@ -17,24 +17,33 @@
 
   var song = new models.Song();
 
+  var output = new modules.Output({
+    id: 0,
+    x: 300,
+    y: 150,
+    title: "Output"
+  });
   var generator1 = new modules.Generator({
     id: 1,
     x: 50,
     y: 100,
     title: "Gen1"
   });
+  generator1.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("square"));
   var generator2 = new modules.Generator({
     id: 2,
-    x: 300,
-    y: 50,
+    x: 100,
+    y: 40,
     title: "Gen2"
   });
-  var output = new modules.Output({
+  generator2.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("triangle"));
+  var filter1 = new modules.Filter({
     id: 3,
-    x: 300,
-    y: 150,
-    title: "Output"
+    x: 170,
+    y: 120,
+    title: "Filter1"
   });
+  filter1.pFrequency.set("value", 5000);
 
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
@@ -48,10 +57,13 @@
     );
   });
 
-  generator1.connect(output);
+  generator1.connect(filter1);
+  generator2.connect(filter1);
+  filter1.connect(output);
 
   song.modules.add(generator1);
   song.modules.add(generator2);
+  song.modules.add(filter1);
   song.modules.add(output);
 
   var queryStringParams = (function (queryString) {
