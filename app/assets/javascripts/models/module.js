@@ -34,12 +34,19 @@ zound.models.Module = Backbone.Model.extend({
   canPlayNote: function () {
     return false;
   },
-  noteOn: function (note) {
+
+  init: function (ctx) {
+    // init with an AudioContext
+  },
+  noteOn: function (note, ctx, time) {
     throw "noteOn not implemented";
   },
+
+  // FIXME needed?
   noteOff: function () {
     throw "noteOff not implemented";
   },
+
   broadcastToOutputs: function (node, ctx) {
     this.outputs.each(function (outModule) {
       outModule.playThrough(node, ctx);

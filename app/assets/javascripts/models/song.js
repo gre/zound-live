@@ -20,48 +20,20 @@ zound.models.Song = Backbone.Model.extend({
     var osc = this.ctx.createOscillator();
     osc.start(this.ctx.currentTime);
     osc.stop(this.ctx.currentTime + 0.001);
-  },
 
-  play: function () {
-    this.playing = true;
-    this.currentLine = 0;
-    this.nextLineTime = this.ctx.currentTime;
-    this.scheduler();
-  },
+    var allModulesReady = Q.all(this.modules.map(function (module) {
+      return Q.fcall(_.bind(module.init, module), this.ctx);
+    }, this));
 
-  stop: function () {
-    this.playing = false;
-    window.clearTimeout(this.timerId);
-  },
+    allModulesReady.done(); // For now we don't do nothing with that promise..
 
-  scheduler: function () {
-    while (this.nextLineTime < this.ctx.currentTime + this.scheduleAhead) {
-      this.scheduleNote(this.currentLine, this.nextLineTime);
-      this.nextNote();
-    }
-    var self = this;
-
-    this.timerId = window.setTimeout(function () {
-      self.scheduler();
-    }, this.lookAhead);
-  },
-
-  nextNote: function() {
-    var pattern = this.patterns.models[0],
-    secondsPerBeat = 60.0 / this.get("bpm");
-    this.nextLineTime = this.nextLineTime + 0.25 * secondsPerBeat;
-
-    this.currentLine = this.currentLine + 1;
-    if (this.currentLine == pattern.get("length")) {
-      this.currentLine = 0;
-    }
+    this.modules.on("add", _.bind(function (module) {
+      Q.fcall(_.bind(module.init, module), this.ctx).done();
+    }, this));
   },
 
   scheduleNote: function(lineNumber, time) {
-    var pattern = this.patterns.models[0],
-    notes = [];
-
-    pattern.tracks.each(function (track) {
+    this.patterns.first().tracks.each(function (track) {
       var slot = track.slots.at(lineNumber);
       var note = slot.get("note");
       if (note) {

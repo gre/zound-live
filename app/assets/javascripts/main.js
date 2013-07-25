@@ -88,6 +88,19 @@
   window.CURRENT_USER = users.at(0);
 
 
+  var playerController = new models.PlayerController({
+    length: song.get("length"),
+    bpm: song.get("bpm")
+  });
+  song.on("change:length", function (song, length) {
+    playerController.set("length", length);
+  });
+  song.on("change:bpm", function (song, bpm) {
+    playerController.set("bpm", bpm);
+  });
+  
+  playerController.setAudioContext(song.ctx);
+
   /*
   window.player = new zound.models.PlayerController();
   player.setSong(song);
@@ -112,6 +125,11 @@
   });
   $("#tracker").append(tracker.el);
 
+  var player = new ui.Player({
+    model: playerController
+  });
+  $('#toolbar').append(player.el);
+
   var currentPropertiesEditor;
   nodeEditor.on("selectModule", function (module) {
     CURRENT_USER.selectModule(module);
@@ -127,6 +145,15 @@
   if (m) {
     nodeEditor.selectModule(m);
   }
+
+
+  playerController.on("tick", function (lineNumber, time) {
+    song.scheduleNote(lineNumber, time);
+    tracker.highlightLine(lineNumber);
+  });
+  playerController.on("stop", function () {
+    tracker.highlightLine(null);
+  });
 
   // bind user style
   var users_style_template = _.template(document.getElementById('users_style_template').innerHTML);
