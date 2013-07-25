@@ -1,6 +1,6 @@
 zound.AudioMath = (function () {
 
-  // FIXME: it doesn't seems to be valid
+  // FIXME: check if the 69 is right (it seems SunVox use one octave lower)
   var NOTE_FREQUENCIES = _.map(_.range(0, 128), function (note) {
       return Math.pow(2, (note-69)/12)*440;
   });

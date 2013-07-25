@@ -8,13 +8,6 @@ zound.models.Song = Backbone.Model.extend({
     this.patterns = new zound.models.Patterns();
     this.modules = new zound.models.Modules();
 
-    this.lookAhead = 25; // Call shedule every ms
-    this.scheduleAhead = 0.1; // Audio schedule (sec)
-    this.nextLineTime = 0;
-    this.playing = false;
-    this.timerId = null;
-    this.currentLine = 0;
-
     this.ctx = new webkitAudioContext();
     // Seems to be a weird bug in ctx if never start an osc == never start ctx.currentTime.
     var osc = this.ctx.createOscillator();
@@ -33,7 +26,11 @@ zound.models.Song = Backbone.Model.extend({
   },
 
   scheduleNote: function(lineNumber, time) {
-    this.patterns.first().tracks.each(function (track) {
+    this.patterns.first().tracks.chain()
+      .filter(function (track) {
+        return track.isListenableFor(CURRENT_USER);
+      })
+      .each(function (track) {
       var slot = track.slots.at(lineNumber);
       var note = slot.get("note");
       if (note) {

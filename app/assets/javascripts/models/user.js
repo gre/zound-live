@@ -1,4 +1,5 @@
 
+// FIXME: replace all .get("name") occurences by .id - name is used as an id everywhere
 zound.models.User = Backbone.Model.extend({
 
   defaults: {

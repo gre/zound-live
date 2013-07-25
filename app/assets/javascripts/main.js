@@ -43,10 +43,10 @@
     y: 120,
     title: "Filter1"
   });
-  filter1.pFrequency.set("value", 5000);
+  filter1.pFrequency.set("value", 2000);
   var drum1 = new modules.Drum({
     id: 4,
-    x: 250,
+    x: 200,
     y: 200,
     title: "Drum1"
   });
@@ -54,12 +54,13 @@
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  _.each(_.range(0, 10), function (i) {
-    var track = pattern.tracks.at(Math.floor(Math.random()*3));
+  _.each(_.range(0, 40), function (i) {
+    var r = Math.floor(Math.random()*Math.random()*3);
+    var track = pattern.tracks.at(r);
     track.addNote(
-      Math.floor(Math.random()*track.slots.size()),
+      4*Math.floor(Math.random()*track.slots.size()/4)+Math.floor(Math.random()*Math.random()*4),
       Math.floor(50+20*Math.random()),
-      Math.random() < 0.5 ? generator1 : drum1
+      r==1 ? generator1 : r==2 ? generator2 : drum1
     );
   });
 
@@ -110,11 +111,11 @@
   playerController.setAudioContext(song.ctx);
 
   /*
-  window.player = new zound.models.PlayerController();
-  player.setSong(song);
+  // FIXME: blur is too aggressive, we more need a "on tab change"
+  $(window).blur(function () {
+    playerController.stop();
+  });
   */
-  //player.play();
-
 
   // views
 
