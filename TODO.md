@@ -25,3 +25,4 @@ Nice to have
 * Move & Zoom in node editor
 * Display device names under MIDI
 * More flexible UI
+* Read-only page (+ eventually auth for musicians)
