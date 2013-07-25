@@ -44,6 +44,12 @@
     title: "Filter1"
   });
   filter1.pFrequency.set("value", 5000);
+  var drum1 = new modules.Drum({
+    id: 4,
+    x: 250,
+    y: 200,
+    title: "Drum1"
+  });
 
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
@@ -53,17 +59,19 @@
     track.addNote(
       Math.floor(Math.random()*track.slots.size()),
       Math.floor(50+20*Math.random()),
-      Math.random()<0.5 ? generator1 : generator2
+      Math.random() < 0.5 ? generator1 : drum1
     );
   });
 
   generator1.connect(filter1);
   generator2.connect(filter1);
+  drum1.connect(output);
   filter1.connect(output);
 
   song.modules.add(generator1);
   song.modules.add(generator2);
   song.modules.add(filter1);
+  song.modules.add(drum1);
   song.modules.add(output);
 
   var queryStringParams = (function (queryString) {
