@@ -26,3 +26,4 @@ Nice to have
 * Display device names under MIDI
 * More flexible UI
 * Read-only page (+ eventually auth for musicians)
+* Visualization (at least a simple one on each modules)
