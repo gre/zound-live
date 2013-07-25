@@ -3,74 +3,53 @@
 
 zound.models.PlayerController = Backbone.Model.extend({
   defaults: {
-    length: 32
+    length: 32,
+    bpm: 125
   },
 
   initialize: function () {
-  	this.lookAhead = 25; // Call shedule every ms
-  	this.scheduleAhead = 0.1; // Audio schedule (sec)
-  	this.nextLineTime = 0;
-  	this.playing = false;
-  	this.timerId = null;
-  	this.currentLine = 0;
+    this.lookAhead = 25; // Call shedule every ms
+    this.scheduleAhead = 0.1; // Audio schedule (sec)
+    this.nextLineTime = 0;
+    this.playing = false;
+    this.timerId = null;
+    this.currentLine = 0;
   },
 
-  setSong: function(song) {
-  	this.set("song", song);
+  setAudioContext: function (ctx) {
+    this.ctx = ctx;
   },
 
   play: function () {
-  	this.playing = true;
-  	this.currentLine = 0;
-  	this.nextLineTime = ctx.currentTime;
-  	this.scheduler();
+    if (this.playing) return;
+    var ctx = this.ctx;
+    this.playing = true;
+    this.currentLine = 0;
+    this.nextLineTime = ctx.currentTime;
+    this.scheduler(ctx);
+    this.trigger("play");
   },
 
   stop: function () {
-  	this.playing = false;
-  	window.clearTimeout(this.timerId);
+    if (!this.playing) return;
+    this.playing = false;
+    window.clearTimeout(this.timerId);
+    this.trigger("stop");
   },
 
-  scheduler: function () {
-  	while (this.nextLineTime < ctx.currentTime + this.scheduleAhead) {
-  	  this.scheduleNote(this.currentLine, this.nextLineTime);
-  	  this.nextNote();
-  	}
-  	var self = this;
-
-  	this.timerId = window.setTimeout(function () {
-  		self.scheduler();
-  	}, this.lookAhead);
+  scheduler: function (ctx) {
+    while (this.nextLineTime < ctx.currentTime + this.scheduleAhead) {
+      this.trigger("tick", this.currentLine, this.nextLineTime);
+      this.nextLine();
+    }
+    this.timerId = window.setTimeout(_.bind(this.scheduler, this, ctx), this.lookAhead);
   },
 
-  nextNote: function() {
-  	var pattern = this.get("song").patterns.models[0],
-  			secondsPerBeat = 60.0 / this.get("song").get("bpm");
-		this.nextLineTime = this.nextLineTime + 0.25 * secondsPerBeat;
-
-		this.currentLine = this.currentLine + 1;
-		if (this.currentLine == pattern.get("length")) {
-			this.currentLine = 0;
-		}
-	},
-
-	scheduleNote: function(lineNumber, time) {
-		var pattern = this.get("song").patterns.models[0],
-				notes = [];
-
-		for (var i = 0; i < 3; i++) {
-			notes[i] = pattern.tracks.models[i].slots.models[lineNumber].get("note");
-
-			if (notes[i]) {
-				var osc = ctx.createOscillator();
-				osc.type = i;
-				osc.connect(ctx.destination);
-				osc.frequency.value = 220 + (notes[i] * 5);
-				osc.start(time);
-				osc.stop(time + 0.05);
-			}
-		}
-	}
+  nextLine: function () {
+    var secondsPerBeat = 60.0 / this.get("bpm");
+    this.nextLineTime = this.nextLineTime + 0.25 * secondsPerBeat;
+    this.currentLine = this.currentLine+1 >= this.get("length") ? 0 : this.currentLine+1;
+  }
 });
 
 

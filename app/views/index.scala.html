@@ -5,16 +5,12 @@
   <div id="wrapper">
     <div id="tracker"></div>
     <div id="toolbar">
+      <!-- FIXME this are mocks and could be replace with a Backbone.View -->
       <label class="volume">
         <i class="icon-volume-up"></i>
         <input id="volume" type="range" min=0 max=100 value=100 />
       </label>
       <span class="sep"></span>
-      <!-- FIXME this are mocks and could be replace with a Backbone.View -->
-      <span id="controls">
-        <a href="#"><i class="icon-play"></i></a>
-        <a href="#"><i class="icon-stop"></i></a>
-      </span>
       <div id="midiNotification"></div>
     </div>
     <div id="modules-panel">
@@ -68,6 +64,7 @@
   <script src="@routes.Assets.at("javascripts/ui/nodeEditor.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/tracker.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/trackerIncrement.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/player.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/network.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
 }

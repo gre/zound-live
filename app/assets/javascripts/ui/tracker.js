@@ -16,6 +16,14 @@ zound.ui.Slot = Backbone.View.extend({
     var tone = note % 12;
     return this.TONE_SYMBOLS[tone]+octave;
   },
+  highlight: function () {
+    this._highlighted = true;
+    this.$el.addClass("highlighted");
+  },
+  unhighlight: function () {
+    this._highlighted = false;
+    this.$el.removeClass("highlighted");
+  },
   render: function (model) {
     if (model.get("note")) {
       var note = this.noteToText(model.get("note"));
@@ -27,6 +35,9 @@ zound.ui.Slot = Backbone.View.extend({
     }
     else {
       this.$el.empty();
+    }
+    if (this._highlighted) {
+      this.$el.addClass("highlighted");
     }
   },
   onClick: function () {
@@ -66,6 +77,16 @@ zound.ui.Track = Backbone.View.extend({
     var offmode = this.model.get("offmode");
     this.$el.find(".off-mode").toggleClass("enabled", !!offmode).toggleClass("controlByMe", !!offmode && offmode===CURRENT_USER.get("name"));
   },
+  highlightLine: function (line) {
+    if (this.currentSlot) {
+      this.currentSlot.unhighlight();
+      this.currentSlot = null;
+    }
+    if (line !== null) {
+      this.currentSlot = this.slots[line];
+      this.currentSlot.highlight();
+    }
+  },
   render: function () {
     var $header = $(this.headerTmpl(this.options));
     this.$el.append($header);
@@ -89,12 +110,24 @@ zound.ui.Tracker = Backbone.View.extend({
     this.render();
     this.listenTo(this.model, "change", this.onChange);
   },
+  highlightLine: function (line) {
+    if (this.$currentLineNumber) {
+      this.$currentLineNumber.removeClass("highlighted");
+      this.$currentLineNumber = null;
+    }
+    this.$currentLineNumber = $(this.$lineNumbers[line]);
+    this.$currentLineNumber.addClass("highlighted");
+    _.each(this.tracks, function (track) {
+      track.highlightLine(line);
+    });
+  },
   render: function () {
     var $lineNumbers = $('<ul class="lineNumbers"><li class="head"></li><ul>');
-    $lineNumbers.append(_.map(_.range(0, this.model.get("length")), function (i) {
+    this.$lineNumbers = _.map(_.range(0, this.model.get("length")), function (i) {
       var text = (i<=9 ? "0" : "")+i;
       return $('<li class="lineNumber">'+text+'</li>');
-    }));
+    });
+    $lineNumbers.append(this.$lineNumbers);
     this.$el.append($lineNumbers);
 
     this.tracks = this.model.tracks.map(function (track, i) {

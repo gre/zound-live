@@ -12,7 +12,7 @@ zound.modules.Filter = Module.extend({
     this.properties.add([this.pFrequency]);
 
   },
-  initFilter: function (ctx) {
+  init: function (ctx) {
     this.filter = ctx.createBiquadFilter();
     this.updateFrequency();
     this.pFrequency.on("change", _.bind(this.updateFrequency, this));
@@ -21,7 +21,6 @@ zound.modules.Filter = Module.extend({
     this.filter.frequency.value = this.pFrequency.get("value");
   },
   playThrough: function (nodeInput, ctx) {
-    if (!this.filter) this.initFilter(ctx);
     nodeInput.connect(this.filter);
     this.broadcastToOutputs(this.filter, ctx);
   }
