@@ -8,8 +8,6 @@ var sounds = _.map(['hihat.wav', 'kick.wav', 'snare.wav', 'tom1.wav', 'tom2.wav'
   return '/assets/sounds/drums/acoustic-kit/' + s;
 });
 
-var buffers = [];
-
 zound.modules.Drum = Module.extend({
   defaults: _.extend({}, Module.prototype.defaults, {
     title: "Drum",
@@ -18,7 +16,6 @@ zound.modules.Drum = Module.extend({
 
   initialize: function () {
     Module.prototype.initialize.call(this);
-    this._isLoading = false;
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
     this.properties.add([this.pVolume]);
   },
@@ -31,19 +28,21 @@ zound.modules.Drum = Module.extend({
     return true;
   },
 
+  init: function (ctx) {
+    this.promiseOfSounds = Q.all(_.map(sounds, function(s){
+      return this._loadSound(ctx, s);
+    }, this));
+    return this.promiseOfSounds.then(_.bind(function (sounds) {
+      this.buffers = sounds;
+    }, this));
+  },
+
   noteOn: function (note, ctx, time) {
-
-    if(!this._isLoading && !this._isReady()) {
-      this._isLoading = true;
-      var me = this;
-      _.each(sounds, function(s){ me._loadSound(ctx, s) });
-    }
-
-    if(!this._isReady())
+    if(this.promiseOfSounds.isPending())
       return;
 
     var sample = ctx.createBufferSource();
-    sample.buffer = buffers[note % sounds.length];
+    sample.buffer = this.buffers[note % sounds.length];
     sample.start(time);
     sample.stop(time + 0.3); // TODO: real sound duration
 
@@ -58,21 +57,24 @@ zound.modules.Drum = Module.extend({
     // needed?
   },
 
-  _isReady: function(){
-    return buffers.length == sounds.length;
-  },
-
   _loadSound: function(ctx, url) {
+    var d = Q.defer();
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
 
     request.onload = function() {
       ctx.decodeAudioData(request.response, function(b) {
-        buffers.push(b);
-      }, function(e){ console.error(e); });
+        d.resolve(b);
+      }, function(e){
+        d.reject(e);
+      });
+    };
+    request.onerror = function(e) {
+      d.reject(e);
     };
     request.send();
+    return d.promise;
   }
 
 }, {
