@@ -279,4 +279,11 @@
   // for DEBUG only
   window._song = song;
 
+  // NETWORK
+  var bindModule = function(module){
+    module.on("change:x", function(module){
+      console.log(arguments);
+    });
+  };
+
 }(zound.models, zound.modules, zound.ui));

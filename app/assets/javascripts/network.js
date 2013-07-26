@@ -11,6 +11,13 @@ zound.Network = (function(){
    }
 
    function send (o) {
+    /*{
+      user: "pvo",
+      type: "module:add",
+      data: {
+
+      }
+    }*/
      sock.send(JSON.stringify(o));
    }
 
