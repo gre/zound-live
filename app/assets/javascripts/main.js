@@ -32,7 +32,7 @@
     y: 100,
     title: "Output"
   });
-  /*
+
   var generator1 = new modules.Generator({
     id: 1,
     x: 50,
@@ -60,12 +60,12 @@
     y: 200,
     title: "Drum1"
   });
-  */
+  
 
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  /*
+  
   _.each(_.range(0, 40), function (i) {
     var r = Math.floor(Math.random()*Math.random()*3);
     var track = pattern.tracks.at(r);
@@ -75,9 +75,9 @@
       r==1 ? generator1 : r==2 ? generator2 : drum1
     );
   });
-  */
+  
 
-/*
+
   generator1.connect(filter1);
   generator2.connect(filter1);
   drum1.connect(output);
@@ -86,7 +86,7 @@
   song.modules.add(generator2);
   song.modules.add(filter1);
   song.modules.add(drum1);
-*/
+
   song.modules.add(output);
 
   var queryStringParams = (function (queryString) {
@@ -135,7 +135,9 @@
   */
 
   availableModules.on("selectModule", function (module) {
-    song.modules.add(module.clone());
+    var m = module.clone();
+    m.set("id", moduleId++);
+    song.modules.add(m);
   });
 
   // views
