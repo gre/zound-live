@@ -12,7 +12,6 @@
 
 
   // models
-
   var midiController = new models.MIDIController();
 
   var song = new models.Song();
