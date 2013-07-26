@@ -52,14 +52,11 @@ zound.modules.Generator = Module.extend({
     gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + attackTime);
     gain.gain.linearRampToValueAtTime(0, time + attackTime + decayTime);
 
-
     // Glide to note
     var glideTime = this.pGlide.getValue() / 100;
     if (glideTime > 0 && this.lastNote) {
-
       osc.frequency.setValueAtTime(zound.AudioMath.noteToFrequency(this.lastNote), time);
       osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackTime + decayTime) * glideTime));
-
     }
     this.lastNote = note;
 
