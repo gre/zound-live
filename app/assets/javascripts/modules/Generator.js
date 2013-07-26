@@ -11,6 +11,7 @@ var GENERATOR_TYPES_OSCVALUE = _.pluck(GENERATOR_TYPES, 1);
 
 zound.modules.Generator = Module.extend({
   defaults: _.extend({}, Module.prototype.defaults, {
+    moduleName: "Generator",
     title: "Generator",
     color: "#622"
   }),

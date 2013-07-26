@@ -26,26 +26,62 @@ a {
 }
 
 #toolbar {
-  height: 18px;
-  background: #555;
+  height: 65px;
+  border-radius: 4px;
+  background: #FFFFFF;
+  -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
   position: relative;
-}
-
-#tracker {
-  height: 350px;
-  position: relative;
-  overflow: scroll;
-}
-
-#controls {
-  padding: 0px 5px;
-}
-
-#toolbar {
   padding: 1px;
+  margin: 10px 0;
   .volume {
     float: left;
     margin-left: 5px;
+  }
+}
+#wrapper-tracker{
+  border-radius: 4px;
+  background: #FFFFFF;
+  -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  height: 500px;
+  padding: 10px;
+  margin: 10px 0 10px 0;
+}
+#tracker {
+  //height: 390px;
+  position: relative;
+  overflow: scroll;
+  background: #8BCDFF;
+  background-image: -o-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: -moz-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: -webkit-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: -ms-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: linear-gradient(-180deg, #72B0EB 0%, #8BCDFF 100%);
+
+}
+#controls {
+  padding: 0px 5px;
+  a{
+    padding: 8px 10px 0 10px;
+    margin: 6px 5px 0 0;
+    display: inline-block;
+    height: 24px;
+    color: #2D4255;
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9E8F5;
+    i.record{
+      color: #F56A6C;
+    }
+    i.play{
+      color: #8FD7A6;
+    }
+    i.stop{
+      color: #FFD384;
+    }
   }
 }
 
@@ -73,10 +109,36 @@ a {
   -webkit-flex-direction: row;
   flex-direction: row;
   position: relative;
+  padding: 10px;
+  margin: 10px 0 10px 0;
+  border-radius: 4px;
+  background: #FFFFFF;
+  -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+}
+
+#modules-right {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  position: relative;
+}
+
+#module-collection {
+  height: 50px;
 }
 
 #module-properties {
   width: 200px;
+  h3{
+    margin: 0 0 10px 0;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    color: #2D4255;
+    border-bottom: 1px solid #CAD5E1;
+  }
 }
 
 #midiNotification {
@@ -88,20 +150,37 @@ a {
 
 
 body {
-  background: #000;
+  background: #F5FAFF;
 }
 #wrapper {
-  background: #333;
+  background: #F5FAFF;
   color: #eee;
 }
-#tracker {
-  background: #111;
-}
+
 #module-properties {
-  background: #333;
+  background: #fff;
 }
 #node-editor {
-  background: #666;
+  background: #F5FAFF;
+  border-radius: 4px;
+  -moz-box-shadow:    inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
+}
+#module-collection {
+  color: #7598B2;
+}
+#module-collection {
+  .moduleChooser {
+    display: inline-block;
+    margin: 8px 10px 0 0;
+    padding: 4px 8px;
+    border-radius: 2px;
+    background: #FFFFFF;
+    font-family: 'Open Sans';
+    font-size: 12px;
+    border: 1px solid #D9E8F5;
+  }
 }
 
 #tracker {
@@ -113,7 +192,8 @@ body {
 
   .lineNumbers {
     width: 20px;
-    color: #666;
+    color: #B4D4F0;
+    text-align: center;
     .highlighted {
       color: #fff;
     }
@@ -121,9 +201,10 @@ body {
   .head {
     text-align: center;
     height: 12px;
-    background: #000;
+    background: transparent;
     border: none;
-    color: #aaa;
+    color: #B4D4F0;
+    border-bottom: 1px solid #8BCDFF;
   }
   .foot {
     text-align: center;
@@ -144,13 +225,14 @@ body {
     line-height: 8px;
     box-sizing: border-box;
     border: 1px solid transparent;
-    border-bottom: 1px solid #111;
+    border-bottom: 1px solid rgba(255,255,255,0.20);
   }
   .track {
+    border-left: 1px solid rgba(255,255,255,0.42);
     text-align: center;
-    background: #000;
+    background: transparent;
     &:nth-child(odd) {
-      background: #222;
+      background: rgba(95,159,213,0.33);
     }
     .note {
       color: #ff0;
@@ -176,48 +258,77 @@ body {
 }
 
 #module-properties {
+  padding: 0 10px 0 0;
   ul {
-    padding: 0;
+    padding: 10px;
     margin: 0;
+    border-radius: 4px;
+    border: 1px solid #CAD5E1;
   }
   li {
     list-style: none;
-    padding: 5px 10px;
+    padding: 5px 10px 0px 0px;
     margin: 0;
     position: relative;
     input[type=range] {
       width: 100%;
     }
     .title {
+      font-family: 'Open Sans';
+      font-size: 12px;
+      color: #2D4255;
       float: left;
-      color: #aaa;
     }
     .valueText {
       float: right;
-      font-family: monospace;
+      font-family: 'Open Sans';
+      font-size: 12px;
+      color: #7598B2;
     }
   }
 }
 
 #midiNotification {
+  padding: 6px 0 0 0;
   .notification-icon {
+    color: #7598B2;
     font-family: monospace;
     font-size: 8px;
+
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9E8F5;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 35px;
+    display: inline-block;
+    float: left;
+    padding: 12px 10px 0 10px;
+    margin: 0 5px 0;
   }
   .assign {
+    height: 35px;
     display: none;
-    color: #fff;
-    vertical-align: top;
-    line-height: 24px;
-    margin: 0 5px;
+    float: left;
+    padding: 10px 10px 0 10px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0 5px 0;
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9E8F5;
+    color: #7598B2;
+
   }
-  
+
   .notification {
     &[data-state=noinputs] {
       .notification-icon {
         color: #000;
       }
-    }  
+    }
     &[data-state=success] {
       .notification-icon {
         color: #0F0;
@@ -233,7 +344,7 @@ body {
     }
     &[data-state=error] {
       .notification-icon {
-        color: #F00;
+        color: #7598B2;
       }
     }
   }

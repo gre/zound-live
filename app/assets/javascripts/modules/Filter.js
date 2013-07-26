@@ -16,6 +16,7 @@ var FILTER_TYPE_VALUES = _.pluck( FILTER_TYPES, 1);
 
 zound.modules.Filter = Module.extend({
   defaults: _.extend({}, Module.prototype.defaults, {
+    moduleName: "Filter",
     title: "Filter",
     color: "#358"
   }),

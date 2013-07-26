@@ -5,8 +5,10 @@ zound.models.Track = Backbone.Model.extend({
     offmode: null // contains the name of the guy who controls the offmode
   },
   initialize: function () {
-    this.slots = new zound.models.Slots(_.chain(_.range(0, this.get("length"))).map(function () {
-      return new zound.models.Slot({});
+    this.slots = new zound.models.Slots(_.chain(_.range(0, this.get("length"))).map(function (num) {
+      return new zound.models.Slot({
+        num: num
+      });
     }, this).value());
 
   },

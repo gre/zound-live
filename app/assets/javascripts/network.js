@@ -1,28 +1,48 @@
-zound.Network = (function(){
+zound.Network = Backbone.Model.extend({
+  initialize: function(){
+    this.sock = new WebSocket(WEBSOCKET_ENDPOINT);
+   
+    this.buffer = [];
+    this.connected = false;
 
-   var sock = new WebSocket(WEBSOCKET_ENDPOINT);
+    this.sock.onmessage = _.bind(function(m) { 
+      var o = JSON.parse(m.data);
 
-   sock.onmessage = function (m) { 
-     var o = JSON.parse(m.data); 
-     console.log(o);
-   }
-   sock.onclose = function () {
-     error.text("An error occured with the WebSocket connection... Please try again.");
-   }
-
-   function send (o) {
-    /*{
-      user: "pvo",
-      type: "module:add",
-      data: {
-
+      if(o.user != window.CURRENT_USER.get("name")){
+        console.log(o);
+        this.dontSend = true;
+        this.trigger(o.type, o.data);
+        this.dontSend = false;
       }
-    }*/
-     sock.send(JSON.stringify(o));
-   }
+    }, this);
+    
+    this.sock.onclose = _.bind(function() {
+      console.log("An error occured with the WebSocket connection... Please try again.");
+      this.connected = false;
+    }, this);
 
-   return {
-    send : send
-   }
-}());
+    this.sock.onopen = _.bind(function() {
+      _.each(this.buffer, function(o) {
+        this.sock.send(JSON.stringify(o));
+      }, this);
+
+      this.connected = true;
+    }, this);
+  },
+
+  send: function(type, data) {
+    if (this.dontSend) return;
+    var o ={
+        user: CURRENT_USER.get("name"),
+        type: "ws-"+type,
+        data: data
+      };
+    console.log("send ", o);
+    if(this.connected) {
+      this.sock.send(JSON.stringify(o));
+    }
+    else this.buffer.push(o);
+  }
+
+});
 

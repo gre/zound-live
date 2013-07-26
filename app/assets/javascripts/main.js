@@ -10,18 +10,25 @@
   osc.stop(ctx.currentTime + 0.001);
   */
 
+  var availableModules = new models.Modules([
+    new modules.Drum(),
+    new modules.Filter(),
+    new modules.Generator()
+  ]);
 
   // models
+  var network = new zound.Network();
   var midiController = new models.MIDIController();
 
   var song = new models.Song();
 
   var output = new modules.Output({
     id: 0,
-    x: 300,
-    y: 150,
+    x: 500,
+    y: 50,
     title: "Output"
   });
+  /*
   var generator1 = new modules.Generator({
     id: 1,
     x: 50,
@@ -49,11 +56,16 @@
     y: 200,
     title: "Drum1"
   });
+  */
+
+  availableModules.on("selectModule", function (module) {
+    song.modules.add(module.clone());
+  });
 
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  _.each(_.range(0, 40), function (i) {
+  /*_.each(_.range(0, 40), function (i) {
     var r = Math.floor(Math.random()*Math.random()*3);
     var track = pattern.tracks.at(r);
     track.addNote(
@@ -61,8 +73,9 @@
       Math.floor(50+20*Math.random()),
       r==1 ? generator1 : r==2 ? generator2 : drum1
     );
-  });
+  });*/
 
+  /*
   generator1.connect(filter1);
   generator2.connect(filter1);
   drum1.connect(output);
@@ -72,6 +85,8 @@
   song.modules.add(generator2);
   song.modules.add(filter1);
   song.modules.add(drum1);
+  */
+
   song.modules.add(output);
 
   var queryStringParams = (function (queryString) {
@@ -83,7 +98,7 @@
   }(location.search));
 
   // FIXME: mock: init from the server?
-  var users = new zound.models.Users([
+  var users = new zound.models.Users([/*
       { name: queryStringParams.user || "gre" },
       { name: "pvo" },
       { name: "ast" },
@@ -91,9 +106,12 @@
       { name: "aau" },
       { name: "aau" },
       { name: "vbr" },
-      { name: "jto" }]);
+      { name: "jto" }*/]);
 
-  window.CURRENT_USER = users.at(0);
+  window.CURRENT_USER =
+    new zound.models.User({ name : queryStringParams.user || "gre" });
+  //users.at(0);
+  users.push(window.CURRENT_USER);
 
 
   var playerController = new models.PlayerController({
@@ -138,6 +156,11 @@
   });
   $('#toolbar').append(player.el);
 
+  var moduleChooser = new ui.ModulesChooser({
+    model: availableModules
+  });
+  $('#module-collection').append(moduleChooser.el);
+
   var currentPropertiesEditor;
   nodeEditor.on("selectModule", function (module) {
     CURRENT_USER.selectModule(module);
@@ -154,9 +177,14 @@
     nodeEditor.selectModule(m);
   }
 
+  playerController.on("record", function () {
+    var lastSelection = tracker.tracks[0].slots[0];
+    CURRENT_USER.selectTrackerSlot(lastSelection);
+  });
   playerController.on("tick", function (lineNumber, time) {
     song.scheduleNote(lineNumber, time);
-    CURRENT_USER.moveTo(lineNumber);
+    if(playerController.recording)
+      CURRENT_USER.moveTo(lineNumber);
     tracker.highlightLine(lineNumber);
   });
   playerController.on("stop", function () {
@@ -170,10 +198,23 @@
       return users_style_template(user.attributes);
     }).join('\n'));
   }
-  users.on("add remove", function () {
+
+  function bindMyself(user) {
+    user.on("user-change", function(user, slot, track){
+      network.send("user-change", {
+        "slot" : slot,
+        "track" : track
+      })
+    })
+  }
+
+  bindMyself(CURRENT_USER);
+
+  users.on("add remove", function(user) {
     updateUsersStyle(users);
   });
   updateUsersStyle(users);
+
 
   var trackerIncrement = new zound.ui.TrackerIncrement({
     model: CURRENT_USER,
@@ -281,14 +322,103 @@
   }());
 
 
+  pattern.tracks.each(function(track){
+
+    track.slots.each(function(slot){
+      slot.on("change", function(slot){
+        var note = slot.get("note");
+        var module = slot.get("module");
+        if(note === null){
+          network.send("del-note", {
+            slot: slot.get("num"),
+            track: track.get("num")
+          });
+        }
+        else {
+          network.send("add-note", {
+            slot: slot.get("num"),
+            track: track.get("num"),
+            note: note,
+            module: module.id
+          });
+        }
+      });
+    });
+
+  });
+
+  function bindModule (module) {
+    module.properties.each(function (property, i) {
+      property.on("change", function (property) {
+          network.send("property-change", {
+            module: module.id,
+            property: i
+          });
+      });
+    });
+    /**
+
+      var property = module.properties.at(i);
+      property.set("value", value);
+     
+     */
+  }
+
+  song.modules.each(bindModule);
+  song.modules.on("add", bindModule);
+  
+
   // for DEBUG only
   window._song = song;
 
-  // NETWORK
-  var bindModule = function(module){
-    module.on("change:x", function(module){
-      console.log(arguments);
+  // INITIALIZES NETWORK
+  network.send("user-connect", {
+    user : window.CURRENT_USER.get("name")
+  })
+
+  network.on("ws-user-connect", function(o){
+    console.log(o.user+" CONNECTED");
+    var user = new zound.models.User({ name : o.user });
+    users.add(user);
+  });
+
+  network.on("ws-user-change", function(o){
+    var user = users.find(function (user) {
+      return user.get("name") == o.user;
     });
-  };
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot];
+    user.selectTrackerSlot(slot);
+  });
+
+  network.on("ws-add-note", function(o){
+    var note = o.data.note
+      , module = song.modules.get(o.data.module);
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+    slot.set({
+      note: note,
+      module: module
+    });
+  });
+
+  network.on("ws-del-note", function(o){
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+    slot.set({
+      note: null,
+      module: null
+    });
+  });
+  // bind Network
+  song.modules.on("add", function(module) {
+
+      var data = module.toJSON()
+      data.properties = module.properties.toJSON()
+      network.send("add-module", data)
+  });
+
+  network.on("ws-add-module", function(data) {
+      console.log(data.moduleName)
+      var m = new modules[data.moduleName](data);
+      song.modules.add(m);
+  });
 
 }(zound.models, zound.modules, zound.ui));
