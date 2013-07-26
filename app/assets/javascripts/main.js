@@ -154,9 +154,14 @@
     nodeEditor.selectModule(m);
   }
 
+  playerController.on("record", function () {
+    var lastSelection = tracker.tracks[0].slots[0];
+    CURRENT_USER.selectTrackerSlot(lastSelection);
+  });
   playerController.on("tick", function (lineNumber, time) {
     song.scheduleNote(lineNumber, time);
-    CURRENT_USER.moveTo(lineNumber);
+    if(playerController.recording)
+      CURRENT_USER.moveTo(lineNumber);
     tracker.highlightLine(lineNumber);
   });
   playerController.on("stop", function () {

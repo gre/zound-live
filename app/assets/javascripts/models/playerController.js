@@ -32,9 +32,15 @@ zound.models.PlayerController = Backbone.Model.extend({
 
   stop: function () {
     if (!this.playing) return;
-    this.playing = false;
+    this.recording = this.playing = false;
     window.clearTimeout(this.timerId);
     this.trigger("stop");
+  },
+
+  record: function () {
+    this.play();
+    this.recording = true;
+    this.trigger("record");
   },
 
   scheduler: function (ctx) {
