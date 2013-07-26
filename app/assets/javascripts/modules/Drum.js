@@ -28,6 +28,7 @@ var sounds = _.object(_.map(DRUM_TYPES, function(kit) {
 
 zound.modules.Drum = Module.extend({
   defaults: _.extend({}, Module.prototype.defaults, {
+    moduleName: "Drum",
     title: "Drum",
     color: "#622"
   }),

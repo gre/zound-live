@@ -103,7 +103,7 @@
       { name: "vbr" },
       { name: "jto" }*/]);
 
-  window.CURRENT_USER = 
+  window.CURRENT_USER =
     new zound.models.User({ name : queryStringParams.user || "gre" });
   //users.at(0);
   users.push(window.CURRENT_USER);
@@ -209,7 +209,7 @@
     updateUsersStyle(users);
   });
   updateUsersStyle(users);
-  
+
 
   var trackerIncrement = new zound.ui.TrackerIncrement({
     model: CURRENT_USER,
@@ -380,6 +380,19 @@
       note: null,
       module: null
     });
+  });
+  // bind Network
+  song.modules.on("add", function(module) {
+
+      var data = module.toJSON()
+      data.properties = module.properties.toJSON()
+      network.send("add-module", data)
+  });
+
+  network.on("ws-add-module", function(data) {
+      console.log(data.moduleName)
+      var m = new modules[data.moduleName](data);
+      song.modules.add(m);
   });
 
 }(zound.models, zound.modules, zound.ui));

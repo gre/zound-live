@@ -2,6 +2,7 @@
 
 zound.modules.Output = Module.extend({
   defaults: _.extend({}, Module.prototype.defaults, {
+    moduleName: "Output",
     title: "Output",
     color: "#222"
   }),

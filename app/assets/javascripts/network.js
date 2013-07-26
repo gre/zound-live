@@ -6,13 +6,13 @@ zound.Network = Backbone.Model.extend({
     this.connected = false;
 
     this.sock.onmessage = _.bind(function(m) { 
-      var o = JSON.parse(m.data); 
+      var o = JSON.parse(m.data);
 
       if(o.user != window.CURRENT_USER.get("name")){
-        this.dontSend = true;
-        this.trigger(o.type, o);
-        this.dontSend = false;
         console.log(o);
+        this.dontSend = true;
+        this.trigger(o.type, o.data);
+        this.dontSend = false;
       }
     }, this);
     
