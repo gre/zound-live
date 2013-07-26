@@ -10,10 +10,16 @@
   osc.stop(ctx.currentTime + 0.001);
   */
 
+  var moduleId = 0;
+
+  var defaultModuleParams = { x: 100, y: 100 };
+
   var availableModules = new models.Modules([
-    new modules.Drum(),
-    new modules.Filter(),
-    new modules.Generator()
+    new modules.Drum(defaultModuleParams),
+    new modules.Filter(defaultModuleParams),
+    new modules.Generator(defaultModuleParams),
+    new modules.Delay(defaultModuleParams),
+    new modules.Reverb(defaultModuleParams)
   ]);
 
   // models
@@ -23,12 +29,12 @@
   var song = new models.Song();
 
   var output = new modules.Output({
-    id: 0,
+    id: moduleId++,
     x: 500,
-    y: 50,
+    y: 100,
     title: "Output"
   });
-  /*
+
   var generator1 = new modules.Generator({
     id: 1,
     x: 50,
@@ -56,16 +62,13 @@
     y: 200,
     title: "Drum1"
   });
-  */
-
-  availableModules.on("selectModule", function (module) {
-    song.modules.add(module.clone());
-  });
+  
 
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  /*_.each(_.range(0, 40), function (i) {
+  
+  _.each(_.range(0, 40), function (i) {
     var r = Math.floor(Math.random()*Math.random()*3);
     var track = pattern.tracks.at(r);
     track.addNote(
@@ -73,19 +76,18 @@
       Math.floor(50+20*Math.random()),
       r==1 ? generator1 : r==2 ? generator2 : drum1
     );
-  });*/
+  });
+  
 
-  /*
+
   generator1.connect(filter1);
   generator2.connect(filter1);
   drum1.connect(output);
   filter1.connect(output);
-
   song.modules.add(generator1);
   song.modules.add(generator2);
   song.modules.add(filter1);
   song.modules.add(drum1);
-  */
 
   song.modules.add(output);
 
@@ -133,6 +135,12 @@
     playerController.stop();
   });
   */
+
+  availableModules.on("selectModule", function (module) {
+    var m = module.clone();
+    m.set("id", moduleId++);
+    song.modules.add(m);
+  });
 
   // views
 
@@ -351,22 +359,17 @@
     module.properties.each(function (property, i) {
       property.on("change", function (property) {
           network.send("property-change", {
-            module: module.id,
-            property: i
+            module: module.cid,
+            property: i,
+            value: property.get("value")
           });
       });
     });
-    /**
-
-      var property = module.properties.at(i);
-      property.set("value", value);
-     
-     */
   }
 
   song.modules.each(bindModule);
   song.modules.on("add", bindModule);
-  
+
 
   // for DEBUG only
   window._song = song;
@@ -377,8 +380,8 @@
   })
 
   network.on("ws-user-connect", function(o){
-    console.log(o.user+" CONNECTED");
-    var user = new zound.models.User({ name : o.user });
+    console.log(o.data.user+" CONNECTED");
+    var user = new zound.models.User({ name : o.data.user });
     users.add(user);
   });
 
@@ -415,10 +418,33 @@
       network.send("add-module", data)
   });
 
-  network.on("ws-add-module", function(data) {
-      console.log(data.moduleName)
-      var m = new modules[data.moduleName](data);
+  network.on("ws-add-module", function(o) {
+      console.log(o.data.moduleName)
+      var m = new modules[o.data.moduleName](o.data);
       song.modules.add(m);
+  });
+
+  var bindModuleNetwork = function (module) {
+      module.on("change", function (module) {
+          var data = modules.toJson()
+          data.cid = module.cid
+          network.send("change-module", data)
+      })
+  }
+
+  network.on("ws-change-module", function (data) {
+      song.modules.find(function (e) {
+          return e.cid == data.cid
+      })
+  })
+
+  network.on("ws-property-change", function(o) {
+    var module = song.modules.get(o.data.module)
+        ,propertyIdx = o.data.property
+        ,value = o.data.value;
+
+    var property = module.properties.at(propertyIdx);
+    property.set("value", value);
   });
 
 }(zound.models, zound.modules, zound.ui));

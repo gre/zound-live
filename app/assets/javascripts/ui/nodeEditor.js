@@ -3,7 +3,7 @@
 zound.ui.NodeEditor = Backbone.View.extend({
   options: {
     w: 700,
-    h: 130
+    h: 450
   },
   initialize: function () {
     this.init();
