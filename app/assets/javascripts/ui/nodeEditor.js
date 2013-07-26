@@ -157,9 +157,12 @@ zound.ui.NodeEditor = Backbone.View.extend({
           outputDotPath.attr("stroke-width", 2);
           outputDotPath.toFront();
 
-          bg.drag(function (dx, dy, mx, my) {
-            endx = startx+dx;
-            endy = starty+dy;
+          bg.drag(function (dx, dy, mx, my, e) {
+            var bbox = all.getBBox(),
+                realMouseX = e.offsetX,
+                realMouseY = e.offsetY;
+            endx = realMouseX;
+            endy = realMouseY;
             outputDotPath.attr("path", "M"+0+" "+0+"L"+endx+" "+endy);
           }, function (sx, sy) {
           }, function () {
