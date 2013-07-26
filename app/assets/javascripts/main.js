@@ -24,10 +24,11 @@
 
   var output = new modules.Output({
     id: 0,
-    x: 300,
-    y: 150,
+    x: 500,
+    y: 50,
     title: "Output"
   });
+  /*
   var generator1 = new modules.Generator({
     id: 1,
     x: 50,
@@ -55,6 +56,7 @@
     y: 200,
     title: "Drum1"
   });
+  */
 
   availableModules.on("selectModule", function (module) {
     song.modules.add(module.clone());
@@ -73,6 +75,7 @@
     );
   });*/
 
+  /*
   generator1.connect(filter1);
   generator2.connect(filter1);
   drum1.connect(output);
@@ -82,6 +85,8 @@
   song.modules.add(generator2);
   song.modules.add(filter1);
   song.modules.add(drum1);
+  */
+
   song.modules.add(output);
 
   var queryStringParams = (function (queryString) {
@@ -341,6 +346,27 @@
     });
 
   });
+
+  function bindModule (module) {
+    module.properties.each(function (property, i) {
+      property.on("change", function (property) {
+          network.send("property-change", {
+            module: module.id,
+            property: i
+          });
+      });
+    });
+    /**
+
+      var property = module.properties.at(i);
+      property.set("value", value);
+     
+     */
+  }
+
+  song.modules.each(bindModule);
+  song.modules.on("add", bindModule);
+  
 
   // for DEBUG only
   window._song = song;
