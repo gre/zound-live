@@ -118,7 +118,7 @@
   generator3.connect(filter2);
   drum1.connect(verb1);
   filter1.connect(verb1);
-  filter2.connect(verb1);
+  filter2.connect(delay1);
   song.modules.add(generator1);
   song.modules.add(generator2);
   song.modules.add(generator3);
@@ -129,8 +129,8 @@
   song.modules.add(verb1);
 
 
-  verb1.connect(delay1);
-  delay1.connect(output);
+  delay1.connect(verb1);
+  verb1.connect(output);
 
   song.modules.add(output);
 
