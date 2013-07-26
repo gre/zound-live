@@ -32,7 +32,7 @@ a {
 }
 
 #tracker {
-  height: 350px;
+  height: 390px;
   position: relative;
   overflow: scroll;
 }
@@ -75,6 +75,18 @@ a {
   position: relative;
 }
 
+#modules-right {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  position: relative;
+}
+
+#module-collection {
+  height: 50px;
+}
+
 #module-properties {
   width: 200px;
 }
@@ -102,6 +114,19 @@ body {
 }
 #node-editor {
   background: #666;
+}
+#module-collection {
+  background: #ddd;
+  color: #000;
+}
+#module-collection {
+  .moduleChooser {
+    display: inline-block;
+    margin: 5px;
+    padding: 4px;
+    border: 1px solid #ccc;
+    background: #fff;
+  }
 }
 
 #tracker {

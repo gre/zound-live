@@ -10,6 +10,12 @@
   osc.stop(ctx.currentTime + 0.001);
   */
 
+  var MODULES = new models.Modules([
+    new modules.Drum(),
+    new modules.Filter(),
+    new modules.Generator()
+  ]);
+
 
   // models
   var midiController = new models.MIDIController();
@@ -137,6 +143,11 @@
     model: playerController
   });
   $('#toolbar').append(player.el);
+
+  var moduleChooser = new ui.ModulesChooser({
+    model: MODULES
+  });
+  $('#module-collection').append(moduleChooser.el);
 
   var currentPropertiesEditor;
   nodeEditor.on("selectModule", function (module) {
