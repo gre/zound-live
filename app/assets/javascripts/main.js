@@ -186,8 +186,13 @@
   });
 
   var handleNote = function (note) {
+
     var module = CURRENT_USER.getCurrentModule();
     var slot = CURRENT_USER.getSelectedSlot();
+
+    if (module && module.canPlayNote())
+      module.noteOn(note, song.ctx, song.ctx.currentTime);
+
     if (module && module.canPlayNote() && slot) {
       slot.model.set({
         note: note,
