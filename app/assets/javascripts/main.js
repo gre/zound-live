@@ -10,12 +10,11 @@
   osc.stop(ctx.currentTime + 0.001);
   */
 
-  var MODULES = new models.Modules([
+  var availableModules = new models.Modules([
     new modules.Drum(),
     new modules.Filter(),
     new modules.Generator()
   ]);
-
 
   // models
   var network = new zound.Network();
@@ -55,6 +54,10 @@
     x: 200,
     y: 200,
     title: "Drum1"
+  });
+
+  availableModules.on("selectModule", function (module) {
+    song.modules.add(module.clone());
   });
 
   var pattern = new zound.models.Pattern();
@@ -149,7 +152,7 @@
   $('#toolbar').append(player.el);
 
   var moduleChooser = new ui.ModulesChooser({
-    model: MODULES
+    model: availableModules
   });
   $('#module-collection').append(moduleChooser.el);
 
