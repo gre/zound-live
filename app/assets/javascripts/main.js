@@ -17,7 +17,9 @@
   var availableModules = new models.Modules([
     new modules.Drum(defaultModuleParams),
     new modules.Filter(defaultModuleParams),
-    new modules.Generator(defaultModuleParams)
+    new modules.Generator(defaultModuleParams),
+    new modules.Delay(defaultModuleParams),
+    new modules.Reverb(defaultModuleParams)
   ]);
 
   // models
