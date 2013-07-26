@@ -336,4 +336,48 @@
     user.selectTrackerSlot(slot);
   });
 
+
+    network.on("ws-add-note", function (o) {
+        var note = o.data.note
+            , module = song.modules.get(o.data.module);
+        var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+        slot.set({
+            note: note,
+            module: module
+        });
+    });
+
+    network.on("ws-del-note", function (o) {
+        var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+        slot.set({
+            note: null,
+            module: null
+        });
+    });
+// bind Network
+    song.modules.on("add", function (module) {
+        var data = module.toJSON()
+        data.properties = module.properties.toJSON()
+        network.send("add-module", data)
+    });
+
+    network.on("ws-add-module", function (data) {
+        console.log(data.moduleName)
+        var m = new modules[data.moduleName](data);
+        song.modules.add(m);
+    });
+
+    var bindModuleNetwork = function (module) {
+        module.on("change", function (module) {
+            var data = modules.toJson()
+            data.cid = module.cid
+            network.send("change-module", data)
+        })
+    }
+
+    network.on("ws-change-module", function (data) {
+        song.modules.find(function (e) {
+            return e.cid == data.cid
+        })
+    })
 }(zound.models, zound.modules, zound.ui));
