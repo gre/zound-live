@@ -289,25 +289,38 @@ body {
 }
 
 #midiNotification {
-  padding: 12px 2px 0 0;
+  padding: 6px 0 0 0;
   .notification-icon {
     color: #7598B2;
     font-family: monospace;
     font-size: 8px;
-    padding: 10px;
+
     border-radius: 4px;
     background: #FFFFFF;
     border: 1px solid #D9E8F5;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 35px;
+    display: inline-block;
+    float: left;
+    padding: 12px 10px 0 10px;
+    margin: 0 5px 0;
   }
   .assign {
+    height: 35px;
     display: none;
+    float: left;
+    padding: 10px 10px 0 10px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0 5px 0;
     border-radius: 4px;
     background: #FFFFFF;
     border: 1px solid #D9E8F5;
     color: #7598B2;
-    vertical-align: top;
-    line-height: 24px;
-    margin: 0 5px;
+
   }
 
   .notification {
