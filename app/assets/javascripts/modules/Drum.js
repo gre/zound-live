@@ -1,12 +1,30 @@
 (function (Module) {
 
-/*var sounds = _.map(['hihat.aif', 'kick.aif', 'snare.aif', 'tom1.aif', 'tom2.aif', 'tom3.aif', 'hihat.wav', 'kick.wav', 'snare.wav', 'tom1.wav', 'tom2.wav', 'tom3.wav'], function(s){
-  return '/assets/sounds/drums/acoustic-kit/' + s;
-});*/ // XXX: aif is not supported...
+var DRUM_TYPES = [
+  '4OP-FM',
+  'Bongos',
+  'CR78',
+  'KPR77',
+  'Kit3',
+  'Kit8',
+  'LINN',
+  'R8',
+  'Stark',
+  'Techno',
+  'TheCheebacabra1',
+  'TheCheebacabra2',
+  'acoustic-kit',
+  'breakbeat13',
+  'breakbeat8',
+  'breakbeat9'
+];
 
-var sounds = _.map(['hihat.wav', 'kick.wav', 'snare.wav', 'tom1.wav', 'tom2.wav', 'tom3.wav'], function(s){
-  return '/assets/sounds/drums/acoustic-kit/' + s;
-});
+var sounds = _.object(_.map(DRUM_TYPES, function(kit) {
+  var ss =  _.map(['hihat.wav', 'kick.wav', 'snare.wav', 'tom1.wav', 'tom2.wav', 'tom3.wav'], function(s){
+    return '/assets/sounds/drums/' + kit + '/' + s;
+  });
+  return [kit, ss];
+}));
 
 zound.modules.Drum = Module.extend({
   defaults: _.extend({}, Module.prototype.defaults, {
@@ -17,7 +35,8 @@ zound.modules.Drum = Module.extend({
   initialize: function () {
     Module.prototype.initialize.call(this);
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
-    this.properties.add([this.pVolume]);
+    this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit" });
+    this.properties.add([this.pVolume, this.pType]);
   },
 
   canHaveInputs: function () {
@@ -29,9 +48,24 @@ zound.modules.Drum = Module.extend({
   },
 
   init: function (ctx) {
-    this.promiseOfSounds = Q.all(_.map(sounds, function(s){
-      return this._loadSound(ctx, s);
-    }, this));
+    var me = this;
+    var as = _.map(_.pairs(sounds), function(v){
+
+      var kit = v[0],
+          paths = v[1];
+
+      var es =
+        Q.all(_.map(paths, function(p){
+          return me._loadSound(ctx, p);
+        })).then(function(sounds){
+          return [kit, sounds];
+        });
+
+      return es;
+    });
+
+    this.promiseOfSounds = Q.all(as).then(_.object);
+
     return this.promiseOfSounds.then(_.bind(function (sounds) {
       this.buffers = sounds;
     }, this));
@@ -42,7 +76,9 @@ zound.modules.Drum = Module.extend({
       return;
 
     var sample = ctx.createBufferSource();
-    sample.buffer = this.buffers[note % sounds.length];
+    var l = sounds[this.pType.getText()].length;
+
+    sample.buffer = this.buffers[this.pType.getText()][note % l];
     sample.start(time);
     sample.stop(time + 0.3); // TODO: real sound duration
 

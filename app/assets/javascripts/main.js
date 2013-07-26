@@ -107,7 +107,7 @@
   song.on("change:bpm", function (song, bpm) {
     playerController.set("bpm", bpm);
   });
-  
+
   playerController.setAudioContext(song.ctx);
 
   /*
