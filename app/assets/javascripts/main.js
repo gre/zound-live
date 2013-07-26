@@ -67,7 +67,7 @@
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  
+  /*
   _.each(_.range(0, 40), function (i) {
     var r = Math.floor(Math.random()*Math.random()*3);
     var track = pattern.tracks.at(r);
@@ -77,8 +77,7 @@
       r==1 ? generator1 : r==2 ? generator2 : drum1
     );
   });
-  
-
+  */
 
   generator1.connect(filter1);
   generator2.connect(filter1);
