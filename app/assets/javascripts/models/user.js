@@ -63,6 +63,11 @@ zound.models.User = Backbone.Model.extend({
     var name = this.get("name");
     view.model.trigger("user-select", name);
     view.$el.attr("user-select", name);
+    var track = view.track;
+    var slotNumber = track.slots.indexOf(view);
+    var tracker = track.tracker;
+    var trackNumber = tracker.tracks.indexOf(track);
+    this.trigger("user-change", name, slotNumber, trackNumber);
     this.currentTrackerSlot = view;
   },
 
@@ -73,6 +78,7 @@ zound.models.User = Backbone.Model.extend({
       view.model.trigger("user-unselect", name);
       view.$el.removeAttr("user-select");
       this.currentTrackerSlot = null;
+      this.trigger("slot", null);
     }
   },
 

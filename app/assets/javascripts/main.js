@@ -18,6 +18,7 @@
 
 
   // models
+  var network = new zound.Network();
   var midiController = new models.MIDIController();
 
   var song = new models.Song();
@@ -89,7 +90,7 @@
   }(location.search));
 
   // FIXME: mock: init from the server?
-  var users = new zound.models.Users([
+  var users = new zound.models.Users([/*
       { name: queryStringParams.user || "gre" },
       { name: "pvo" },
       { name: "ast" },
@@ -97,9 +98,12 @@
       { name: "aau" },
       { name: "aau" },
       { name: "vbr" },
-      { name: "jto" }]);
+      { name: "jto" }*/]);
 
-  window.CURRENT_USER = users.at(0);
+  window.CURRENT_USER = 
+    new zound.models.User({ name : queryStringParams.user || "gre" });
+  //users.at(0);
+  users.push(window.CURRENT_USER);
 
 
   var playerController = new models.PlayerController({
@@ -186,10 +190,23 @@
       return users_style_template(user.attributes);
     }).join('\n'));
   }
-  users.on("add remove", function () {
+
+  function bindMyself(user) {
+    user.on("user-change", function(user, slot, track){
+      network.send("user-change", {
+        "slot" : slot,
+        "track" : track
+      })
+    })
+  }
+
+  bindMyself(CURRENT_USER);
+
+  users.on("add remove", function(user) {
     updateUsersStyle(users);
   });
   updateUsersStyle(users);
+  
 
   var trackerIncrement = new zound.ui.TrackerIncrement({
     model: CURRENT_USER,
@@ -300,11 +317,23 @@
   // for DEBUG only
   window._song = song;
 
-  // NETWORK
-  var bindModule = function(module){
-    module.on("change:x", function(module){
-      console.log(arguments);
+  // INITIALIZES NETWORK
+  network.send("user-connect", {
+    user : window.CURRENT_USER.get("name")
+  })
+
+  network.on("ws-user-connect", function(o){
+    console.log(o.user+" CONNECTED");
+    var user = new zound.models.User({ name : o.user });
+    users.add(user);
+  });
+
+  network.on("ws-user-change", function(o){
+    var user = users.find(function (user) {
+      return user.get("name") == o.user;
     });
-  };
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot];
+    user.selectTrackerSlot(slot);
+  });
 
 }(zound.models, zound.modules, zound.ui));
