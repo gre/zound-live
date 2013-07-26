@@ -1,4 +1,5 @@
 
+
 zound.ui.NodeEditor = Backbone.View.extend({
   options: {
     w: 700,
@@ -56,10 +57,12 @@ zound.ui.NodeEditor = Backbone.View.extend({
     var W = this.options.w;
     var H = this.options.h;
 
+    var MARGIN_CIRCLE = 15;
+
     // draw links
     this.model.modules.each(function (module) {
-      var startx = module.get("x") + module.get("w");
-      var starty = module.get("y") + module.get("h");
+      var startx = module.get("x");
+      var starty = module.get("y");
 
       // FIXME, the connect lines are not supporting new connections yet
       //if (!module.$outputs) {
@@ -72,8 +75,9 @@ zound.ui.NodeEditor = Backbone.View.extend({
           var endx = out.get("x");
           var endy = out.get("y");
           var path = paper.path("M"+startx+" "+starty+"L"+endx+" "+endy);
-          path.attr("stroke", "#fff");
-          path.attr("stroke-width", 1);
+          path.attr("stroke", "#bfcbdb");
+          path.attr("stroke-width", 2);
+          path.toBack();
           return path;
         });
       /*}
@@ -94,33 +98,34 @@ zound.ui.NodeEditor = Backbone.View.extend({
         var x = module.get("x");
         var y = module.get("y");
         var w = module.get("w");
-        var h = module.get("h");
 
         var all = paper.set();
 
-        var box = paper.rect(0, 0, w, h);
-        box.attr("fill", module.get("color"));
-        box.attr("stroke-width", 1);
-        box.attr("stroke", "#000");
+        var bg = paper.circle(0, 0, w / 2 + MARGIN_CIRCLE);
+        bg.attr("fill", "#f3f9ff");
+        bg.attr("stroke-width", 10);
+        bg.attr("stroke", "#bfcbdb");
 
-        var titleText = paper.text(w/2, 10, module.get("title"));
+        var box = paper.circle(0, 0, w / 2);
+        box.attr("fill", "#314355");
+        box.attr("stroke-width", 0);
+
+        var titleText = paper.text(0, -3, module.get("title"));
         titleText.attr("fill", "#fff");
 
-        var numberText = paper.text(w, -6, module.getDisplayId());
-        numberText.attr("fill", "#f0f");
+        var numberText = paper.text(5, 7, module.getDisplayId());
+        numberText.attr("fill", "#fff");
         numberText.attr("text-anchor", "end");
         numberText.attr("font-family", "monospace");
         numberText.attr("font-weight", "bold");
 
-        all.push(box, titleText, numberText);
+        all.push(box, titleText, numberText, bg);
 
         module.on("user-select", function (name) {
-          box.attr("stroke-width", 2);
-          box.attr("stroke", "#f00");
+          bg.attr("stroke", "#79838e");
         });
         module.on("user-unselect", function (name) {
-          box.attr("stroke-width", 1);
-          box.attr("stroke", "#000");
+          bg.attr("stroke", "#bfcbdb");
         });
 
         // Handle drag of a module
@@ -129,7 +134,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
           draggable.attr("cursor", "move");
           draggable.drag(function (dx, dy) {
             x = Math.min(Math.max(startX + dx, 0), W-w);
-            y = Math.min(Math.max(startY + dy, 0), H-h);
+            y = Math.min(Math.max(startY + dy, 0), H-w);
             module.set({ x: x, y: y });
             all.transform("t"+[x, y]);
           }, function () {
@@ -139,41 +144,31 @@ zound.ui.NodeEditor = Backbone.View.extend({
           }, function () {
             module.set({ x: x, y: y });
           });
-        }(x, y));
-
-        // Display the dot input
-        module.canHaveInputs() && (function (startx, starty, endx, endy) {
-          var inputDot = paper.circle(0, 0, 4);
-          inputDot.attr("fill", "#fff");
-          inputDot.attr("stroke-width", 0);
-          all.push(inputDot);
-        }());
+        }(x+w/2, y+w/2));
 
         // Handle for connecting with the dot
         module.canHaveOutputs() && (function (startx, starty, endx, endy) {
-          var outputDot = paper.circle(w+2, h, 8);
-          outputDot.attr("fill", "#ccc");
-          outputDot.attr("stroke", "#000");
-          outputDot.attr("stroke-width", 1);
-          var outputDotPath = paper.path("");
-          all.push(outputDot, outputDotPath);
 
-          outputDotPath.attr("stroke", "#fff");
+          var outputDotPath = paper.path("");
+          all.push(outputDotPath);
+
+          outputDotPath.attr("stroke", "#bfcbdb");
           outputDotPath.attr("stroke-dasharray", "- ");
-          outputDotPath.attr("stroke-width", 1);
-          
-          outputDot.drag(function (dx, dy) {
+          outputDotPath.attr("stroke-width", 2);
+          outputDotPath.toFront();
+
+          bg.drag(function (dx, dy, mx, my) {
             endx = startx+dx;
             endy = starty+dy;
-            outputDotPath.attr("path", "M"+startx+" "+starty+"L"+endx+" "+endy);
-          }, function () {
+            outputDotPath.attr("path", "M"+0+" "+0+"L"+endx+" "+endy);
+          }, function (sx, sy) {
           }, function () {
             outputDotPath.attr("path", "");
             var px = module.get("x")+endx;
             var py = module.get("y")+endy;
             var out = self.model.modules.find(function (m) {
               if (m.get("x") < px && px < m.get("x")+m.get("w") &&
-                  m.get("y") < py && py < m.get("y")+m.get("h")) {
+                  m.get("y") < py && py < m.get("y")+m.get("w")) {
                     return m.canHaveInputs();
                   }
             });
@@ -184,7 +179,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
                 module.connect(out);
             }
           });
-        }(w+1, h));
+        }(0, 0));
 
         // Set initial position
         all.transform("t"+[x,y]);
@@ -193,6 +188,6 @@ zound.ui.NodeEditor = Backbone.View.extend({
         module.$box = all;
       }
     });
-    
+
   }
 });
