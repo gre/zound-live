@@ -65,14 +65,23 @@ a {
 #controls {
   padding: 0px 5px;
   a{
-    padding: 6px 10px 0 10px;
+    padding: 8px 10px 0 10px;
     margin: 6px 5px 0 0;
     display: inline-block;
-    height: 23px;
+    height: 24px;
     color: #2D4255;
     border-radius: 4px;
     background: #FFFFFF;
     border: 1px solid #D9E8F5;
+    i.record{
+      color: #F56A6C;
+    }
+    i.play{
+      color: #8FD7A6;
+    }
+    i.stop{
+      color: #FFD384;
+    }
   }
 }
 
@@ -100,13 +109,13 @@ a {
   -webkit-flex-direction: row;
   flex-direction: row;
   position: relative;
+  padding: 10px;
+  margin: 10px 0 10px 0;
   border-radius: 4px;
   background: #FFFFFF;
   -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
   -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
   box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
-  padding: 10px;
-  margin: 10px 0 10px 0;
 }
 
 #modules-right {
@@ -123,6 +132,13 @@ a {
 
 #module-properties {
   width: 200px;
+  h3{
+    margin: 0 0 10px 0;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    color: #2D4255;
+    border-bottom: 1px solid #CAD5E1;
+  }
 }
 
 #midiNotification {
@@ -152,16 +168,18 @@ body {
   box-shadow:         inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
 }
 #module-collection {
-  background: #ddd;
-  color: #000;
+  color: #7598B2;
 }
 #module-collection {
   .moduleChooser {
     display: inline-block;
-    margin: 5px;
-    padding: 4px;
-    border: 1px solid #ccc;
-    background: #fff;
+    margin: 8px 10px 0 0;
+    padding: 4px 8px;
+    border-radius: 2px;
+    background: #FFFFFF;
+    font-family: 'Open Sans';
+    font-size: 12px;
+    border: 1px solid #D9E8F5;
   }
 }
 
@@ -240,25 +258,32 @@ body {
 }
 
 #module-properties {
+  padding: 0 10px 0 0;
   ul {
-    padding: 0;
+    padding: 10px;
     margin: 0;
+    border-radius: 4px;
+    border: 1px solid #CAD5E1;
   }
   li {
     list-style: none;
-    padding: 5px 10px;
+    padding: 5px 10px 0px 0px;
     margin: 0;
     position: relative;
     input[type=range] {
       width: 100%;
     }
     .title {
+      font-family: 'Open Sans';
+      font-size: 12px;
+      color: #2D4255;
       float: left;
-      color: #aaa;
     }
     .valueText {
       float: right;
-      font-family: monospace;
+      font-family: 'Open Sans';
+      font-size: 12px;
+      color: #7598B2;
     }
   }
 }
