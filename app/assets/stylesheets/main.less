@@ -26,26 +26,53 @@ a {
 }
 
 #toolbar {
-  height: 18px;
-  background: #555;
+  height: 65px;
+  border-radius: 4px;
+  background: #FFFFFF;
+  -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
   position: relative;
-}
-
-#tracker {
-  height: 390px;
-  position: relative;
-  overflow: scroll;
-}
-
-#controls {
-  padding: 0px 5px;
-}
-
-#toolbar {
   padding: 1px;
+  margin: 10px 0;
   .volume {
     float: left;
     margin-left: 5px;
+  }
+}
+#wrapper-tracker{
+  border-radius: 4px;
+  background: #FFFFFF;
+  -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  height: 500px;
+  padding: 10px;
+  margin: 10px 0 10px 0;
+}
+#tracker {
+  //height: 390px;
+  position: relative;
+  overflow: scroll;
+  background: #8BCDFF;
+  background-image: -o-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: -moz-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: -webkit-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: -ms-linear-gradient(-90deg, #72B0EB 0%, #8BCDFF 100%);
+  background-image: linear-gradient(-180deg, #72B0EB 0%, #8BCDFF 100%);
+
+}
+#controls {
+  padding: 0px 5px;
+  a{
+    padding: 6px 10px 0 10px;
+    margin: 6px 5px 0 0;
+    display: inline-block;
+    height: 23px;
+    color: #2D4255;
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9E8F5;
   }
 }
 
@@ -73,6 +100,13 @@ a {
   -webkit-flex-direction: row;
   flex-direction: row;
   position: relative;
+  border-radius: 4px;
+  background: #FFFFFF;
+  -moz-box-shadow:    0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: 0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         0px 3px 0px 0px #E4F1FF, 0px 4px 3px 0px #B4CDE5;
+  padding: 10px;
+  margin: 10px 0 10px 0;
 }
 
 #modules-right {
@@ -100,20 +134,22 @@ a {
 
 
 body {
-  background: #000;
+  background: #F5FAFF;
 }
 #wrapper {
-  background: #333;
+  background: #F5FAFF;
   color: #eee;
 }
-#tracker {
-  background: #111;
-}
+
 #module-properties {
-  background: #333;
+  background: #fff;
 }
 #node-editor {
-  background: #666;
+  background: #F5FAFF;
+  border-radius: 4px;
+  -moz-box-shadow:    inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
+  -webkit-box-shadow: inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
+  box-shadow:         inset 0px 3px 0px 0px #E4F1FF, inset 0px 4px 3px 0px #B4CDE5;
 }
 #module-collection {
   background: #ddd;
@@ -138,7 +174,8 @@ body {
 
   .lineNumbers {
     width: 20px;
-    color: #666;
+    color: #B4D4F0;
+    text-align: center;
     .highlighted {
       color: #fff;
     }
@@ -146,9 +183,10 @@ body {
   .head {
     text-align: center;
     height: 12px;
-    background: #000;
+    background: transparent;
     border: none;
-    color: #aaa;
+    color: #B4D4F0;
+    border-bottom: 1px solid #8BCDFF;
   }
   .foot {
     text-align: center;
@@ -169,13 +207,14 @@ body {
     line-height: 8px;
     box-sizing: border-box;
     border: 1px solid transparent;
-    border-bottom: 1px solid #111;
+    border-bottom: 1px solid rgba(255,255,255,0.20);
   }
   .track {
+    border-left: 1px solid rgba(255,255,255,0.42);
     text-align: center;
-    background: #000;
+    background: transparent;
     &:nth-child(odd) {
-      background: #222;
+      background: rgba(95,159,213,0.33);
     }
     .note {
       color: #ff0;
@@ -225,24 +264,33 @@ body {
 }
 
 #midiNotification {
+  padding: 12px 2px 0 0;
   .notification-icon {
+    color: #7598B2;
     font-family: monospace;
     font-size: 8px;
+    padding: 10px;
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9E8F5;
   }
   .assign {
     display: none;
-    color: #fff;
+    border-radius: 4px;
+    background: #FFFFFF;
+    border: 1px solid #D9E8F5;
+    color: #7598B2;
     vertical-align: top;
     line-height: 24px;
     margin: 0 5px;
   }
-  
+
   .notification {
     &[data-state=noinputs] {
       .notification-icon {
         color: #000;
       }
-    }  
+    }
     &[data-state=success] {
       .notification-icon {
         color: #0F0;
@@ -258,7 +306,7 @@ body {
     }
     &[data-state=error] {
       .notification-icon {
-        color: #F00;
+        color: #7598B2;
       }
     }
   }
