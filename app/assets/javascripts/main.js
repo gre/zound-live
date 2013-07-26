@@ -100,7 +100,7 @@
       { name: "vbr" },
       { name: "jto" }*/]);
 
-  window.CURRENT_USER = 
+  window.CURRENT_USER =
     new zound.models.User({ name : queryStringParams.user || "gre" });
   //users.at(0);
   users.push(window.CURRENT_USER);
@@ -206,7 +206,7 @@
     updateUsersStyle(users);
   });
   updateUsersStyle(users);
-  
+
 
   var trackerIncrement = new zound.ui.TrackerIncrement({
     model: CURRENT_USER,
@@ -314,6 +314,47 @@
   }());
 
 
+  pattern.tracks.each(function(track){
+
+    track.slots.each(function(slot){
+      slot.on("change", function(slot){
+        var note = slot.get("note");
+        var module = slot.get("module");
+        if(note === null){
+          network.send("del-note", {
+            slot: slot.get("num"),
+            track: track.get("num")
+          });
+        }
+        else {
+          network.send("add-note", {
+            slot: slot.get("num"),
+            track: track.get("num"),
+            note: note,
+            module: module.id
+          });
+        }
+      });
+    });
+
+  });
+
+  function bindModule (module) {
+    module.properties.each(function (property, i) {
+      property.on("change", function (property) {
+          network.send("property-change", {
+            module: module.cid,
+            property: i,
+            value: property.get("value")
+          });
+      });
+    });
+  }
+
+  song.modules.each(bindModule);
+  song.modules.on("add", bindModule);
+
+
   // for DEBUG only
   window._song = song;
 
@@ -323,61 +364,71 @@
   })
 
   network.on("ws-user-connect", function(o){
-    console.log(o.user+" CONNECTED");
-    var user = new zound.models.User({ name : o.user });
+    console.log(o.data.user+" CONNECTED");
+    var user = new zound.models.User({ name : o.data.user });
     users.add(user);
   });
 
   network.on("ws-user-change", function(o){
     var user = users.find(function (user) {
-      return user.get("name") == o.user;
+      return user.get("name") == o.data.user;
     });
     var slot = tracker.tracks[o.data.track].slots[o.data.slot];
     user.selectTrackerSlot(slot);
   });
 
-
-    network.on("ws-add-note", function (o) {
-        var note = o.data.note
-            , module = song.modules.get(o.data.module);
-        var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
-        slot.set({
-            note: note,
-            module: module
-        });
+  network.on("ws-add-note", function(o){
+    var note = o.data.note
+      , module = song.modules.get(o.data.module);
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+    slot.set({
+      note: note,
+      module: module
     });
+  });
 
-    network.on("ws-del-note", function (o) {
-        var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
-        slot.set({
-            note: null,
-            module: null
-        });
+  network.on("ws-del-note", function(o){
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+    slot.set({
+      note: null,
+      module: null
     });
-// bind Network
-    song.modules.on("add", function (module) {
-        var data = module.toJSON()
-        data.properties = module.properties.toJSON()
-        network.send("add-module", data)
-    });
+  });
+  // bind Network
+  song.modules.on("add", function(module) {
 
-    network.on("ws-add-module", function (data) {
-        console.log(data.moduleName)
-        var m = new modules[data.moduleName](data);
-        song.modules.add(m);
-    });
+      var data = module.toJSON()
+      data.properties = module.properties.toJSON()
+      network.send("add-module", data)
+  });
 
-    var bindModuleNetwork = function (module) {
-        module.on("change", function (module) {
-            var data = modules.toJson()
-            data.cid = module.cid
-            network.send("change-module", data)
-        })
-    }
+  network.on("ws-add-module", function(o) {
+      console.log(o.data.moduleName)
+      var m = new modules[o.data.moduleName](o.data);
+      song.modules.add(m);
+  });
 
-    network.on("ws-change-module", function (data) {
-        song.modules.find(function (e) {
-            return e.cid == data.cid
-        })
-    })
+  var bindModuleNetwork = function (module) {
+      module.on("change", function (module) {
+          var data = modules.toJson()
+          data.cid = module.cid
+          network.send("change-module", data)
+      })
+  }
+
+  network.on("ws-change-module", function (data) {
+      song.modules.find(function (e) {
+          return e.cid == data.cid
+      })
+  })
+
+  network.on("ws-property-change", function(o) {
+    var module = song.modules.get(o.data.module)
+        ,propertyIdx = o.data.property
+        ,value = o.data.value;
+
+    var property = module.properties.at(propertyIdx);
+    property.set("value", value);
+  });
+
 }(zound.models, zound.modules, zound.ui));
