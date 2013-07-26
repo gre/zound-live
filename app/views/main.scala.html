@@ -13,6 +13,10 @@
         <script src="@routes.Assets.at("vendors/backbone/backbone-min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("vendors/raphael/raphael-min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("vendors/q/q.min.js")" type="text/javascript"></script>
+        <script type="text/javascript">
+        navigator.requestMIDIAccess = null; // disabled because is not working in today Chrome Canary
+        </script>
+        <script src="@routes.Assets.at("vendors/WebMIDIAPI.js")" type="text/javascript"></script>
     </head>
     <body>
         @content

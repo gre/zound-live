@@ -72,6 +72,7 @@ zound.modules.Drum = Module.extend({
   },
 
   noteOn: function (note, ctx, time) {
+
     if(this.promiseOfSounds.isPending())
       return;
 
