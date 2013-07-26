@@ -18,7 +18,9 @@ zound.modules.Generator = Module.extend({
     Module.prototype.initialize.call(this);
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
     this.pType = new zound.models.ModulePropertySelect({ values: GENERATOR_TYPES_NAME, title: "Type" });
-    this.properties.add([this.pVolume, this.pType]);
+    this.pAttack = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Attack", value: 10 });
+    this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Decay", value: 200 });
+    this.properties.add([this.pVolume, this.pType, this.pAttack, this.pDecay]);
   },
   canHaveInputs: function () {
     return false;
@@ -37,6 +39,12 @@ zound.modules.Generator = Module.extend({
 
     osc.connect(gain);
     this.broadcastToOutputs(gain, ctx);
+
+    // Handle envelope
+    gain.gain.cancelScheduledValues(time);
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + (this.pAttack.getValue() / 1000));
+    gain.gain.linearRampToValueAtTime(0, time + (this.pAttack.getValue() / 1000) + (this.pDecay.getValue() / 1000));
   },
   noteOff: function () {
     // needed?
