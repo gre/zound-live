@@ -30,70 +30,67 @@
 
   var output = new modules.Output({
     id: moduleId++,
-    x: 500,
-    y: 100,
+    x: 600,
+    y: 150,
     title: "Output"
   });
 
   var generator1 = new modules.Generator({
-    id: 1,
-    x: 50,
-    y: 100,
+    id: moduleId++,
+    x: 60,
+    y: 190,
     title: "Gen1"
   });
   generator1.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("square"));
+  
   var generator2 = new modules.Generator({
-    id: 2,
-    x: 100,
-    y: 40,
+    id: moduleId++,
+    x: 60,
+    y: 60,
     title: "Gen2"
   });
   generator2.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("triangle"));
+  
   var filter1 = new modules.Filter({
-    id: 3,
+    id: moduleId++,
     x: 170,
     y: 120,
     title: "Filter1"
   });
+  filter1.pFrequency.set("value", 2000);
+
   var generator3 = new modules.Generator({
-    id: 4,
-    x: 300,
-    y: 40,
+    id: moduleId++,
+    x: 100,
+    y: 300,
     title: "Gen3"
   });
   generator3.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("saw"));
   var filter2 = new modules.Filter({
-    id: 5,
-    x: 170,
-    y: 120,
+    id: moduleId++,
+    x: 250,
+    y: 250,
     title: "Filter2"
   });
 
-  var drumFilter1 = new modules.Filter({
-    id: 6,
-    x: 170,
-    y: 120,
-    title: "filter"
-  });
-  filter1.pFrequency.set("value", 2000);
   var drum1 = new modules.Drum({
-    id: 7,
-    x: 200,
-    y: 200,
+    id: moduleId++,
+    x: 320,
+    y: 70,
     title: "Drum1"
   });
 
   var delay1 = new modules.Delay({
-    id: 8,
-    x: 200,
-    y: 200,
+    id: moduleId++,
+    x: 380,
+    y: 280,
     title: "Delay"
   });
 
   var verb1 = new modules.Reverb({
-    id: 9,
-    x: 300,
-    y: 220,
+    id: moduleId++,
+    x: 450,
+    y: 150,
     title: "Reverb"
   });
 
