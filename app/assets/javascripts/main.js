@@ -385,7 +385,7 @@
 
   network.on("ws-user-change", function(o){
     var user = users.find(function (user) {
-      return user.get("name") == o.data.user;
+      return user.get("name") == o.user;
     });
     var slot = tracker.tracks[o.data.track].slots[o.data.slot];
     user.selectTrackerSlot(slot);
