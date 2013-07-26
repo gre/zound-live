@@ -4,7 +4,7 @@ zound.models.Pattern = Backbone.Model.extend({
     length: 32
   },
   initialize: function () {
-    this.tracks = new zound.models.Tracks(_.chain(_.range(0, 20)).map(function (num) {
+    this.tracks = new zound.models.Tracks(_.chain(_.range(0, 23)).map(function (num) {
       return new zound.models.Track({
         length: this.get("length"),
         num: num
