@@ -16,11 +16,13 @@ zound.modules.Generator = Module.extend({
   }),
   initialize: function () {
     Module.prototype.initialize.call(this);
+    this.lastNote = null;
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
     this.pType = new zound.models.ModulePropertySelect({ values: GENERATOR_TYPES_NAME, title: "Type" });
     this.pAttack = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Attack", value: 10 });
     this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Decay", value: 200 });
-    this.properties.add([this.pVolume, this.pType, this.pAttack, this.pDecay]);
+    this.pGlide = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Glide", value: 0 });
+    this.properties.add([this.pVolume, this.pType, this.pAttack, this.pDecay, this.pGlide]);
   },
   canHaveInputs: function () {
     return false;
@@ -40,11 +42,26 @@ zound.modules.Generator = Module.extend({
     osc.connect(gain);
     this.broadcastToOutputs(gain, ctx);
 
-    // Handle envelope
+    // Note envelope (Attack/Delay)
+    var attackTime = this.pAttack.getValue() / 1000;
+    var decayTime = this.pDecay.getValue() / 1000;
+
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + (this.pAttack.getValue() / 1000));
-    gain.gain.linearRampToValueAtTime(0, time + (this.pAttack.getValue() / 1000) + (this.pDecay.getValue() / 1000));
+    gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + attackTime);
+    gain.gain.linearRampToValueAtTime(0, time + attackTime + decayTime);
+
+
+    // Glide to note
+    var glideTime = this.pGlide.getValue() / 100;
+    if (glideTime > 0 && this.lastNote) {
+
+      osc.frequency.setValueAtTime(zound.AudioMath.noteToFrequency(this.lastNote), time);
+      osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackTime + decayTime) * glideTime));
+
+    }
+    this.lastNote = note;
+
   },
   noteOff: function () {
     // needed?
