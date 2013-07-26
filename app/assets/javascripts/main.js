@@ -55,14 +55,48 @@
     y: 120,
     title: "Filter1"
   });
+  var generator3 = new modules.Generator({
+    id: 4,
+    x: 300,
+    y: 40,
+    title: "Gen3"
+  });
+  generator3.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("saw"));
+  var filter2 = new modules.Filter({
+    id: 5,
+    x: 170,
+    y: 120,
+    title: "Filter2"
+  });
+
+  var drumFilter1 = new modules.Filter({
+    id: 6,
+    x: 170,
+    y: 120,
+    title: "filter"
+  });
   filter1.pFrequency.set("value", 2000);
   var drum1 = new modules.Drum({
-    id: 4,
+    id: 7,
     x: 200,
     y: 200,
     title: "Drum1"
   });
-  
+
+  var delay1 = new modules.Delay({
+    id: 8,
+    x: 200,
+    y: 200,
+    title: "Delay"
+  });
+
+  var verb1 = new modules.Reverb({
+    id: 9,
+    x: 300,
+    y: 220,
+    title: "Reverb"
+  });
+
 
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
@@ -81,12 +115,22 @@
 
   generator1.connect(filter1);
   generator2.connect(filter1);
-  drum1.connect(output);
-  filter1.connect(output);
+  generator3.connect(filter2);
+  drum1.connect(verb1);
+  filter1.connect(verb1);
+  filter2.connect(verb1);
   song.modules.add(generator1);
   song.modules.add(generator2);
+  song.modules.add(generator3);
   song.modules.add(filter1);
+  song.modules.add(filter2);
   song.modules.add(drum1);
+  song.modules.add(delay1);
+  song.modules.add(verb1);
+
+
+  verb1.connect(delay1);
+  delay1.connect(output);
 
   song.modules.add(output);
 
