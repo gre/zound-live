@@ -154,9 +154,9 @@
     nodeEditor.selectModule(m);
   }
 
-
   playerController.on("tick", function (lineNumber, time) {
     song.scheduleNote(lineNumber, time);
+    CURRENT_USER.moveTo(lineNumber);
     tracker.highlightLine(lineNumber);
   });
   playerController.on("stop", function () {

@@ -41,6 +41,21 @@ zound.models.User = Backbone.Model.extend({
     }
   },
 
+  moveTo: function(y) {
+    var slot = this.getSelectedSlot();
+    if (slot && y) {
+      var track = slot.track;
+      var tracker = track.tracker;
+      var trackNumber = tracker.tracks.indexOf(track);
+      var newTrack = tracker.tracks[trackNumber] || track;
+      slotNumber = this.modulo(y, newTrack.slots.length);
+      var newSlot = newTrack.slots[slotNumber] || slot;
+      if (newTrack !== track || newSlot !== slot) {
+        CURRENT_USER.selectTrackerSlot(newSlot);
+      }
+    }
+  },
+
   selectTrackerSlot: function (view) {
     if (this.currentTrackerSlot) {
       this.unselectCurrentTrackerSlot();
