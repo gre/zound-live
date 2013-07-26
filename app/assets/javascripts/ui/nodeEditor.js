@@ -3,7 +3,7 @@
 zound.ui.NodeEditor = Backbone.View.extend({
   options: {
     w: 700,
-    h: 250
+    h: 450
   },
   initialize: function () {
     this.init();
@@ -158,9 +158,12 @@ zound.ui.NodeEditor = Backbone.View.extend({
           outputDotPath.toFront();
 
           bg.drag(function (dx, dy, mx, my) {
+            var d = mx - outputDotPath.getBBox().x;
+            console.log(mx);
+            //console.log()
             endx = startx+dx;
             endy = starty+dy;
-            outputDotPath.attr("path", "M"+0+" "+0+"L"+endx+" "+endy);
+            outputDotPath.attr("path", "M"+0+" "+0+"L"+dx+" "+dy);
           }, function (sx, sy) {
           }, function () {
             outputDotPath.attr("path", "");
