@@ -12,7 +12,6 @@
 
 
   // models
-
   var midiController = new models.MIDIController();
 
   var song = new models.Song();
@@ -107,7 +106,7 @@
   song.on("change:bpm", function (song, bpm) {
     playerController.set("bpm", bpm);
   });
-  
+
   playerController.setAudioContext(song.ctx);
 
   /*
@@ -279,5 +278,12 @@
 
   // for DEBUG only
   window._song = song;
+
+  // NETWORK
+  var bindModule = function(module){
+    module.on("change:x", function(module){
+      console.log(arguments);
+    });
+  };
 
 }(zound.models, zound.modules, zound.ui));
