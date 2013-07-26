@@ -7,7 +7,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
     keyCodeByTones: [87,83,88,68,67,86,71,66,72,78,74,188]
   },
   initialize: function () {
-    $(window).on("keyup", _.bind(this.onKeydown, this));
+    $(window).on("keydown", _.bind(this.onKeydown, this));
   },
   onKeydown: function (e) {
     if (48 <= e.which && e.which <= 57) {
