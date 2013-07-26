@@ -35,10 +35,12 @@ zound.ui.MIDIControllerNotification = Backbone.View.extend({
       var node = $(e.currentTarget);
       var assignable = node.data("assignable");
       if (assignable) {
-        node.attr("data-assignable", "waiting");
-        this.model.addAssignable(assignable, function (text) {
+        var isAssignable = this.model.addAssignable(assignable, function (text) {
           node.attr("data-assignable", text);
         });
+        if(isAssignable){
+          node.attr("data-assignable", "waiting");
+        }
       }
     }, this));
 

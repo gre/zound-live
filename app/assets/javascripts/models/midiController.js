@@ -6,12 +6,15 @@ zound.models.MIDIController = Backbone.Model.extend({
       this.set("state", "error", new Error("MIDI not supported by your browser"));
       return;
     }
+
+    this.assignedControls = {};
+
     this.set("state", "loading");
     this.midiAccessPromise = navigator.requestMIDIAccess();
     this.midiAccessPromise.then(_.bind(this.onMidiSuccess, this), _.bind(this.onMidiError, this));
-    this.assignables = [];
+    this.assignable = null;
     this.on("change:assignMode", _.bind(function () {
-      this.assignables = [];
+      this.assignable = null;
     }, this));
   },
 
@@ -19,10 +22,11 @@ zound.models.MIDIController = Backbone.Model.extend({
     input.onmidimessage = _.bind(this.onMidiMessage, this);
   },
 
-  // FIXME: WIP still a lot of things to clean in the assignment system
   addAssignable: function (assignable, onAssigned) {
+    if(this.assignable) return false;
     console.log("assign", this, assignable);
-    this.assignables.push([ assignable, onAssigned ]);
+    this.assignable = [ assignable, onAssigned ];
+    return true;
   },
 
   noteOn: function (noteNumber, noteVelocity) {
@@ -34,15 +38,23 @@ zound.models.MIDIController = Backbone.Model.extend({
   },
 
   control: function (controlNumber, value) {
-    if (this.assignables.length) {
-      var assign = this.assignables.pop();
-      this.off("control:"+controlNumber);
-      this.on("control:"+controlNumber, assign[0].handleMessage);
-      assign[1]("cn="+controlNumber);
+    if (this.assignable) {
+      var assign = this.assignable;
+      this.assignable = null;
+
+      var control = this.assignedControls[controlNumber];
+
+      
+
+      this.off( "control:" + controlNumber);
+      this.on(  "control:" + controlNumber, assign[0].handleMessage);
+      assign[1]("cn=" + controlNumber);
+
     }
-    this.trigger("control:"+controlNumber, value);
+    this.trigger("control:" + controlNumber, value);
   },
 
+  removeControl: function(){},
   onMidiMessage: function (message) {
     // @see http://www.midi.org/techspecs/midimessages.php 
     var status = message.data[0];
@@ -58,7 +70,9 @@ zound.models.MIDIController = Backbone.Model.extend({
         break;
       case 176: // control
         this.control(byte2, byte3);
-
+        break;
+      default:
+        console.log( "Unknown status code : " + status);
     }
   },
 
