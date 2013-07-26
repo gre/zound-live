@@ -2,13 +2,13 @@
 
 var FILTER_TYPES = [
   ["Low pass"   , BiquadFilterNode.LOWPASS  ],
-  ["High pass"  , BiquadFilterNode.HIGHPASS ],
-  ["Band pass"  , BiquadFilterNode.BANDPASS ],
-  ["Low shelf"  , BiquadFilterNode.LOWSHELF ],
-  ["High shelf" , BiquadFilterNode.HIGHSHELF],
-  ["Peaking"    , BiquadFilterNode.PEAKING  ],
-  ["Notch"      , BiquadFilterNode.NOTCH    ],
-  ["All pass"   , BiquadFilterNode.ALLPASS  ]
+  ["High pass"  , BiquadFilterNode.HIGHPASS ]
+//["Band pass"  , BiquadFilterNode.BANDPASS ],
+//["Low shelf"  , BiquadFilterNode.LOWSHELF ],
+//["High shelf" , BiquadFilterNode.HIGHSHELF],
+//["Peaking"    , BiquadFilterNode.PEAKING  ],
+//["Notch"      , BiquadFilterNode.NOTCH    ],
+//["All pass"   , BiquadFilterNode.ALLPASS  ]
 ];
 
 var FILTER_TYPES_NAME   = _.pluck( FILTER_TYPES, 0);
@@ -24,10 +24,10 @@ zound.modules.Filter = Module.extend({
     this.pType      = new zound.models.ModulePropertySelect({ values: FILTER_TYPES_NAME, title: "Type" });
     this.pFrequency = new zound.models.ModulePropertyRange({ min: 10, max: 22050, title: "Frequency", value: 22050 });
     this.pQ         = new zound.models.ModulePropertyRange({
-      max   : 1000,
-      min   : 0.00009999999747378752,
+      max   : 20,
+      min   : 0,
       value : 1,
-      title : "Q" 
+      title : "Resonance" 
     });
     this.pGain      = new zound.models.ModulePropertyRange({
       max   : 40,
@@ -35,9 +35,8 @@ zound.modules.Filter = Module.extend({
       title : "gain",
       value : 0
     });
-    // FIXME: a lot of things to add here :)
-    this.properties.add([this.pFrequency, this.pType, this.pQ, this.pGain]);
-
+    // FIXME: Use of Gain is useless for low and high pass. Removed until more filter support
+    this.properties.add([this.pFrequency, this.pType, this.pQ]);
   },
   init: function (ctx) {
     this.filter = ctx.createBiquadFilter();
