@@ -7,6 +7,8 @@ import play.api.libs.iteratee._
 import play.api.libs.concurrent._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import java.util.concurrent.atomic.AtomicReference
+import annotation.tailrec
 
 object Application extends Controller {
 
@@ -32,7 +34,27 @@ object Event {
   )(unlift(Event.unapply))
 }
 
+// class Atomic[T](val atomic : AtomicReference[T]) {
+//   @tailrec
+//   final def update(f: T => T) : T = {
+//     val oldValue = atomic.get()
+//     val newValue = f(oldValue)
+//     if (atomic.compareAndSet(oldValue, newValue)) newValue else update(f)
+//   }
+
+//   def getAndset()
+// }
+
+// object Atomic {
+//   def apply[T]( obj : T ) = new Atomic(new AtomicReference(obj))
+//   implicit def toAtomic[T]( ref : AtomicReference[T]) : Atomic[T] = new Atomic(ref)
+
+//   implicit def delegateToAtomicReference[T]( a: Atomic[T] ) = a.atomic
+// }
+
 object EventManager extends Controller {
+  import scala.collection.mutable._
+  val events = new SynchronizedQueue[JsValue]
 
   val (outputStream, channel) = Concurrent.broadcast[JsValue]
 
@@ -46,9 +68,14 @@ object EventManager extends Controller {
         Json.fromJson(o)(Event.reader)
             .map{ e =>
               play.Logger.debug("Event:"+e)
-              channel.push(o)
+              e.typ match {
+                case "ws-user-connect" =>
+                  events += o
+                  events.map(e => channel.push(e))
+                case _ => channel.push(o)
+              }
             }
-            .recoverTotal{ e => 
+            .recoverTotal{ e =>
               play.Logger.error("Bad Event:"+e)
             }
       }

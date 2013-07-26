@@ -63,7 +63,7 @@
   var pattern = new zound.models.Pattern();
   song.patterns.add(pattern);
 
-  _.each(_.range(0, 40), function (i) {
+  /*_.each(_.range(0, 40), function (i) {
     var r = Math.floor(Math.random()*Math.random()*3);
     var track = pattern.tracks.at(r);
     track.addNote(
@@ -71,7 +71,7 @@
       Math.floor(50+20*Math.random()),
       r==1 ? generator1 : r==2 ? generator2 : drum1
     );
-  });
+  });*/
 
   generator1.connect(filter1);
   generator2.connect(filter1);
@@ -317,6 +317,31 @@
   }());
 
 
+  pattern.tracks.each(function(track){
+
+    track.slots.each(function(slot){
+      slot.on("change", function(slot){
+        var note = slot.get("note");
+        var module = slot.get("module");
+        if(note === null){
+          network.send("del-note", {
+            slot: slot.get("num"),
+            track: track.get("num")
+          });
+        }
+        else {
+          network.send("add-note", {
+            slot: slot.get("num"),
+            track: track.get("num"),
+            note: note,
+            module: module.id
+          });
+        }
+      });
+    });
+
+  });
+
   // for DEBUG only
   window._song = song;
 
@@ -337,6 +362,24 @@
     });
     var slot = tracker.tracks[o.data.track].slots[o.data.slot];
     user.selectTrackerSlot(slot);
+  });
+
+  network.on("ws-add-note", function(o){
+    var note = o.data.note
+      , module = song.modules.get(o.data.module);
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+    slot.set({
+      note: note,
+      module: module
+    });
+  });
+
+  network.on("ws-del-note", function(o){
+    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
+    slot.set({
+      note: null,
+      module: null
+    });
   });
 
 }(zound.models, zound.modules, zound.ui));
