@@ -7,7 +7,8 @@ zound.models.Module = Backbone.Model.extend({
     w: 70,
     h: 40,
     title: "Untitled",
-    color: "#000"
+    color: "#000",
+    isSelected: false
   },
   initialize: function () {
     this.outputs = new zound.models.Modules();
