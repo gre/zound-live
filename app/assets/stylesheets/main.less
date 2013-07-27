@@ -343,7 +343,8 @@ body {
     }
     &[data-state=loading] {
       .notification-icon {
-        color: #FFF;
+        color: #999;
+        -webkit-animation: scale 1s infinite;
       }
     }
     &[data-state=error] {
@@ -395,5 +396,14 @@ body.assign-mode {
       background: #00f;
       color: #fff;
     }
+  }
+}
+
+@-webkit-keyframes scale {
+  from {
+    -webkit-transform: scale(1);
+  }
+  50% {
+    -webkit-transform: scale(0.9);
   }
 }
