@@ -1,5 +1,7 @@
 (function (Module) {
 
+var OscillatorNode = zound.dummyAudioContext.createOscillator();
+
 var GENERATOR_TYPES = [
   ["sine", OscillatorNode.SINE],
   ["triangle", OscillatorNode.TRIANGLE],

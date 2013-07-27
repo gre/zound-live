@@ -8,11 +8,7 @@ zound.models.Song = Backbone.Model.extend({
     this.patterns = new zound.models.Patterns();
     this.modules = new zound.models.Modules();
 
-    this.ctx = new webkitAudioContext();
-    // Seems to be a weird bug in ctx if never start an osc == never start ctx.currentTime.
-    var osc = this.ctx.createOscillator();
-    osc.start(this.ctx.currentTime);
-    osc.stop(this.ctx.currentTime + 0.001);
+    this.ctx = zound.createAudioContext();
 
     var allModulesReady = Q.all(this.modules.map(function (module) {
       return Q.fcall(_.bind(module.init, module), this.ctx);

@@ -1,5 +1,7 @@
 (function (Module) {
 
+var BiquadFilterNode = zound.dummyAudioContext.createBiquadFilter();
+
 var FILTER_TYPES = [
   ["Low pass"   , BiquadFilterNode.LOWPASS  ],
   ["High pass"  , BiquadFilterNode.HIGHPASS ]
