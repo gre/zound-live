@@ -59,10 +59,11 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   draw: function (data) {
-    var svg = this.svg,
-      options = {
-        margin: 15
-      };
+    var editor = this,
+        svg = this.svg,
+        options = {
+          margin: 15
+        };
 
     var get = function(k){
       return function(m){ return m.get(k); };
@@ -90,10 +91,23 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("y2", function(m) { return m[1].get('y'); });
     lines.exit().remove();
 
+
+    var drag = d3.behavior.drag()
+      .on('dragstart', function(m) { editor.selectModule(m) })
+      .on("drag", function move(module){
+        var x = module.get('x'),
+            y = module.get('y');
+        module
+          .set('x', d3.event.dx + x)
+          .set('y', d3.event.dy + y);
+      });
+
     // groups
     var g = e.enter()
       .append("svg:g")
-      .attr('id', get('id'));
+      .attr('id', get('id'))
+      .attr("cursor", "pointer")
+      .call(drag);
 
     // outer circle
     g.append('svg:circle')
