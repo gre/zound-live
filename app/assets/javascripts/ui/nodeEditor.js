@@ -52,10 +52,82 @@ zound.ui.NodeEditor = Backbone.View.extend({
   render: function(){
     var editor = this,
         g = this.draw(this.model.modules.models);
+    this.addBehaviours(g);
+    return g;
+  },
+
+  addBehaviours: function(g) {
+    var editor = this;
 
     g.on('click', function(d){
       editor.selectModule(d);
     });
+
+    var move = d3.behavior.drag()
+      .on('dragstart', function(m) {
+        editor.selectModule(m);
+      })
+      .on("drag", function (module){
+        var x = module.get('x'),
+            y = module.get('y');
+        module
+          .set('x', d3.event.dx + x)
+          .set('y', d3.event.dy + y);
+      });
+
+    // TODO: activate connect when user is holding Command
+    var svg = this.svg,
+      connect = d3.behavior.drag()
+       .on('dragstart', function(module) {
+          editor.selectModule(module);
+          var x = module.get('x'),
+              y = module.get('y');
+          svg
+            .insert('svg:line', ":first-child")
+            .attr('id', 'connectLine')
+            .attr("stroke-dasharray", "5, 5")
+            .attr("stroke-width", 2)
+            .attr("stroke", "#bfcbdb")
+            .attr("x1", x)
+            .attr("y1", y)
+            .attr("x2", x)
+            .attr("y2", y);
+        })
+       .on("drag", function (module){
+          svg.select('#connectLine')
+            .attr("x2", d3.event.x)
+            .attr("y2", d3.event.y);
+       })
+       .on("dragend", function (module){
+          svg.select('#connectLine').remove();
+
+          var pos = d3.mouse(svg.node()),
+              px = pos[0],
+              py = pos[1];
+
+          var out = editor.model.modules.find(function (m) {
+            var x = m.get("x"),
+                y = m.get("y"),
+                r = m.get("w") / 2;
+
+            return x - r < px &&
+                px < x + r &&
+                y - r < py &&
+                py < y + r &&
+                m.canHaveInputs();
+          });
+
+          if (out && module !== out) {
+            if (module.outputs.contains(out))
+              module.disconnect(out);
+            else
+              module.connect(out);
+          }
+
+       });
+
+     g.call(move);
+     return g;
   },
 
   draw: function (data) {
@@ -82,7 +154,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
         });
       }), true);
     var lines = svg.selectAll('line').data(cs);
-    lines.enter().append("svg:line");
+    lines.enter().insert("svg:line", 'g');
     lines.attr("stroke-width", 2)
       .attr("stroke", "#bfcbdb")
       .attr("x1", function(m) { return m[0].get('x'); })
@@ -91,23 +163,11 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("y2", function(m) { return m[1].get('y'); });
     lines.exit().remove();
 
-
-    var drag = d3.behavior.drag()
-      .on('dragstart', function(m) { editor.selectModule(m) })
-      .on("drag", function move(module){
-        var x = module.get('x'),
-            y = module.get('y');
-        module
-          .set('x', d3.event.dx + x)
-          .set('y', d3.event.dy + y);
-      });
-
     // groups
     var g = e.enter()
       .append("svg:g")
       .attr('id', get('id'))
-      .attr("cursor", "pointer")
-      .call(drag);
+      .attr("cursor", "pointer");
 
     // outer circle
     g.append('svg:circle')
