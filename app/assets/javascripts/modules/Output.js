@@ -1,18 +1,26 @@
 (function (Module) {
 
 zound.modules.Output = Module.extend({
-  defaults: _.extend({}, Module.prototype.defaults, {
-    moduleName: "Output",
-    title: "Output",
-    color: "#222"
-  }),
+  canPlugTo: function (out) {
+    return false;
+  },
   canHaveOutputs: function () {
     return false;
   },
-  playThrough: function (nodeInput, ctx) {
-    nodeInput.connect(ctx.destination);
+  canPlayNote: function () {
+    return false;
+  },
+  init: function (ctx) {
+    this.input = ctx.destination;
+  },
+  plugInput: function (nodeInput, ctx) {
+    nodeInput.connect(this.input);
+    this.broadcastToOutputs(this.output, ctx);
+  },
+  unplugInput: function (nodeInput, ctx) {
+    nodeInput.disconnect(this.input);
   }
-}, { moduleName: "Output" });
+});
 
 }(zound.models.Module));
 

@@ -54,6 +54,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   render: function(){
+    console.log(this.model.modules.models);
     var editor = this,
         g = this.draw(this.model.modules.models);
     this.addBehaviours(g);
@@ -119,7 +120,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
                 px < x + r &&
                 y - r < py &&
                 py < y + r &&
-                m.canHaveInputs();
+                module.canConnectTo(m);
           });
 
           if (out && module !== out) {

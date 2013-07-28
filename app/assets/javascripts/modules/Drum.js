@@ -1,4 +1,4 @@
-(function (Module) {
+(function (SynthModule) {
 
 var DRUM_TYPES = [
   '4OP-FM',
@@ -26,26 +26,20 @@ var sounds = _.object(_.map(DRUM_TYPES, function(kit) {
   return [kit, ss];
 }));
 
-zound.modules.Drum = Module.extend({
-  defaults: _.extend({}, Module.prototype.defaults, {
-    moduleName: "Drum",
-    title: "Drum",
-    color: "#622"
-  }),
-
+zound.modules.Drum = SynthModule.extend({
   initialize: function () {
-    Module.prototype.initialize.call(this);
-    this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
-    this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit" });
-    this.properties.add([this.pVolume, this.pType]);
-  },
-
-  canHaveInputs: function () {
-    return false;
-  },
-
-  canPlayNote: function () {
-    return true;
+    SynthModule.prototype.initialize.call(this);
+    this.properties.add([
+      this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 }),
+      this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit" }),
+      this.pHihatVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "HiHat Volume", value: 100 }),
+      this.pKickVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Kick Volume", value: 100 }),
+      this.pSnareVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Snare Volume", value: 100 }),
+      this.pTom1Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom1 Volume", value: 100 }),
+      this.pTom2Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom2 Volume", value: 100 }),
+      this.pTom3Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom3 Volume", value: 100 })
+    ]);
+    this.volumeControls = [this.pHihatVolume, this.pKickVolume, this.pSnareVolume, this.pTom1Volume, this.pTom2Volume, this.pTom3Volume];
   },
 
   init: function (ctx) {
@@ -73,19 +67,17 @@ zound.modules.Drum = Module.extend({
   },
 
   noteOn: function (note, ctx, time) {
-
-    if(this.promiseOfSounds.isPending())
-      return;
-
+    if(this.promiseOfSounds.isPending()) return;
     var sample = ctx.createBufferSource();
     var l = sounds[this.pType.getText()].length;
+    var i = note % l;
 
-    sample.buffer = this.buffers[this.pType.getText()][note % l];
+    sample.buffer = this.buffers[this.pType.getText()][i];
     sample.start(time);
-    sample.stop(time + 0.3); // TODO: real sound duration
+    sample.stop(time + sample.buffer.duration);
 
     var gain = ctx.createGain();
-    gain.gain.value = this.pVolume.getPercent();
+    gain.gain.value = this.pVolume.getPercent()*this.volumeControls[i].getPercent();
 
     sample.connect(gain);
     this.broadcastToOutputs(gain, ctx);
@@ -115,8 +107,6 @@ zound.modules.Drum = Module.extend({
     return d.promise;
   }
 
-}, {
-  moduleName: "Drum"
 });
 
-}(zound.models.Module));
+}(zound.models.SynthModule));

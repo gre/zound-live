@@ -8,7 +8,7 @@ zound.Network = Backbone.Model.extend({
     this.sock.onmessage = _.bind(function(m) { 
       var o = JSON.parse(m.data);
 
-      if(o.user != window.CURRENT_USER.get("name")){
+      if(o.user != window.CURRENT_USER.id){
         console.log(o);
         this.dontSend = true;
         this.trigger(o.type, o);
@@ -33,8 +33,8 @@ zound.Network = Backbone.Model.extend({
   send: function(type, data) {
     if (this.dontSend) return;
     var o ={
-        user: CURRENT_USER.get("name"),
-        type: "ws-"+type,
+        user: CURRENT_USER.id,
+        type: type,
         data: data
       };
     console.log("send ", o);
