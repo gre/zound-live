@@ -76,17 +76,19 @@ zound.models.KeyboardController = Backbone.Model.extend({
       incrY = 1;
     }
     else if (e.which===this.get("incrementOctaveKey")) {
-      this.set("octave", this.get("octave")+1);
+      this.set("octave", Math.min(9, this.get("octave")+1));
     }
     else if (e.which===this.get("decrementOctaveKey")) {
-      this.set("octave", this.get("octave")-1);
+      this.set("octave", Math.max(0, this.get("octave")-1));
     }
     else {
       var tone = this.get("keyCodeByTones").indexOf(e.which);
       if (tone > -1) {
         e.preventDefault();
         var note = this.get("octave")*12+tone;
-        this.trigger("note", note, 127);
+        if (note >= 0 && note <= 127) {
+          this.trigger("note", note, 127);
+        }
       }
     }
     if ((incrX || incrY) && slot) {
