@@ -25,7 +25,7 @@ zound.models.Song = Backbone.Model.extend({
 
   createModule: function (constructor, attributes) {
     var module = new constructor(attributes);
-    module.id = this.moduleIdCounter++;
+    module.set("id", this.moduleIdCounter++);
     this.modules.add(module);
     return module;
   },

@@ -3,10 +3,7 @@
 zound.models.Module = Backbone.Model.extend({
   defaults: {
     x: 100,
-    y: 100,
-    // FIXME: remove following data
-    w: 70,
-    h: 40
+    y: 100
   },
   initialize: function (opts) {
     // FIXME: can't find a better DRY way :'( - this won't support modules inheritance
