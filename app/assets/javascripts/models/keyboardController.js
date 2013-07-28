@@ -35,7 +35,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
     if (e.altKey || e.shiftKey || e.metaKey || e.altKey) return;
     var incrX = 0, incrY = 0;
 
-    var slot = CURRENT_USER.getSelectedSlot();
+    var slot = CURRENT_USER.get("slot");
     if (slot && e.which===this.get("unselectKey")) {
       e.preventDefault();
       this.trigger("unselect");
@@ -49,7 +49,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
       if (slot) {
         this.trigger("tracker-backspace");
       }
-      else if (CURRENT_USER.getCurrentModule()) {
+      else if (CURRENT_USER.get("module")) {
         this.trigger("module-delete");
       }
     }
@@ -58,7 +58,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
         e.preventDefault();
         this.trigger("tracker-delete");
       }
-      else if (CURRENT_USER.getCurrentModule()) {
+      else if (CURRENT_USER.get("module")) {
         e.preventDefault();
         this.trigger("module-delete");
       }

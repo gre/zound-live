@@ -47,6 +47,17 @@
     song.modules.add(m);
   });
 
+  users.on("change:slot", function (user, value) {
+    var previous = user.previous("slot");
+    console.log(value, previous);
+    if (previous) {
+      tracker.getSlot(previous.track, previous.slot).setUserSelect(null);
+    }
+    if (value) {
+      tracker.getSlot(value.track, value.slot).setUserSelect(user.id);
+    }
+  });
+
   //~~~ VIEWS 
 
   var midiControllerNotification = new ui.MIDIControllerNotification({
@@ -93,8 +104,8 @@
   }
 
   playerController.on("change:recording", function (model, recording) {
-    if (recording && !CURRENT_USER.getSelectedSlot())
-      CURRENT_USER.selectTrackerSlot(tracker.tracks[0].slots[0]);
+    if (recording && !CURRENT_USER.get("slot"))
+      CURRENT_USER.set("slot", { track: 0, slot: 0 });
   });
   playerController.on("tick", function (lineNumber, time) {
     song.scheduleNote(lineNumber, time);
@@ -132,17 +143,18 @@
 
   var handleNote = function (note) {
     var module = song.modules.get(CURRENT_USER.get("module"));
-    var slot = CURRENT_USER.getSelectedSlot();
+    var slot = CURRENT_USER.get("slot");
+    var slotModel = pattern.getSlot(slot.track, slot.slot);
 
     if (module && module.canPlayNote())
       module.noteOn(note, song.ctx, song.ctx.currentTime);
 
     if (module && module.canPlayNote() && slot) {
-      slot.model.set({
+      slotModel.set({
         note: note,
         module: module
       });
-      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
+      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"), pattern.tracks.size(), pattern.get("length"));
     }
   };
 
@@ -151,20 +163,22 @@
   keyboardController.on({
     "note": handleNote,
     "tracker-move": function (incrX, incrY) {
-      CURRENT_USER.moveTrackerSelection(incrX, incrY);
+      CURRENT_USER.moveTrackerSelection(incrX, incrY, pattern.tracks.size(), pattern.get("length"));
     },
     "tracker-backspace": function () {
-      var slot = CURRENT_USER.getSelectedSlot();
-      slot.model.set({ note: null, module: null });
-      CURRENT_USER.moveTrackerSelection(0, -1);
+      var slot = CURRENT_USER.get("slot");
+      var slotModel = pattern.getSlot(slot.track, slot.slot);
+      slotModel.set({ note: null, module: null });
+      CURRENT_USER.moveTrackerSelection(0, -1, pattern.tracks.size(), pattern.get("length"));
     },
     "tracker-delete": function () {
-      var slot = CURRENT_USER.getSelectedSlot();
-      slot.model.set({ note: null, module: null });
-      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
+      var slot = CURRENT_USER.get("slot");
+      var slotModel = pattern.getSlot(slot.track, slot.slot);
+      slotModel.set({ note: null, module: null });
+      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"), pattern.tracks.size(), pattern.get("length"));
     },
     "unselect": function () {
-      CURRENT_USER.unselectCurrentTrackerSlot();
+      CURRENT_USER.set("slot", null);
     },
     "play-pause": function () {
       if (!playerController.get("playing"))
@@ -229,17 +243,12 @@
     users.add(user);
   });
 
-
-  CURRENT_USER.on("user-select-slot", function(slot, track){
-    network.send("user-select-slot", {
-      "slot" : slot,
-      "track" : track
-    });
+  CURRENT_USER.on("change:slot", function (user, value) {
+    network.send("user-select-slot", value);
   });
   network.on("user-select-slot", function(o){
     var user = users.get(o.user);
-    var slot = tracker.tracks[o.data.track].slots[o.data.slot];
-    user.selectTrackerSlot(slot);
+    user.set("slot", o.data);
   });
 
   CURRENT_USER.on("user-unselect-slot", function () {
@@ -247,7 +256,7 @@
   });
   network.on("user-unselect-slot", function(o){
     var user = users.get(o.user);
-    user.unselectCurrentTrackerSlot();
+    user.set("slot", null);
   });
 
   network.on("add-note", function(o){

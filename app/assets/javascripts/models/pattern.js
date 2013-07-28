@@ -10,6 +10,9 @@ zound.models.Pattern = Backbone.Model.extend({
         num: num
       });
     }, this).value());
+  },
+  getSlot: function (track, slot) {
+    return this.tracks.at(track).slots.at(slot);
   }
 });
 

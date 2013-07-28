@@ -16,6 +16,9 @@ zound.ui.Slot = Backbone.View.extend({
     var tone = note % 12;
     return this.TONE_SYMBOLS[tone]+octave;
   },
+  setUserSelect: function (userid) {
+    this.$el.attr("user-select", userid);
+  },
   highlight: function () {
     this._highlighted = true;
     this.$el.addClass("highlighted");
@@ -41,7 +44,10 @@ zound.ui.Slot = Backbone.View.extend({
     }
   },
   onClick: function () {
-    CURRENT_USER.selectTrackerSlot(this);
+    CURRENT_USER.set("slot", {
+      slot: this.track.slots.indexOf(this),
+      track: this.track.tracker.tracks.indexOf(this.track)
+    });
   }
 });
 
@@ -109,6 +115,9 @@ zound.ui.Tracker = Backbone.View.extend({
   initialize: function () {
     this.render();
     this.listenTo(this.model, "change", this.onChange);
+  },
+  getSlot: function (track, slot) {
+    return this.tracks[track].slots[slot];
   },
   highlightLine: function (line) {
     if (this.$currentLineNumber) {
