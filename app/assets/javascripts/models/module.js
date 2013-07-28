@@ -68,14 +68,12 @@ zound.models.Module = Backbone.Model.extend({
     });
   },
 
-  // Default plug and unplug functions are using this.input,
-  // you have to set it in your init() implementation
   plugInput: function (nodeInput, ctx) {
-    nodeInput.connect(this.input);
+    // do nothing but connect to outputs
     this.broadcastToOutputs(nodeInput, ctx);
   },
   unplugInput: function (nodeInput, ctx) {
-    nodeInput.disconnect(this.input);
+    // do nothing. Must be implemented for modules which cache some AudioNode
   }
 });
 
