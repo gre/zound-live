@@ -74,28 +74,7 @@ zound.models.User = Backbone.Model.extend({
       this.currentTrackerSlot = null;
       this.trigger("user-unselect-slot");
     }
-  },
-
-  getCurrentModule: function () {
-    return this.currentModule;
-  },
-
-  selectModule: function (model) {
-    if (this.currentModule) {
-      this.unselectModule();
-    }
-    model.trigger("user-select", this.id);
-    this.currentModule = model;
-  },
-
-  unselectModule: function () {
-    var model = this.currentModule;
-    if (model) {
-      model.trigger("user-unselect", this.id);
-      this.currentModule = null;
-    }
   }
-
 });
 
 zound.models.Users = Backbone.Collection.extend({

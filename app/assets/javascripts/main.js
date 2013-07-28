@@ -75,8 +75,8 @@
   $('#module-collection').append(moduleChooser.el);
 
   var currentPropertiesEditor;
-  nodeEditor.on("selectModule", function (module) {
-    CURRENT_USER.selectModule(module);
+  CURRENT_USER.on("change:module", function (user, moduleId) {
+    var module = song.modules.get(moduleId);
     if (currentPropertiesEditor) {
       currentPropertiesEditor.remove();
     }
@@ -131,7 +131,7 @@
   }, models.KeyboardController[window.KEYBOARD_LAYOUT+"config"]));
 
   var handleNote = function (note) {
-    var module = CURRENT_USER.getCurrentModule();
+    var module = song.modules.get(CURRENT_USER.get("module"));
     var slot = CURRENT_USER.getSelectedSlot();
 
     if (module && module.canPlayNote())

@@ -9,6 +9,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
   initialize: function () {
     this.init();
+    this.listenTo(CURRENT_USER, "change:module", this.render);
     this.listenTo(this.model, "change", this.render);
     this.listenTo(this.model.modules, "change", this.render);
     this.listenTo(this.model.modules, "add", function (module) {
@@ -40,21 +41,10 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   selectModule: function (module) {
-    if (module === this.selectedModule) return;
-    if (this.selectedModule) {
-      this.selectedModule.set('isSelected', false);
-      this.trigger("unselectModule", this.selectedModule);
-      this.selectedModule = null;
-    }
-    if (module) {
-      this.selectedModule = module;
-      module.set('isSelected', true);
-      this.trigger("selectModule", module);
-    }
+    CURRENT_USER.set("module", module.id);
   },
 
   render: function(){
-    console.log(this.model.modules.models);
     var editor = this,
         g = this.draw(this.model.modules.models);
     this.addBehaviours(g);
@@ -194,7 +184,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
     e.select('.outer')
       .attr("cx", get('x'))
       .attr("cy", get('y'))
-      .attr("stroke", function(m) { return m.get('isSelected') ? '#79838e' : '#bfcbdb'; });
+      .attr("stroke", function(m) { return CURRENT_USER.get("module")==m.id ? '#79838e' : '#bfcbdb'; });
 
     // center circle
     g.append('svg:circle')
