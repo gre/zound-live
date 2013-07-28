@@ -34,6 +34,14 @@ zound.models.Song = Backbone.Model.extend({
     this.modules.add(module);
   },
 
+  removeModule: function (moduleId) {
+    if (this.modules.get(moduleId) instanceof zound.modules.Output) return;
+    this.modules.remove(moduleId);
+    this.modules.each(function (module) {
+      module.outputs.remove(moduleId);
+    });
+  },
+
   scheduleNote: function(lineNumber, time) {
     this.patterns.first().tracks.chain()
       .filter(function (track) {

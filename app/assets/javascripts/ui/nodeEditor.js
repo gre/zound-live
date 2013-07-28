@@ -16,7 +16,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       this.listenModule(module);
       this.render();
     });
-    this.listenTo(this.model.modules, "remove", this.onModuleRemove);
+    this.listenTo(this.model.modules, "remove", this.render);
     this.model.modules.each(this.listenModule, this);
     this.render();
   },
@@ -31,13 +31,6 @@ zound.ui.NodeEditor = Backbone.View.extend({
     this.svg = d3.select("#node-editor").append("svg")
       .attr("width", this.options.w)
       .attr("height", this.options.h);
-  },
-
-  onModuleRemove: function (module) {
-    if (module.$box) {
-      module.$box.remove();
-      this.render();
-    }
   },
 
   selectModule: function (module) {

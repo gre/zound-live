@@ -187,7 +187,7 @@
     },
     "module-delete": function () {
       var moduleId = CURRENT_USER.get("module");
-      song.modules.remove(moduleId);
+      song.removeModule(moduleId);
     }
   });
 
@@ -282,10 +282,16 @@
       data.properties = module.properties.toJSON();
       network.send("add-module", data);
   });
-
   network.on("add-module", function(o) {
-      var m = new modules[o.data.moduleName](o.data);
-      song.modules.add(m);
+    var m = new modules[o.data.moduleName](o.data);
+    song.modules.add(m);
+  });
+
+  song.modules.on("remove", function (module) {
+      network.send("remove-module", { module: module.id });
+  });
+  network.on("remove-module", function(o) {
+    song.removeModule(o.data.module);
   });
 
   var bindModuleNetwork = function (module) {
