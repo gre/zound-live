@@ -49,9 +49,6 @@ zound.models.KeyboardController = Backbone.Model.extend({
       if (slot) {
         this.trigger("tracker-backspace");
       }
-      else if (CURRENT_USER.get("module")) {
-        this.trigger("module-delete");
-      }
     }
     else if (e.which==this.get("deleteKey")) {
       if (slot) {

@@ -143,12 +143,12 @@
   var handleNote = function (note) {
     var module = song.modules.get(CURRENT_USER.get("module"));
     var slot = CURRENT_USER.get("slot");
-    var slotModel = pattern.getSlot(slot.track, slot.slot);
 
     if (module && module.canPlayNote())
       module.noteOn(note, song.ctx, song.ctx.currentTime);
 
     if (module && module.canPlayNote() && slot) {
+      var slotModel = pattern.getSlot(slot.track, slot.slot);
       slotModel.set({
         note: note,
         module: module
@@ -186,7 +186,8 @@
         playerController.stop();
     },
     "module-delete": function () {
-      throw "FIXME: module-delete not handled yet.";
+      var moduleId = CURRENT_USER.get("module");
+      song.modules.remove(moduleId);
     }
   });
 
