@@ -4,8 +4,6 @@ zound.models.Module = Backbone.Model.extend({
   defaults: {
     x: 0,
     y: 0,
-    w: 70,
-    h: 40,
     title: "Untitled",
     color: "#000",
     isSelected: false

@@ -1,8 +1,12 @@
 zound.ui.NodeEditor = Backbone.View.extend({
   options: {
     w: 700,
-    h: 380
+    h: 380,
+    // nodes options
+    margin: 15,
+    r: 35
   },
+
   initialize: function () {
     this.init();
     this.listenTo(this.model, "change", this.render);
@@ -57,7 +61,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   addBehaviours: function(g) {
-    var editor = this;
+    var editor = this,
+        options = this.options;
 
     g.on('click', function(d){
       editor.selectModule(d);
@@ -108,7 +113,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
           var out = editor.model.modules.find(function (m) {
             var x = m.get("x"),
                 y = m.get("y"),
-                r = m.get("w") / 2;
+                r = options.r;
 
             return x - r < px &&
                 px < x + r &&
@@ -144,9 +149,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
   draw: function (data) {
     var editor = this,
         svg = this.svg,
-        options = {
-          margin: 15
-        };
+        options = this.options;
 
     var get = function(k){
       return function(m){ return m.get(k); };
@@ -185,22 +188,22 @@ zound.ui.NodeEditor = Backbone.View.extend({
     g.append('svg:circle')
       .attr('class', 'outer')
       .attr("fill", "#f3f9ff")
-      .attr("stroke-width", 10);
+      .attr("stroke-width", 10)
+      .attr("r",  options.r + options.margin);
     e.select('.outer')
       .attr("cx", get('x'))
       .attr("cy", get('y'))
-      .attr("r", function(d){ return d.get('w') / 2 + options.margin; })
       .attr("stroke", function(m) { return m.get('isSelected') ? '#79838e' : '#bfcbdb'; });
 
     // center circle
     g.append('svg:circle')
       .attr('class', 'inner')
       .attr("fill", "#314355")
-      .attr("stroke-width", 0);
+      .attr("stroke-width", 0)
+      .attr("r", options.r);
     e.select('.inner')
       .attr("cx", get('x'))
-      .attr("cy", get('y'))
-      .attr("r", function(d){ return d.get('w') / 2; });
+      .attr("cy", get('y'));
 
     // title
     g.append("svg:text")
