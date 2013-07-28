@@ -127,6 +127,17 @@ zound.ui.NodeEditor = Backbone.View.extend({
        });
 
      g.call(move);
+
+     d3.select("body")
+      .on("keydown", function() {
+        if(d3.event.metaKey)
+          g.call(connect);
+      })
+      .on('keyup', function() {
+        if(!d3.event.metaKey)
+          g.call(move);
+      });
+
      return g;
   },
 
@@ -144,6 +155,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
     var e = svg
       .selectAll("g")
       .data(data, get('id'));
+
     e.exit().remove();
 
     // connections
@@ -214,7 +226,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("y", function(d){ return d.get('y') + 10; })
       .text(get('id'));
 
-    return g;
+    return e;
   }
 
 });
