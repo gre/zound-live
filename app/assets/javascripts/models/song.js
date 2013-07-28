@@ -21,6 +21,15 @@ zound.models.Song = Backbone.Model.extend({
     }, this));
   },
 
+  moduleIdCounter: 0,
+
+  createModule: function (constructor, attributes) {
+    var module = new constructor(attributes);
+    module.id = this.moduleIdCounter++;
+    this.modules.add(module);
+    return module;
+  },
+
   scheduleNote: function(lineNumber, time) {
     this.patterns.first().tracks.chain()
       .filter(function (track) {

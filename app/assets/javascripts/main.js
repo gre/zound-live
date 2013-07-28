@@ -1,155 +1,13 @@
 (function (models, modules, ui) {
 
-  var moduleId = 0;
-
-  var availableModules = new models.Modules([
-    new modules.Generator({ title: "Generator" }),
-    new modules.Drum({ title: "Drum" }),
-    new modules.MultiSynth({ title: "MultiSynth" }),
-    new modules.Filter({ title: "Filter" }),
-    new modules.Delay({ title: "Delay" }),
-    new modules.Reverb({ title: "Reverb" })
-  ]);
-
-  // models
   var network = new zound.Network();
+  var users = new zound.models.Users([ window.CURRENT_USER ]);
+
+  var song = song_sample1();
+  window._song = song; // for DEBUG only
+  var pattern = song.patterns.first();
+
   var midiController = new models.MIDIController();
-
-  var song = new models.Song();
-
-  var output = new modules.Output({
-    id: moduleId++,
-    x: 600,
-    y: 150,
-    title: "Output"
-  });
-
-  var multisynth1 = new modules.MultiSynth({
-    id: moduleId++,
-    x: 60,
-    y: 120,
-    title: "MultiSynth"
-  });
-
-  var generator1 = new modules.Generator({
-    id: moduleId++,
-    x: 160,
-    y: 60,
-    title: "Gen1"
-  });
-  generator1.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("square"));
-  generator1.pVolume.set("value", 20);
-  generator1.pAttack.set("value", 125);
-  generator1.pDecay.set("value", 500);
-  
-  var generator2 = new modules.Generator({
-    id: moduleId++,
-    x: 160,
-    y: 190,
-    title: "Gen2"
-  });
-  generator2.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("triangle"));
-  generator2.pDecay.set("value", 125);
-  
-  var filter1 = new modules.Filter({
-    id: moduleId++,
-    x: 270,
-    y: 120,
-    title: "Filter1"
-  });
-  filter1.pFrequency.set("value", 1000);
-  filter1.pQ.set("value", 16);
-
-  var generator3 = new modules.Generator({
-    id: moduleId++,
-    x: 100,
-    y: 300,
-    title: "Gen3"
-  });
-  generator3.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("saw"));
-  var filter2 = new modules.Filter({
-    id: moduleId++,
-    x: 250,
-    y: 300,
-    title: "Filter2"
-  });
-  filter2.pFrequency.set("value", 300);
-  filter2.pQ.set("value", 15);
-
-  var drum1 = new modules.Drum({
-    id: moduleId++,
-    x: 370,
-    y: 70,
-    title: "Drum1"
-  });
-
-  var delay1 = new modules.Delay({
-    id: moduleId++,
-    x: 380,
-    y: 290,
-    title: "Delay"
-  });
-
-  var verb1 = new modules.Reverb({
-    id: moduleId++,
-    x: 450,
-    y: 180,
-    title: "Reverb"
-  });
-
-
-  var pattern = new zound.models.Pattern();
-  song.patterns.add(pattern);
-
-  /*
-  _.each(_.range(0, 40), function (i) {
-    var r = Math.floor(Math.random()*Math.random()*3);
-    var track = pattern.tracks.at(r);
-    track.addNote(
-      4*Math.floor(Math.random()*track.slots.size()/4)+Math.floor(Math.random()*Math.random()*4),
-      Math.floor(50+20*Math.random()),
-      r==1 ? generator1 : r==2 ? generator2 : drum1
-    );
-  });
-  */
-
-  multisynth1.connect(generator1);
-  multisynth1.connect(generator2);
-  generator1.connect(filter1);
-  generator2.connect(verb1);
-  generator3.connect(filter2);
-  drum1.connect(verb1);
-  filter1.connect(verb1);
-  filter2.connect(delay1);
-  delay1.connect(verb1);
-  verb1.connect(output);
-
-  song.modules.add(multisynth1);
-  song.modules.add(generator1);
-  song.modules.add(generator2);
-  song.modules.add(generator3);
-  song.modules.add(filter1);
-  song.modules.add(filter2);
-  song.modules.add(drum1);
-  song.modules.add(delay1);
-  song.modules.add(verb1);
-  song.modules.add(output);
-
-  var queryStringParams = (function (queryString) {
-    return _.reduce(queryString.substring(1).split("&"), function (obj, param) {
-      var parts = param.split("=");
-      obj[parts[0]] = parts[1];
-      return obj;
-    }, {});
-  }(location.search));
-
-  var users = new zound.models.Users([]);
-
-  window.CURRENT_USER =
-    new zound.models.User({ name : queryStringParams.user || "gre" });
-  //users.at(0);
-  users.push(window.CURRENT_USER);
-
 
   var playerController = new models.PlayerController({
     length: song.get("length"),
@@ -161,15 +19,22 @@
   song.on("change:bpm", function (song, bpm) {
     playerController.set("bpm", bpm);
   });
-
   playerController.setAudioContext(song.ctx);
-
   /*
   // FIXME: blur is too aggressive, we more need a "on tab change"
   $(window).blur(function () {
     playerController.stop();
   });
   */
+
+  var availableModules = new models.Modules([
+    new modules.Generator({ title: "Generator" }),
+    new modules.Drum({ title: "Drum" }),
+    new modules.MultiSynth({ title: "MultiSynth" }),
+    new modules.Filter({ title: "Filter" }),
+    new modules.Delay({ title: "Delay" }),
+    new modules.Reverb({ title: "Reverb" })
+  ]);
 
   availableModules.on("selectModule", function (module) {
     var m = module.clone();
@@ -244,18 +109,6 @@
       return users_style_template(user.attributes);
     }).join('\n'));
   }
-
-  function bindMyself(user) {
-    user.on("user-change", function(user, slot, track){
-      network.send("user-change", {
-        "slot" : slot,
-        "track" : track
-      })
-    })
-  }
-
-  bindMyself(CURRENT_USER);
-
   users.on("add remove", function(user) {
     updateUsersStyle(users);
   });
@@ -273,7 +126,6 @@
   });
 
   var handleNote = function (note) {
-
     var module = CURRENT_USER.getCurrentModule();
     var slot = CURRENT_USER.getSelectedSlot();
 
@@ -289,28 +141,12 @@
     }
   };
 
-  keyboardController.on({
-    note: handleNote
-  });
-
-  midiController.on({
-    noteOn: handleNote
-  });
+  keyboardController.on("note", handleNote);
+  midiController.on("note", handleNote);
 
   // Handle selection
   (function(){
     var lastSelection = tracker.tracks[0].slots[0];
-    /*
-    $(window).click(function (e) {
-      var slot = CURRENT_USER.getSelectedSlot();
-      if (slot) {
-        lastSelection = slot;
-        if (!$(e.target).parents('#tracker:first').size()) {
-          CURRENT_USER.unselectCurrentTrackerSlot();
-        }
-      }
-    });
-    */
     $(window).on("keydown", function (e) {
       var slot = CURRENT_USER.getSelectedSlot();
 
@@ -367,6 +203,14 @@
     });
   }());
 
+  // INITIALIZES NETWORK
+
+  CURRENT_USER.on("user-change", function(user, slot, track){
+    network.send("user-change", {
+      "slot" : slot,
+      "track" : track
+    })
+  });
 
   pattern.tracks.each(function(track){
 
@@ -408,11 +252,6 @@
   song.modules.each(bindModule);
   song.modules.on("add", bindModule);
 
-
-  // for DEBUG only
-  window._song = song;
-
-  // INITIALIZES NETWORK
   network.send("user-connect", {
     user : window.CURRENT_USER.get("name")
   })

@@ -81,5 +81,20 @@
     var WEBSOCKET_ENDPOINT = "@routes.EventManager.endpoint().webSocketURL()";
   </script>
   <script src="@routes.Assets.at("javascripts/network.js")" type="text/javascript"></script>
+  <script type="text/javascript">
+  var queryStringParams = (function (queryString) {
+    return _.reduce(queryString.substring(1).split("&"), function (obj, param) {
+      var parts = param.split("=");
+      obj[parts[0]] = parts[1];
+      return obj;
+    }, {});
+  }(location.search));
+  if (!("user" in queryStringParams)) {
+    var user = prompt("What is your username?");
+    window.location = "/?user="+user;
+  }
+  window.CURRENT_USER = new zound.models.User({ name : queryStringParams.user });
+  </script>
+  <script src="@routes.Assets.at("javascripts/dataSample.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
 }
