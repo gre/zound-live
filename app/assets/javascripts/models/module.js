@@ -2,14 +2,20 @@
 
 zound.models.Module = Backbone.Model.extend({
   defaults: {
-    x: 0,
-    y: 0,
+    x: 100,
+    y: 100,
+    // FIXME: remove following data
     w: 70,
-    h: 40,
-    title: "Untitled",
-    color: "#000"
+    h: 40
   },
-  initialize: function () {
+  initialize: function (opts) {
+    // FIXME: can't find a better DRY way :'( - this won't support modules inheritance
+    for (var m in zound.modules) {
+      if (this instanceof zound.modules[m]) {
+        this.set("moduleName", m);
+      }
+    }
+    if (!this.get("title")) this.set("title", this.constructor.moduleName+this.id);
     this.outputs = new zound.models.Modules();
     this.properties = new zound.models.ModuleProperties();
   },
@@ -38,6 +44,8 @@ zound.models.Module = Backbone.Model.extend({
   init: function (ctx) {
     // init with an AudioContext
   },
+
+  // FIXME: leak!
   noteOn: function (note, ctx, time) {
     throw "noteOn not implemented";
   },
@@ -47,14 +55,25 @@ zound.models.Module = Backbone.Model.extend({
     throw "noteOff not implemented";
   },
 
+  // FIXME: leak!
   broadcastToOutputs: function (node, ctx) {
     this.outputs.each(function (outModule) {
-      outModule.playThrough(node, ctx);
+      outModule.plugInput(node, ctx);
+    });
+    this.outputs.on("add", function (outModule) {
+      outModule.plugInput(node, ctx);
+    });
+    this.outputs.on("remove", function (outModule) {
+      outModule.unplugInput(node, ctx);
     });
   },
-  playThrough: function (nodeInput, ctx) {
+
+  plugInput: function (nodeInput, ctx) {
     // do nothing but connect to outputs
     this.broadcastToOutputs(nodeInput, ctx);
+  },
+  unplugInput: function (nodeInput, ctx) {
+    // do nothing. Must be implemented for modules which cache some AudioNode
   }
 });
 

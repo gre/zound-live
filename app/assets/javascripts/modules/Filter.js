@@ -17,11 +17,6 @@ var FILTER_TYPES_NAME   = _.pluck( FILTER_TYPES, 0);
 var FILTER_TYPE_VALUES = _.pluck( FILTER_TYPES, 1);
 
 zound.modules.Filter = Module.extend({
-  defaults: _.extend({}, Module.prototype.defaults, {
-    moduleName: "Filter",
-    title: "Filter",
-    color: "#358"
-  }),
   initialize: function () {
     Module.prototype.initialize.call(this);
     this.pType      = new zound.models.ModulePropertySelect({ values: FILTER_TYPES_NAME, title: "Type" });
@@ -61,11 +56,14 @@ zound.modules.Filter = Module.extend({
   updateGain : function(){
     this.filter.gain.value = this.pGain.get("value");
   },
-  playThrough: function (nodeInput, ctx) {
+  plugInput: function (nodeInput, ctx) {
     nodeInput.connect(this.filter);
     this.broadcastToOutputs(this.filter, ctx);
+  },
+  unplugInput: function (nodeInput, ctx) {
+    nodeInput.disconnect(this.filter);
   }
-}, { moduleName: "Output" });
+});
 
 }(zound.models.Module));
 

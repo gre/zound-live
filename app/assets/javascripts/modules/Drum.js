@@ -27,12 +27,6 @@ var sounds = _.object(_.map(DRUM_TYPES, function(kit) {
 }));
 
 zound.modules.Drum = Module.extend({
-  defaults: _.extend({}, Module.prototype.defaults, {
-    moduleName: "Drum",
-    title: "Drum",
-    color: "#622"
-  }),
-
   initialize: function () {
     Module.prototype.initialize.call(this);
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
@@ -115,8 +109,6 @@ zound.modules.Drum = Module.extend({
     return d.promise;
   }
 
-}, {
-  moduleName: "Drum"
 });
 
 }(zound.models.Module));

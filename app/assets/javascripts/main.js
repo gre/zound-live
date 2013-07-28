@@ -2,14 +2,12 @@
 
   var moduleId = 0;
 
-  var defaultModuleParams = { x: 100, y: 100 };
-
   var availableModules = new models.Modules([
-    new modules.Drum(defaultModuleParams),
-    new modules.Filter(defaultModuleParams),
-    new modules.Generator(defaultModuleParams),
-    new modules.Delay(defaultModuleParams),
-    new modules.Reverb(defaultModuleParams)
+    new modules.Drum({ title: "Drum" }),
+    new modules.Filter({ title: "Filter" }),
+    new modules.Generator({ title: "Generator" }),
+    new modules.Delay({ title: "Delay" }),
+    new modules.Reverb({ title: "Reverb" })
   ]);
 
   // models
@@ -169,6 +167,9 @@
   availableModules.on("selectModule", function (module) {
     var m = module.clone();
     m.set("id", moduleId++);
+    var title = m.get("title");
+    if (title.length > 6) title = title.substring(0,5)+".";
+    m.set("title", title+moduleId);
     song.modules.add(m);
   });
 
@@ -442,14 +443,13 @@
   });
   // bind Network
   song.modules.on("add", function(module) {
-
-      var data = module.toJSON()
-      data.properties = module.properties.toJSON()
-      network.send("add-module", data)
+      var data = module.toJSON();
+      data.properties = module.properties.toJSON();
+      network.send("add-module", data);
   });
 
   network.on("ws-add-module", function(o) {
-      console.log(o.data.moduleName)
+      // FIXME: we will need to use instance.constructor.moduleName instead of repeating the information in the model
       var m = new modules[o.data.moduleName](o.data);
       song.modules.add(m);
   });

@@ -1,10 +1,6 @@
 (function (Module) {
 
 zound.modules.Delay = Module.extend({
-  defaults: _.extend({}, Module.prototype.defaults, {
-    title: "Delay",
-    color: "#853"
-  }),
   initialize: function () {
     Module.prototype.initialize.call(this);
     this.pMix = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Mix", value: 20 });
@@ -53,10 +49,13 @@ zound.modules.Delay = Module.extend({
 	this.wetgain.gain.value = wet;
 	this.drygain.gain.value = dry;
   },
-  playThrough: function (nodeInput, ctx) {
+  plugInput: function (nodeInput, ctx) {
     nodeInput.connect(this.input);
     this.broadcastToOutputs(this.output, ctx);
+  },
+  unplugInput: function (nodeInput, ctx) {
+    nodeInput.disconnect(this.input);
   }
-}, { moduleName: "Output" });
+});
 
 }(zound.models.Module));
