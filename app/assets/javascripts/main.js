@@ -127,16 +127,7 @@
     }, {});
   }(location.search));
 
-  // FIXME: mock: init from the server?
-  var users = new zound.models.Users([/*
-      { name: queryStringParams.user || "gre" },
-      { name: "pvo" },
-      { name: "ast" },
-      { name: "eca" },
-      { name: "aau" },
-      { name: "aau" },
-      { name: "vbr" },
-      { name: "jto" }*/]);
+  var users = new zound.models.Users([]);
 
   window.CURRENT_USER =
     new zound.models.User({ name : queryStringParams.user || "gre" });
@@ -449,7 +440,6 @@
   });
 
   network.on("ws-add-module", function(o) {
-      // FIXME: we will need to use instance.constructor.moduleName instead of repeating the information in the model
       var m = new modules[o.data.moduleName](o.data);
       song.modules.add(m);
   });
