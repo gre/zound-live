@@ -40,10 +40,10 @@
 
   availableModules.on("selectModule", function (module) {
     var m = module.clone();
-    song.addModule(m);
     var title = m.get("title");
     if (title.length > 6) title = title.substring(0,5)+".";
-    m.set("title", title+m.get("id"));
+    m.set("title", title+(song.moduleIdCounter+1));
+    song.addModule(m);
   });
 
   users.on("change:slot", function (user, value) {
@@ -191,7 +191,7 @@
     }
   });
 
-  // INITIALIZES NETWORK
+  //~~~ NETWORK
 
   pattern.tracks.each(function(track){
 
@@ -218,6 +218,66 @@
 
   });
 
+  pattern.tracks.on("change:offmode", function (track, value) {
+    if (value===CURRENT_USER.id) {
+      network.send("user-track-take", {
+        track: pattern.tracks.indexOf(track)
+      });
+    }
+    else if (value===null) {
+      network.send("user-track-release", {
+        track: pattern.tracks.indexOf(track)
+      });
+    }
+  });
+
+  network.on("user-track-take", function (data, user) {
+    pattern.tracks.at(data.track).set("offmode", user);
+  });
+  
+  network.on("user-track-release", function (data, user) {
+    pattern.tracks.at(data.track).set("offmode", null);
+  });
+
+  network.send("user-connect", {
+    user: window.CURRENT_USER.id
+  });
+
+  network.on("user-connect", function(data){
+    console.log(data.user+" CONNECTED");
+    var user = new zound.models.User({ id: data.user });
+    users.add(user);
+  });
+
+  CURRENT_USER.on("change:slot", function (user, value) {
+    network.send("user-select-slot", value);
+  });
+  network.on("user-select-slot", function(data, user){
+    var user = users.get(user);
+    user.set("slot", data);
+  });
+
+  CURRENT_USER.on("user-unselect-slot", function () {
+    network.send("user-unselect-slot");
+  });
+  network.on("user-unselect-slot", function(data, user){
+    users.get(user).set("slot", null);
+  });
+
+  network.on("add-note", function(data, user){
+    pattern.getSlot(data.track, data.slot).set({
+      note: data.note,
+      module: song.modules.get(data.module)
+    });
+  });
+
+  network.on("del-note", function(data){
+    pattern.getSlot(data.track, data.slot).set({
+      note: null,
+      module: null
+    });
+  });
+
   function bindModule (module) {
     module.properties.each(function (property, i) {
       property.on("change", function (property) {
@@ -228,93 +288,70 @@
           });
       });
     });
+    module.on("change:x change:y", function () {
+      network.send("module-position", {
+        module: module.id,
+        x: module.get("x"),
+        y: module.get("y")
+      });
+    });
+    module.outputs.on("add", function (add) {
+      network.send("module-output-add", {
+        module: module.id,
+        output: add.id
+      });
+    });
+    module.outputs.on("remove", function (remove) {
+      network.send("module-output-remove", {
+        module: module.id,
+        output: remove.id
+      });
+    });
   }
 
   song.modules.each(bindModule);
   song.modules.on("add", bindModule);
 
-  network.send("user-connect", {
-    user: window.CURRENT_USER.id
-  });
-
-  network.on("user-connect", function(o){
-    console.log(o.data.user+" CONNECTED");
-    var user = new zound.models.User({ id: o.data.user });
-    users.add(user);
-  });
-
-  CURRENT_USER.on("change:slot", function (user, value) {
-    network.send("user-select-slot", value);
-  });
-  network.on("user-select-slot", function(o){
-    var user = users.get(o.user);
-    user.set("slot", o.data);
-  });
-
-  CURRENT_USER.on("user-unselect-slot", function () {
-    network.send("user-unselect-slot");
-  });
-  network.on("user-unselect-slot", function(o){
-    var user = users.get(o.user);
-    user.set("slot", null);
-  });
-
-  network.on("add-note", function(o){
-    var note = o.data.note
-      , module = song.modules.get(o.data.module);
-    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
-    slot.set({
-      note: note,
-      module: module
+  network.on("module-position", function (data) {
+    song.modules.get(data.module).set({
+      x: data.x,
+      y: data.y
     });
   });
 
-  network.on("del-note", function(o){
-    var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
-    slot.set({
-      note: null,
-      module: null
-    });
+  network.on("module-output-add", function (data) {
+    song.modules.get(data.module).outputs.add(
+      song.modules.get(data.output)
+    );
   });
-  // bind Network
+
+  network.on("module-output-remove", function (data) {
+    song.modules.get(data.module).outputs.remove(data.output)
+  });
+
   song.modules.on("add", function(module) {
       var data = module.toJSON();
       data.properties = module.properties.toJSON();
       network.send("add-module", data);
   });
-  network.on("add-module", function(o) {
-    var m = new modules[o.data.moduleName](o.data);
+  network.on("add-module", function(data) {
+    var m = new modules[data.moduleName](data);
     song.modules.add(m);
   });
 
   song.modules.on("remove", function (module) {
       network.send("remove-module", { module: module.id });
   });
-  network.on("remove-module", function(o) {
-    song.removeModule(o.data.module);
+  network.on("remove-module", function(data) {
+    song.removeModule(data.module);
   });
 
-  var bindModuleNetwork = function (module) {
-      module.on("change", function (module) {
-          var data = modules.toJson()
-          data.cid = module.cid
-          network.send("change-module", data)
-      })
-  }
+  network.on("property-change", function(data, user) {
+    var module = song.modules.get(data.module)
+        ,propertyIdx = data.property
+        ,value = data.value;
 
-  network.on("change-module", function (data) {
-      song.modules.find(function (e) {
-          return e.cid == data.cid;
-      })
-  })
-
-  network.on("property-change", function(o) {
-    var module = song.modules.get(o.data.module)
-        ,propertyIdx = o.data.property
-        ,value = o.data.value;
-
-    var property = module.properties.at(propertyIdx);
-    property.set("value", value);
+    module.properties.at(propertyIdx).set("value", value);
   });
 
 }(zound.models, zound.modules, zound.ui));

@@ -58,7 +58,7 @@ zound.ui.Track = Backbone.View.extend({
     title: "Track"
   },
   events: {
-    "click .off-mode": "onClickOffMode"
+    "click .foot": "onClickOffMode"
   },
   initialize: function (attrs, options) {
     _.extend(this.options, options);
@@ -81,6 +81,7 @@ zound.ui.Track = Backbone.View.extend({
   },
   onChangeOffmode: function () {
     var offmode = this.model.get("offmode");
+    console.log(offmode);
     this.$el.find(".off-mode").toggleClass("enabled", !!offmode).toggleClass("controlByMe", !!offmode && offmode===CURRENT_USER.id);
   },
   highlightLine: function (line) {

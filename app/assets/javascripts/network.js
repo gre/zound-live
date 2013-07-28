@@ -11,7 +11,7 @@ zound.Network = Backbone.Model.extend({
       if(o.user != window.CURRENT_USER.id){
         console.log(o);
         this.dontSend = true;
-        this.trigger(o.type, o);
+        this.trigger(o.type, o.data, o.user);
         this.dontSend = false;
       }
     }, this);
