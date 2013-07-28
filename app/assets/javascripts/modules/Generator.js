@@ -1,4 +1,4 @@
-(function (Module) {
+(function (SynthModule) {
 
 var OscillatorNode = zound.dummyAudioContext.createOscillator();
 
@@ -11,9 +11,9 @@ var GENERATOR_TYPES = [
 var GENERATOR_TYPES_NAME = _.pluck(GENERATOR_TYPES, 0);
 var GENERATOR_TYPES_OSCVALUE = _.pluck(GENERATOR_TYPES, 1);
 
-zound.modules.Generator = Module.extend({
+zound.modules.Generator = SynthModule.extend({
   initialize: function () {
-    Module.prototype.initialize.call(this);
+    SynthModule.prototype.initialize.call(this);
     this.lastNote = null;
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 });
     this.pType = new zound.models.ModulePropertySelect({ values: GENERATOR_TYPES_NAME, title: "Type" });
@@ -21,12 +21,6 @@ zound.modules.Generator = Module.extend({
     this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Decay", value: 200 });
     this.pGlide = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Glide", value: 0 });
     this.properties.add([this.pVolume, this.pType, this.pAttack, this.pDecay, this.pGlide]);
-  },
-  canHaveInputs: function () {
-    return false;
-  },
-  canPlayNote: function () {
-    return true;
   },
   noteOn: function (note, ctx, time) {
     var osc = ctx.createOscillator();
@@ -67,4 +61,4 @@ zound.modules.Generator = Module.extend({
   GENERATOR_TYPES_OSCVALUE: GENERATOR_TYPES_OSCVALUE
 });
 
-}(zound.models.Module));
+}(zound.models.SynthModule));

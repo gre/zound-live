@@ -3,9 +3,10 @@
   var moduleId = 0;
 
   var availableModules = new models.Modules([
-    new modules.Drum({ title: "Drum" }),
-    new modules.Filter({ title: "Filter" }),
     new modules.Generator({ title: "Generator" }),
+    new modules.Drum({ title: "Drum" }),
+    new modules.MultiSynth({ title: "MultiSynth" }),
+    new modules.Filter({ title: "Filter" }),
     new modules.Delay({ title: "Delay" }),
     new modules.Reverb({ title: "Reverb" })
   ]);
@@ -23,29 +24,41 @@
     title: "Output"
   });
 
-  var generator1 = new modules.Generator({
+  var multisynth1 = new modules.MultiSynth({
     id: moduleId++,
     x: 60,
-    y: 190,
+    y: 120,
+    title: "MultiSynth"
+  });
+
+  var generator1 = new modules.Generator({
+    id: moduleId++,
+    x: 160,
+    y: 60,
     title: "Gen1"
   });
   generator1.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("square"));
+  generator1.pVolume.set("value", 20);
+  generator1.pAttack.set("value", 125);
+  generator1.pDecay.set("value", 500);
   
   var generator2 = new modules.Generator({
     id: moduleId++,
-    x: 60,
-    y: 60,
+    x: 160,
+    y: 190,
     title: "Gen2"
   });
   generator2.pType.set("value", modules.Generator.GENERATOR_TYPES_NAME.indexOf("triangle"));
+  generator2.pDecay.set("value", 125);
   
   var filter1 = new modules.Filter({
     id: moduleId++,
-    x: 170,
+    x: 270,
     y: 120,
     title: "Filter1"
   });
-  filter1.pFrequency.set("value", 2000);
+  filter1.pFrequency.set("value", 1000);
+  filter1.pQ.set("value", 16);
 
   var generator3 = new modules.Generator({
     id: moduleId++,
@@ -57,13 +70,15 @@
   var filter2 = new modules.Filter({
     id: moduleId++,
     x: 250,
-    y: 250,
+    y: 300,
     title: "Filter2"
   });
+  filter2.pFrequency.set("value", 300);
+  filter2.pQ.set("value", 15);
 
   var drum1 = new modules.Drum({
     id: moduleId++,
-    x: 320,
+    x: 370,
     y: 70,
     title: "Drum1"
   });
@@ -71,14 +86,14 @@
   var delay1 = new modules.Delay({
     id: moduleId++,
     x: 380,
-    y: 280,
+    y: 290,
     title: "Delay"
   });
 
   var verb1 = new modules.Reverb({
     id: moduleId++,
     x: 450,
-    y: 150,
+    y: 180,
     title: "Reverb"
   });
 
@@ -98,12 +113,18 @@
   });
   */
 
+  multisynth1.connect(generator1);
+  multisynth1.connect(generator2);
   generator1.connect(filter1);
-  generator2.connect(filter1);
+  generator2.connect(verb1);
   generator3.connect(filter2);
   drum1.connect(verb1);
   filter1.connect(verb1);
   filter2.connect(delay1);
+  delay1.connect(verb1);
+  verb1.connect(output);
+
+  song.modules.add(multisynth1);
   song.modules.add(generator1);
   song.modules.add(generator2);
   song.modules.add(generator3);
@@ -112,11 +133,6 @@
   song.modules.add(drum1);
   song.modules.add(delay1);
   song.modules.add(verb1);
-
-
-  delay1.connect(verb1);
-  verb1.connect(output);
-
   song.modules.add(output);
 
   var queryStringParams = (function (queryString) {

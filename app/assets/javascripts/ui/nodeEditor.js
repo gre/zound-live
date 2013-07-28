@@ -172,7 +172,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
             var out = self.model.modules.find(function (m) {
               if (m.get("x") < px && px < m.get("x")+m.get("w") &&
                   m.get("y") < py && py < m.get("y")+m.get("w")) {
-                    return m.canHaveInputs();
+                    return module.canConnectTo(m);
                   }
             });
             if (out && module !== out) {

@@ -25,37 +25,32 @@ zound.models.Module = Backbone.Model.extend({
     else if (name.length==1) name = "0"+name;
     return name;
   },
-  disconnect: function (outModule) {
-    this.outputs.remove(outModule);
-  },
+  // Add an output module
   connect: function (outModule) {
     this.outputs.add(outModule);
   },
-  canHaveInputs: function () {
+  // Remove an output module
+  disconnect: function (outModule) {
+    this.outputs.remove(outModule);
+  },
+  // Can the module ever have outputs?
+  canHaveOutputs: function (module) {
     return true;
   },
-  canHaveOutputs: function () {
-    return true;
-  },
+  // Can I play notes from that module?
   canPlayNote: function () {
-    return false;
+    return "noteOn" in this; // duck typing by default
+  },
+  // Can I plug that module to another one?
+  canConnectTo: function (module) {
+    return "plugInput" in module; // duck typing by default
   },
 
   init: function (ctx) {
     // init with an AudioContext
   },
 
-  // FIXME: leak!
-  noteOn: function (note, ctx, time) {
-    throw "noteOn not implemented";
-  },
-
-  // FIXME needed?
-  noteOff: function () {
-    throw "noteOff not implemented";
-  },
-
-  // FIXME: leak!
+  // FIXME: leak?
   broadcastToOutputs: function (node, ctx) {
     this.outputs.each(function (outModule) {
       outModule.plugInput(node, ctx);
@@ -66,8 +61,22 @@ zound.models.Module = Backbone.Model.extend({
     this.outputs.on("remove", function (outModule) {
       outModule.unplugInput(node, ctx);
     });
+  }
+});
+
+zound.models.SynthModule = zound.models.Module.extend({
+  // FIXME: leak?
+  noteOn: function (note, ctx, time) {
+    throw "noteOn not implemented";
   },
 
+  // FIXME needed?
+  noteOff: function () {
+    throw "noteOff not implemented";
+  }
+});
+
+zound.models.EffectModule = zound.models.Module.extend({
   // Default plug and unplug functions are using this.input and this.output,
   // you have to set it in your init() implementation
   plugInput: function (nodeInput, ctx) {
@@ -82,4 +91,3 @@ zound.models.Module = Backbone.Model.extend({
 zound.models.Modules = Backbone.Collection.extend({
   model: zound.models.Module
 });
-

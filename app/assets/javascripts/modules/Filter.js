@@ -1,4 +1,4 @@
-(function (Module) {
+(function (EffectModule) {
 
 var BiquadFilterNode = zound.dummyAudioContext.createBiquadFilter();
 
@@ -16,10 +16,10 @@ var FILTER_TYPES = [
 var FILTER_TYPES_NAME   = _.pluck( FILTER_TYPES, 0);
 var FILTER_TYPE_VALUES = _.pluck( FILTER_TYPES, 1);
 
-zound.modules.Filter = Module.extend({
+zound.modules.Filter = EffectModule.extend({
 
   initialize: function () {
-    Module.prototype.initialize.call(this);
+    EffectModule.prototype.initialize.call(this);
     this.pType      = new zound.models.ModulePropertySelect({ values: FILTER_TYPES_NAME, title: "Type" });
     this.pFrequency = new zound.models.ModulePropertyRange({ min: 10, max: 22050, title: "Frequency", value: 22050 });
     this.pQ         = new zound.models.ModulePropertyRange({
@@ -67,6 +67,6 @@ zound.modules.Filter = Module.extend({
   }
 });
 
-}(zound.models.Module));
+}(zound.models.EffectModule));
 
 

@@ -1,9 +1,9 @@
-(function (Module) {
+(function (EffectModule) {
 
-zound.modules.Delay = Module.extend({
+zound.modules.Delay = EffectModule.extend({
   
   initialize: function () {
-    Module.prototype.initialize.call(this);
+    EffectModule.prototype.initialize.call(this);
     this.pMix = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Mix", value: 20 });
     this.pTime = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Time", value: 24 });
     this.pFeedback = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Feedback", value: 40});
@@ -56,4 +56,4 @@ zound.modules.Delay = Module.extend({
   }
 });
 
-}(zound.models.Module));
+}(zound.models.EffectModule));

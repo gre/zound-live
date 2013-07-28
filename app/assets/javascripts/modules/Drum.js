@@ -1,4 +1,4 @@
-(function (Module) {
+(function (SynthModule) {
 
 var DRUM_TYPES = [
   '4OP-FM',
@@ -26,9 +26,9 @@ var sounds = _.object(_.map(DRUM_TYPES, function(kit) {
   return [kit, ss];
 }));
 
-zound.modules.Drum = Module.extend({
+zound.modules.Drum = SynthModule.extend({
   initialize: function () {
-    Module.prototype.initialize.call(this);
+    SynthModule.prototype.initialize.call(this);
     this.properties.add([
       this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 }),
       this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit" }),
@@ -40,14 +40,6 @@ zound.modules.Drum = Module.extend({
       this.pTom3Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom3 Volume", value: 100 })
     ]);
     this.volumeControls = [this.pHihatVolume, this.pKickVolume, this.pSnareVolume, this.pTom1Volume, this.pTom2Volume, this.pTom3Volume];
-  },
-
-  canHaveInputs: function () {
-    return false;
-  },
-
-  canPlayNote: function () {
-    return true;
   },
 
   init: function (ctx) {
@@ -117,4 +109,4 @@ zound.modules.Drum = Module.extend({
 
 });
 
-}(zound.models.Module));
+}(zound.models.SynthModule));
