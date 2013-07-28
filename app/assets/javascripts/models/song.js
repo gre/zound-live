@@ -25,9 +25,13 @@ zound.models.Song = Backbone.Model.extend({
 
   createModule: function (constructor, attributes) {
     var module = new constructor(attributes);
+    this.addModule(module);
+    return module;
+  },
+
+  addModule: function (module) {
     module.set("id", this.moduleIdCounter++);
     this.modules.add(module);
-    return module;
   },
 
   scheduleNote: function(lineNumber, time) {

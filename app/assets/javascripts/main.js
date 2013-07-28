@@ -40,11 +40,10 @@
 
   availableModules.on("selectModule", function (module) {
     var m = module.clone();
-    m.set("id", moduleId++);
+    song.addModule(m);
     var title = m.get("title");
     if (title.length > 6) title = title.substring(0,5)+".";
-    m.set("title", title+moduleId);
-    song.modules.add(m);
+    m.set("title", title+m.get("id"));
   });
 
   users.on("change:slot", function (user, value) {
@@ -298,7 +297,7 @@
 
   network.on("change-module", function (data) {
       song.modules.find(function (e) {
-          return e.cid == data.cid
+          return e.cid == data.cid;
       })
   })
 
