@@ -69,7 +69,7 @@ object EventManager extends Controller {
             .map{ e =>
               play.Logger.debug("Event:"+e)
               e.typ match {
-                case "ws-user-connect" =>
+                case "user-connect" =>
                   events += o
                   events.map(e => channel.push(e))
                 case _ => channel.push(o)

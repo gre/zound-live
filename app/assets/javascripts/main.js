@@ -1,5 +1,7 @@
 (function (models, modules, ui) {
 
+  //~~~ MODELS
+
   var network = new zound.Network();
   var users = new zound.models.Users([ window.CURRENT_USER ]);
 
@@ -45,7 +47,7 @@
     song.modules.add(m);
   });
 
-  // views
+  //~~~ VIEWS 
 
   var midiControllerNotification = new ui.MIDIControllerNotification({
     model: midiController
@@ -205,13 +207,6 @@
 
   // INITIALIZES NETWORK
 
-  CURRENT_USER.on("user-change", function(user, slot, track){
-    network.send("user-change", {
-      "slot" : slot,
-      "track" : track
-    })
-  });
-
   pattern.tracks.each(function(track){
 
     track.slots.each(function(slot){
@@ -253,24 +248,37 @@
   song.modules.on("add", bindModule);
 
   network.send("user-connect", {
-    user : window.CURRENT_USER.get("name")
-  })
+    user: window.CURRENT_USER.id
+  });
 
-  network.on("ws-user-connect", function(o){
+  network.on("user-connect", function(o){
     console.log(o.data.user+" CONNECTED");
-    var user = new zound.models.User({ name : o.data.user });
+    var user = new zound.models.User({ id: o.data.user });
     users.add(user);
   });
 
-  network.on("ws-user-change", function(o){
-    var user = users.find(function (user) {
-      return user.get("name") == o.user;
+
+  CURRENT_USER.on("user-select-slot", function(slot, track){
+    network.send("user-select-slot", {
+      "slot" : slot,
+      "track" : track
     });
+  });
+  network.on("user-select-slot", function(o){
+    var user = users.get(o.user);
     var slot = tracker.tracks[o.data.track].slots[o.data.slot];
     user.selectTrackerSlot(slot);
   });
 
-  network.on("ws-add-note", function(o){
+  CURRENT_USER.on("user-unselect-slot", function () {
+    network.send("user-unselect-slot");
+  });
+  network.on("user-unselect-slot", function(o){
+    var user = users.get(o.user);
+    user.unselectCurrentTrackerSlot();
+  });
+
+  network.on("add-note", function(o){
     var note = o.data.note
       , module = song.modules.get(o.data.module);
     var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
@@ -280,7 +288,7 @@
     });
   });
 
-  network.on("ws-del-note", function(o){
+  network.on("del-note", function(o){
     var slot = tracker.tracks[o.data.track].slots[o.data.slot].model;
     slot.set({
       note: null,
@@ -294,7 +302,7 @@
       network.send("add-module", data);
   });
 
-  network.on("ws-add-module", function(o) {
+  network.on("add-module", function(o) {
       var m = new modules[o.data.moduleName](o.data);
       song.modules.add(m);
   });
@@ -307,13 +315,13 @@
       })
   }
 
-  network.on("ws-change-module", function (data) {
+  network.on("change-module", function (data) {
       song.modules.find(function (e) {
           return e.cid == data.cid
       })
   })
 
-  network.on("ws-property-change", function(o) {
+  network.on("property-change", function(o) {
     var module = song.modules.get(o.data.module)
         ,propertyIdx = o.data.property
         ,value = o.data.value;

@@ -22,7 +22,7 @@ zound.models.Track = Backbone.Model.extend({
   },
   isListenableFor: function (user) {
     var offmode = this.get("offmode");
-    return offmode===null || offmode===user.get("name");
+    return offmode===null || offmode===user.id;
   }
 });
 

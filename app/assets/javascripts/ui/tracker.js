@@ -65,7 +65,7 @@ zound.ui.Track = Backbone.View.extend({
   onClickOffMode: function (e) {
     e.preventDefault();
     var offmode = this.model.get("offmode");
-    var me = CURRENT_USER.get("name");
+    var me = CURRENT_USER.id;
     if (!offmode) {
       this.model.set("offmode", me);
     }
@@ -75,7 +75,7 @@ zound.ui.Track = Backbone.View.extend({
   },
   onChangeOffmode: function () {
     var offmode = this.model.get("offmode");
-    this.$el.find(".off-mode").toggleClass("enabled", !!offmode).toggleClass("controlByMe", !!offmode && offmode===CURRENT_USER.get("name"));
+    this.$el.find(".off-mode").toggleClass("enabled", !!offmode).toggleClass("controlByMe", !!offmode && offmode===CURRENT_USER.id);
   },
   highlightLine: function (line) {
     if (this.currentSlot) {

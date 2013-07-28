@@ -1,9 +1,7 @@
 
-// FIXME: replace all .get("name") occurences by .id - name is used as an id everywhere
 zound.models.User = Backbone.Model.extend({
 
   defaults: {
-    name: "Unknown",
     trackerIncrement: 1
   },
 
@@ -13,7 +11,7 @@ zound.models.User = Backbone.Model.extend({
   },
 
   generateColorFromName: function () {
-    return _.reduce(this.get("name"), function (sum, b) { return 13*sum+b.charCodeAt(0) }, 0) % 256;
+    return _.reduce(this.id, function (sum, b) { return 13*sum+b.charCodeAt(0) }, 0) % 256;
   },
 
   getSelectedSlot: function () {
@@ -60,25 +58,21 @@ zound.models.User = Backbone.Model.extend({
     if (this.currentTrackerSlot) {
       this.unselectCurrentTrackerSlot();
     }
-    var name = this.get("name");
-    view.model.trigger("user-select", name);
-    view.$el.attr("user-select", name);
+    view.$el.attr("user-select", this.id);
     var track = view.track;
     var slotNumber = track.slots.indexOf(view);
     var tracker = track.tracker;
     var trackNumber = tracker.tracks.indexOf(track);
-    this.trigger("user-change", name, slotNumber, trackNumber);
+    this.trigger("user-select-slot", slotNumber, trackNumber);
     this.currentTrackerSlot = view;
   },
 
   unselectCurrentTrackerSlot: function () {
     var view = this.currentTrackerSlot;
     if (view) {
-      var name = this.get("name");
-      view.model.trigger("user-unselect", name);
       view.$el.removeAttr("user-select");
       this.currentTrackerSlot = null;
-      this.trigger("slot", null);
+      this.trigger("user-unselect-slot");
     }
   },
 
@@ -90,14 +84,14 @@ zound.models.User = Backbone.Model.extend({
     if (this.currentModule) {
       this.unselectModule();
     }
-    model.trigger("user-select", this.get("name"));
+    model.trigger("user-select", this.id);
     this.currentModule = model;
   },
 
   unselectModule: function () {
     var model = this.currentModule;
     if (model) {
-      model.trigger("user-unselect", this.get("name"));
+      model.trigger("user-unselect", this.id);
       this.currentModule = null;
     }
   }
