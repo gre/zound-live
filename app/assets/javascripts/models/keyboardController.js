@@ -2,6 +2,8 @@
 // Play notes with the keyboard
 
 var AZERTYconfig = {
+  decrementOctaveKey: 186, // ":"
+  incrementOctaveKey: 187, // "="
   keyCodeByTones: [
     87,83,88,68,67,86,71,66,72,78,74,188, // first octave (lower keyboard)
     65,50,90,222,69,82,53,84,54,89,55,85 // second octave (up keyboard)
@@ -9,6 +11,8 @@ var AZERTYconfig = {
 };
 
 var QWERTYconfig = {
+  decrementOctaveKey: 190,
+  incrementOctaveKey: 191,
   keyCodeByTones: [
     90,83,88,68,67,86,71,66,72,78,74,77, // first octave (lower keyboard)
     81,50,87,51,69,82,53,84,54,89,55,85 // second octave (up keyboard)
@@ -70,6 +74,12 @@ zound.models.KeyboardController = Backbone.Model.extend({
     }
     else if (e.which===40) { // down
       incrY = 1;
+    }
+    else if (e.which===this.get("incrementOctaveKey")) {
+      this.set("octave", this.get("octave")+1);
+    }
+    else if (e.which===this.get("decrementOctaveKey")) {
+      this.set("octave", this.get("octave")-1);
     }
     else {
       var tone = this.get("keyCodeByTones").indexOf(e.which);
