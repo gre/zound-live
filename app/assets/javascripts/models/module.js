@@ -16,11 +16,8 @@ zound.models.Module = Backbone.Model.extend({
     this.outputs = new zound.models.Modules();
     this.properties = new zound.models.ModuleProperties();
   },
-  getDisplayId: function (module) {
-    var name = ""+this.id;
-    if (name.length>2) name=name.substring(name.length-2);
-    else if (name.length==1) name = "0"+name;
-    return name;
+  getDisplayId: function () {
+    zound.models.Module.idToText(this.id);
   },
   // Add an output module
   connect: function (outModule) {
@@ -58,6 +55,13 @@ zound.models.Module = Backbone.Model.extend({
     this.outputs.on("remove", function (outModule) {
       outModule.unplugInput(node, ctx);
     });
+  }
+}, {
+  idToText: function (id) {
+    var name = ""+id;
+    if (name.length>2) name=name.substring(name.length-2);
+    else if (name.length==1) name = "0"+name;
+    return name;
   }
 });
 

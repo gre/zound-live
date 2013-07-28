@@ -151,7 +151,7 @@
       var slotModel = pattern.getSlot(slot.track, slot.slot);
       slotModel.set({
         note: note,
-        module: module
+        module: module.id
       });
       CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"), pattern.tracks.size(), pattern.get("length"));
     }
@@ -210,7 +210,7 @@
             slot: slot.get("num"),
             track: track.get("num"),
             note: note,
-            module: module.id
+            module: module
           });
         }
       });
@@ -265,10 +265,7 @@
   });
 
   network.on("add-note", function(data, user){
-    pattern.getSlot(data.track, data.slot).set({
-      note: data.note,
-      module: song.modules.get(data.module)
-    });
+    pattern.getSlot(data.track, data.slot).set(data);
   });
 
   network.on("del-note", function(data){
@@ -347,11 +344,9 @@
   });
 
   network.on("property-change", function(data, user) {
-    var module = song.modules.get(data.module)
-        ,propertyIdx = data.property
-        ,value = data.value;
-
-    module.properties.at(propertyIdx).set("value", value);
+    song.modules.get(data.module)
+      .properties.at(data.property)
+        .set("value", data.value);
   });
 
 }(zound.models, zound.modules, zound.ui));

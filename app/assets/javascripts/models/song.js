@@ -51,8 +51,11 @@ zound.models.Song = Backbone.Model.extend({
       var slot = track.slots.at(lineNumber);
       var note = slot.get("note");
       if (note) {
-        var module = slot.get("module");
-        module.noteOn(note, this.ctx, time);
+        var moduleId = slot.get("module");
+        var module = this.modules.get(moduleId);
+        if (module) {
+          module.noteOn(note, this.ctx, time);
+        }
       }
     }, this);
   }

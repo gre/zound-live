@@ -30,7 +30,7 @@ zound.ui.Slot = Backbone.View.extend({
   render: function (model) {
     if (model.get("note")) {
       var note = this.noteToText(model.get("note"));
-      var module = model.get("module").getDisplayId();
+      var module = zound.models.Module.idToText(model.get("module"));
       this.$el.html(this.tmpl({
         note: note,
         module: module
@@ -81,7 +81,6 @@ zound.ui.Track = Backbone.View.extend({
   },
   onChangeOffmode: function () {
     var offmode = this.model.get("offmode");
-    console.log(offmode);
     this.$el.find(".off-mode").toggleClass("enabled", !!offmode).toggleClass("controlByMe", !!offmode && offmode===CURRENT_USER.id);
   },
   highlightLine: function (line) {
