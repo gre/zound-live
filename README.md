@@ -6,7 +6,7 @@ Audio modular collaborative tracker using web technologies.
 Keyboard
 ---
 
-![](https://rawgithub.com/gre/zound-live/master/docs/keyboard.svg)
+![](https://raw.github.com/gre/zound-live/master/docs/keyboard.svg.png)
 
 Contributors
 ---
