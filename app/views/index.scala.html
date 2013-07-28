@@ -93,6 +93,7 @@
     var user = prompt("What is your username?");
     window.location = "/?user="+user;
   }
+  window.KEYBOARD_LAYOUT = queryStringParams.azerty ? "AZERTY" : "QWERTY";
   window.CURRENT_USER = new zound.models.User({ id: queryStringParams.user });
   </script>
   <script src="@routes.Assets.at("javascripts/dataSample.js")" type="text/javascript"></script>

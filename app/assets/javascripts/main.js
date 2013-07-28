@@ -85,7 +85,9 @@
     });
     $('#module-properties').append(currentPropertiesEditor.el);
   });
-  var m = song.modules.first();
+  var m = song.modules.find(function (module) {
+    return module instanceof zound.models.SynthModule;
+  });
   if (m) {
     nodeEditor.selectModule(m);
   }
@@ -124,9 +126,9 @@
   });
   $('#tracker').append(trackerIncrement.el);
 
-  var keyboardController = new zound.models.KeyboardController({
+  var keyboardController = new models.KeyboardController(_.extend({
     user: CURRENT_USER
-  });
+  }, models.KeyboardController[window.KEYBOARD_LAYOUT+"config"]));
 
   var handleNote = function (note) {
     var module = CURRENT_USER.getCurrentModule();
@@ -144,85 +146,36 @@
     }
   };
 
-  keyboardController.on("note", handleNote);
   midiController.on("note", handleNote);
 
   keyboardController.on({
     "note": handleNote,
-    "unselect": function () {
+    "tracker-move": function (incrX, incrY) {
+      CURRENT_USER.moveTrackerSelection(incrX, incrY);
+    },
+    "tracker-backspace": function () {
       var slot = CURRENT_USER.getSelectedSlot();
-      if (slot) {
-        CURRENT_USER.unselectCurrentTrackerSlot();
-      }
+      slot.model.set({ note: null, module: null });
+      CURRENT_USER.moveTrackerSelection(0, -1);
+    },
+    "tracker-delete": function () {
+      var slot = CURRENT_USER.getSelectedSlot();
+      slot.model.set({ note: null, module: null });
+      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
+    },
+    "unselect": function () {
+      CURRENT_USER.unselectCurrentTrackerSlot();
     },
     "play-pause": function () {
-      if (!playerController.playing)
+      if (!playerController.get("playing"))
         playerController.play();
       else
         playerController.stop();
+    },
+    "module-delete": function () {
+      throw "FIXME: module-delete not handled yet.";
     }
   });
-
-  // Handle selection
-  (function(){
-    /*
-    var lastSelection = tracker.tracks[0].slots[0];
-    $(window).on("keydown", function (e) {
-      var slot = CURRENT_USER.getSelectedSlot();
-
-      // Spacebar toggle the user tracker selection
-      if (e.which===32) { // SPACE
-        e.preventDefault();
-        if (slot) {
-          lastSelection = slot;
-          CURRENT_USER.unselectCurrentTrackerSlot();
-        }
-        else {
-          lastSelection && CURRENT_USER.selectTrackerSlot(lastSelection);
-        }
-        return;
-      }
-
-      if (e.which==8) { // BACKSPACE
-        e.preventDefault();
-        if (slot) {
-          slot.model.set({ note: null, module: null });
-          CURRENT_USER.moveTrackerSelection(0, -1);
-        }
-        return;
-      }
-
-      if (e.which==46 && slot) { // DELETE
-        if (slot) {
-          e.preventDefault();
-          slot.model.set({ note: null, module: null });
-          CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"));
-        }
-        return;
-      }
-
-      var incrX = 0, incrY = 0;
-      switch (e.which) {
-        case 37: // left
-          incrX = -1;
-          break;
-        case 39: // right
-          incrX = 1;
-          break;
-        case 38: // up
-          incrY = -1;
-          break;
-        case 40: // down
-          incrY = 1;
-          break;
-      }
-      if ((incrX || incrY) && slot) {
-        e.preventDefault();
-        CURRENT_USER.moveTrackerSelection(incrX, incrY);
-      }
-    });
-    */
-  }());
 
   // INITIALIZES NETWORK
 
