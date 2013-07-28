@@ -1,6 +1,7 @@
 (function (Module) {
 
 zound.modules.Reverb = Module.extend({
+  
   initialize: function () {
     Module.prototype.initialize.call(this);
     this.pMix = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Mix", value: 20 });
@@ -8,12 +9,12 @@ zound.modules.Reverb = Module.extend({
     this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 50, title: "Decay", value: 2});
     this.properties.add([this.pMix, this.pTime, this.pDecay]);
   },
-  init: function (ctx) {
 
-  	this.input = ctx.createGain();
+  init: function (ctx) {
+    this.input = ctx.createGain();
     this.output = ctx.createGain();
-  	this.drygain = ctx.createGain();
-  	this.wetgain = ctx.createGain();
+    this.drygain = ctx.createGain();
+    this.wetgain = ctx.createGain();
 
     // Feedback delay into itself
     this.verb = ctx.createConvolver();
@@ -33,16 +34,16 @@ zound.modules.Reverb = Module.extend({
     this.pDecay.on("change", _.bind(this.buildImpulse, this));
     this.pMix.on("change", _.bind(this.updateMix, this));
   },
-  updateMix: function () {
-  	var wet = this.pMix.get("value") / 100;
-  	var dry = 1 - wet;
 
-  	this.wetgain.gain.value = wet;
-  	this.drygain.gain.value = dry;
+  updateMix: function () {
+    var wet = this.pMix.get("value") / 100;
+    var dry = 1 - wet;
+
+    this.wetgain.gain.value = wet;
+    this.drygain.gain.value = dry;
   },
 
   buildImpulse: function () {
-
     // FIXME: need the audio context to rebuild the buffer.
 
     var ctx = this.ctx,
@@ -55,22 +56,12 @@ zound.modules.Reverb = Module.extend({
         impulseR = impulse.getChannelData(1),
         n,
         i;
-
     for (i = 0; i < length; i++) {
       n = reverse ? length - i : i;
       impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
       impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
     }
-
     this.verb.buffer = impulse;
-
-  },
-  plugInput: function (nodeInput, ctx) {
-    nodeInput.connect(this.input);
-    this.broadcastToOutputs(this.output, ctx);
-  },
-  unplugInput: function (nodeInput, ctx) {
-    nodeInput.disconnect(this.input);
   }
 });
 
