@@ -2,14 +2,19 @@
 zound.ui.Player = Backbone.View.extend({
   tagName: "span",
   id: "controls",
-  tmpl: _.template('<span id="controls"><a href="#"><i class="icon-play play"></i></a><a href="#"><i class="icon-stop stop"></i></a><a href="#"><i class="icon-circle record"></i></a></span>'),
+  tmpl: _.template('<span id="controls"><a href="#" class="play"><i class="icon-play"></i></a><a href="#" class="stop"><i class="icon-stop"></i></a><a href="#" class="record"><i class="icon-circle"></i></a></span>'),
   initialize: function () {
+    this.listenTo(this.model, "change:recording", this.syncRecord);
     this.render();
+    this.syncRecord();
   },
   events: {
     "click .play": "onPlay",
     "click .stop": "onStop",
     "click .record": "onRecord"
+  },
+  syncRecord: function () {
+    this.$el.find(".record").toggleClass("recording", this.model.get("recording"));
   },
   render: function () {
     this.$el.html(this.tmpl());

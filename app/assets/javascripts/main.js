@@ -90,18 +90,19 @@
     nodeEditor.selectModule(m);
   }
 
-  playerController.on("record", function () {
-    var lastSelection = tracker.tracks[0].slots[0];
-    CURRENT_USER.selectTrackerSlot(lastSelection);
+  playerController.on("change:recording", function (model, recording) {
+    if (recording && !CURRENT_USER.getSelectedSlot())
+      CURRENT_USER.selectTrackerSlot(tracker.tracks[0].slots[0]);
   });
   playerController.on("tick", function (lineNumber, time) {
     song.scheduleNote(lineNumber, time);
-    if(playerController.recording)
+    if(playerController.get("recording"))
       CURRENT_USER.moveTo(lineNumber);
     tracker.highlightLine(lineNumber);
   });
-  playerController.on("stop", function () {
-    tracker.highlightLine(null);
+  playerController.on("change:playing", function (model, playing) {
+    if (!playing)
+      tracker.highlightLine(null);
   });
 
   // bind user style
@@ -146,8 +147,25 @@
   keyboardController.on("note", handleNote);
   midiController.on("note", handleNote);
 
+  keyboardController.on({
+    "note": handleNote,
+    "unselect": function () {
+      var slot = CURRENT_USER.getSelectedSlot();
+      if (slot) {
+        CURRENT_USER.unselectCurrentTrackerSlot();
+      }
+    },
+    "play-pause": function () {
+      if (!playerController.playing)
+        playerController.play();
+      else
+        playerController.stop();
+    }
+  });
+
   // Handle selection
   (function(){
+    /*
     var lastSelection = tracker.tracks[0].slots[0];
     $(window).on("keydown", function (e) {
       var slot = CURRENT_USER.getSelectedSlot();
@@ -203,6 +221,7 @@
         CURRENT_USER.moveTrackerSelection(incrX, incrY);
       }
     });
+    */
   }());
 
   // INITIALIZES NETWORK

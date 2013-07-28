@@ -4,14 +4,15 @@
 zound.models.PlayerController = Backbone.Model.extend({
   defaults: {
     length: 32,
-    bpm: 125
+    bpm: 125,
+    playing: false,
+    recording: false
   },
 
   initialize: function () {
     this.lookAhead = 25; // Call shedule every ms
     this.scheduleAhead = 0.1; // Audio schedule (sec)
     this.nextLineTime = 0;
-    this.playing = false;
     this.timerId = null;
     this.currentLine = 0;
   },
@@ -21,26 +22,25 @@ zound.models.PlayerController = Backbone.Model.extend({
   },
 
   play: function () {
-    if (this.playing) return;
+    if (this.get("playing")) return;
     var ctx = this.ctx;
-    this.playing = true;
     this.currentLine = 0;
     this.nextLineTime = ctx.currentTime;
     this.scheduler(ctx);
+    this.set("playing", true);
     this.trigger("play");
   },
 
   stop: function () {
-    if (!this.playing) return;
-    this.recording = this.playing = false;
+    if (!this.get("playing")) return;
     window.clearTimeout(this.timerId);
-    this.trigger("stop");
+    this.set("recording", false);
+    this.set("playing", false);
   },
 
   record: function () {
     this.play();
-    this.recording = true;
-    this.trigger("record");
+    this.set("recording", !this.get("recording"));
   },
 
   scheduler: function (ctx) {
