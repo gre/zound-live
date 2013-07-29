@@ -157,7 +157,7 @@
     }
   };
 
-  midiController.on("note", handleNote);
+  midiController.on("noteOn", handleNote);
 
   keyboardController.on({
     "note": handleNote,
