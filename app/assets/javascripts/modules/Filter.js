@@ -21,12 +21,12 @@ zound.modules.Filter = EffectModule.extend({
   initialize: function () {
     EffectModule.prototype.initialize.call(this);
     this.pType      = new zound.models.ModulePropertySelect({ values: FILTER_TYPES_NAME, title: "Type" });
-    this.pFrequency = new zound.models.ModulePropertyRange({ min: 10, max: 22050, title: "Frequency", value: 22050 });
+    this.pFrequency = new zound.models.ModulePropertyRange({ min: 10, max: 11025, title: "Frequency", value: 22050 });
     this.pQ         = new zound.models.ModulePropertyRange({
       max   : 20,
       min   : 0,
       value : 1,
-      title : "Resonance" 
+      title : "Resonance"
     });
     this.pGain      = new zound.models.ModulePropertyRange({
       max   : 40,
@@ -35,7 +35,7 @@ zound.modules.Filter = EffectModule.extend({
       value : 0
     });
     // FIXME: Use of Gain is useless for low and high pass. Removed until more filter support
-    this.properties.add([this.pFrequency, this.pType, this.pQ]);
+    this.properties.add([this.pType, this.pFrequency, this.pQ]);
   },
 
   init: function (ctx) {
@@ -49,15 +49,15 @@ zound.modules.Filter = EffectModule.extend({
     this.input = this.filter;
     this.output = this.filter;
   },
-  
+
   updateFrequency: function () {
     this.filter.frequency.value = this.pFrequency.get("value");
   },
-  
+
   updateFilter : function(){
     this.filter.type = FILTER_TYPE_VALUES[this.pType.get("value")];
   },
-  
+
   updateQ: function(){
     this.filter.Q.value = this.pQ.get("value");
   },
