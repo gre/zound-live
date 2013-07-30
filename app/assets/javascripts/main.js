@@ -48,7 +48,6 @@
 
   users.on("change:slot", function (user, value) {
     var previous = user.previous("slot");
-    console.log(value, previous);
     if (previous) {
       tracker.getSlot(previous.track, previous.slot).setUserSelect(null);
     }
@@ -167,7 +166,6 @@
 
   var handleNoteOff = function (note) {
     if (noteDatas[note]) {
-      console.log(noteDatas[note]);
       noteDatas[note].module.noteOff(noteDatas[note].data, song.ctx);
       noteDatas[note] = null;
     }

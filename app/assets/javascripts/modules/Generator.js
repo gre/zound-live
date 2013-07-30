@@ -37,11 +37,13 @@ zound.modules.Generator = SynthModule.extend({
 
     // Note envelope (Attack/Delay)
     var attackTime = this.pAttack.getValue() / 1000;
-    var decayTime = this.pDecay.getValue() / 1000; // FIXME how to use the decay?
+    var decayTime = this.pDecay.getValue() / 1000;
+    var volume = this.pVolume.getPercent();
 
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + attackTime);
+    gain.gain.linearRampToValueAtTime(volume, time + attackTime);
+    gain.gain.linearRampToValueAtTime(volume*0.7, time + attackTime + decayTime);
 
     // Glide to note
     var glideTime = this.pGlide.getValue() / 100;
@@ -59,8 +61,10 @@ zound.modules.Generator = SynthModule.extend({
   noteOff: function (nodes, ctx) {
     var time = ctx.currentTime;
     var releaseTime = this.pRelease.getValue()/1000;
-    console.log(time, releaseTime);
-    nodes.gain.gain.linearRampToValueAtTime(0, time + releaseTime);
+    var gain = nodes.gain.gain;
+    gain.cancelScheduledValues(time);
+    gain.setValueAtTime(gain.value, time);
+    gain.linearRampToValueAtTime(0, time + releaseTime);
     nodes.osc.stop(time + releaseTime);
   }
 }, {
