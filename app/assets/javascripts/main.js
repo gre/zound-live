@@ -42,7 +42,7 @@
     var m = module.clone();
     var title = m.get("title");
     if (title.length > 6) title = title.substring(0,5)+".";
-    m.set("title", title+(song.moduleIdCounter+1));
+    m.set("title", title+song.moduleIdCounter);
     song.addModule(m);
   });
 
@@ -284,12 +284,24 @@
     module.properties.each(function (property, i) {
       property.on("change", function (property) {
           network.send("property-change", {
-            module: module.cid,
+            module: module.id,
             property: i,
             value: property.get("value")
           });
       });
     });
+
+    // FIXME: this throttle makes the event going crazy ping / pong
+    // due to the hacky way we avoid recursivity loop in network
+    /*
+    module.on("change:x change:y", _.throttle(function () {
+      network.send("module-position", {
+        module: module.id,
+        x: module.get("x"),
+        y: module.get("y")
+      });
+    }, 200));
+    */
     module.on("change:x change:y", function () {
       network.send("module-position", {
         module: module.id,
@@ -297,6 +309,8 @@
         y: module.get("y")
       });
     });
+    
+
     module.outputs.on("add", function (add) {
       network.send("module-output-add", {
         module: module.id,
