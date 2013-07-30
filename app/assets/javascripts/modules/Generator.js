@@ -19,8 +19,9 @@ zound.modules.Generator = SynthModule.extend({
     this.pType = new zound.models.ModulePropertySelect({ values: GENERATOR_TYPES_NAME, title: "Type" });
     this.pAttack = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Attack", value: 10 });
     this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Decay", value: 200 });
+    this.pRelease = new zound.models.ModulePropertyRange({ min: 0, max: 4000, title: "Release", value: 200 });
     this.pGlide = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Glide", value: 0 });
-    this.properties.add([this.pVolume, this.pType, this.pAttack, this.pDecay, this.pGlide]);
+    this.properties.add([this.pVolume, this.pType, this.pAttack, this.pDecay, this.pRelease, this.pGlide]);
   },
   noteOn: function (note, ctx, time) {
     var osc = ctx.createOscillator();
@@ -36,12 +37,11 @@ zound.modules.Generator = SynthModule.extend({
 
     // Note envelope (Attack/Delay)
     var attackTime = this.pAttack.getValue() / 1000;
-    var decayTime = this.pDecay.getValue() / 1000;
+    var decayTime = this.pDecay.getValue() / 1000; // FIXME how to use the decay?
 
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + attackTime);
-    //gain.gain.linearRampToValueAtTime(0.4, time + attackTime + decayTime);
 
     // Glide to note
     var glideTime = this.pGlide.getValue() / 100;
@@ -50,11 +50,18 @@ zound.modules.Generator = SynthModule.extend({
       osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackTime + decayTime) * glideTime));
     }
     this.lastNote = note;
-    return osc;
+    return {
+      osc: osc,
+      gain: gain
+    };
 
   },
-  noteOff: function (osc, ctx) {
-    osc.stop(ctx.currentTime);
+  noteOff: function (nodes, ctx) {
+    var time = ctx.currentTime;
+    var releaseTime = this.pRelease.getValue()/1000;
+    console.log(time, releaseTime);
+    nodes.gain.gain.linearRampToValueAtTime(0, time + releaseTime);
+    nodes.osc.stop(time + releaseTime);
   }
 }, {
   GENERATOR_TYPES: GENERATOR_TYPES,

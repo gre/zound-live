@@ -54,7 +54,9 @@ zound.models.Song = Backbone.Model.extend({
         var moduleId = slot.get("module");
         var module = this.modules.get(moduleId);
         if (module) {
-          module.noteOn(note, this.ctx, time);
+          var data = module.noteOn(note, this.ctx, time);
+          // FIXME: for now we noteOff instantly
+          module.noteOff(data, this.ctx);
         }
       }
     }, this);
