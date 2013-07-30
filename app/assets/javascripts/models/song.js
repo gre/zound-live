@@ -46,7 +46,7 @@ zound.models.Song = Backbone.Model.extend({
 
   releaseHoldingNotes: function () {
     _.each(this.holdingNotes, function (note) {
-      note.module.noteOff(note.data, this.ctx, ctx.currentTime);
+      note.module.noteOff(note.data, this.ctx, this.ctx.currentTime);
     }, this);
     this.holdingNotes = [];
   },
