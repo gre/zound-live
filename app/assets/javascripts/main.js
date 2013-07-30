@@ -140,12 +140,20 @@
     user: CURRENT_USER
   }, models.KeyboardController[window.KEYBOARD_LAYOUT+"config"]));
 
-  var handleNote = function (note) {
+
+  var noteDatas = {};
+
+  var handleNoteOn = function (note, velocity) {
     var module = song.modules.get(CURRENT_USER.get("module"));
     var slot = CURRENT_USER.get("slot");
 
-    if (module && module.canPlayNote())
-      module.noteOn(note, song.ctx, song.ctx.currentTime);
+    if (module && module.canPlayNote()) {
+      var data = module.noteOn(note, song.ctx, song.ctx.currentTime);
+      if (noteDatas[note]) {
+        noteDatas[note].module.noteOff(noteDatas[note].data, song.ctx);
+      }
+      noteDatas[note] = { data: data, module: module };
+    }
 
     if (module && module.canPlayNote() && slot) {
       var slotModel = pattern.getSlot(slot.track, slot.slot);
@@ -157,10 +165,19 @@
     }
   };
 
-  midiController.on("noteOn", handleNote);
+  var handleNoteOff = function (note) {
+    if (noteDatas[note]) {
+      console.log(noteDatas[note]);
+      noteDatas[note].module.noteOff(noteDatas[note].data, song.ctx);
+      noteDatas[note] = null;
+    }
+  };
+
+  midiController.on("noteOn", handleNoteOn);
 
   keyboardController.on({
-    "note": handleNote,
+    "noteOn": handleNoteOn,
+    "noteOff": handleNoteOff,
     "tracker-move": function (incrX, incrY) {
       CURRENT_USER.moveTrackerSelection(incrX, incrY, pattern.tracks.size(), pattern.get("length"));
     },

@@ -27,7 +27,7 @@ zound.modules.Generator = SynthModule.extend({
     osc.type = GENERATOR_TYPES_OSCVALUE[this.pType.get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
     osc.start(time);
-    osc.stop(time + 0.2);
+    //osc.stop(time + 0.2);
     var gain = ctx.createGain();
     gain.gain.value = this.pVolume.getPercent();
 
@@ -41,7 +41,7 @@ zound.modules.Generator = SynthModule.extend({
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(this.pVolume.getPercent(), time + attackTime);
-    gain.gain.linearRampToValueAtTime(0, time + attackTime + decayTime);
+    //gain.gain.linearRampToValueAtTime(0.4, time + attackTime + decayTime);
 
     // Glide to note
     var glideTime = this.pGlide.getValue() / 100;
@@ -50,10 +50,11 @@ zound.modules.Generator = SynthModule.extend({
       osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackTime + decayTime) * glideTime));
     }
     this.lastNote = note;
+    return osc;
 
   },
-  noteOff: function () {
-    // needed?
+  noteOff: function (osc, ctx) {
+    osc.stop(ctx.currentTime);
   }
 }, {
   GENERATOR_TYPES: GENERATOR_TYPES,

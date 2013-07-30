@@ -30,17 +30,36 @@ zound.models.KeyboardController = Backbone.Model.extend({
   }, AZERTYconfig),
   initialize: function () {
     $(window).on("keydown", _.bind(this.onKeydown, this));
+    $(window).on("keyup", _.bind(this.onKeyup, this));
+  },
+  keysDown: [],
+  onKeyup: function (e) {
+    if (!e.which) return;
+    this.keysDown = _.filter(this.keysDown, function (key) {
+      return key !== e.which;
+    });
+    var tone = this.get("keyCodeByTones").indexOf(e.which);
+    if (tone > -1) {
+      e.preventDefault();
+      var note = this.get("octave")*12+tone;
+      if (note >= 0 && note <= 127) {
+        this.trigger("noteOff", note);
+      }
+    }
   },
   onKeydown: function (e) {
+    if (!e.which) return;
+    var alreadyPressed = _.contains(this.keysDown, e.which);
+    this.keysDown.push(e.which);
     if (e.altKey || e.shiftKey || e.metaKey || e.altKey) return;
     var incrX = 0, incrY = 0;
 
     var slot = CURRENT_USER.get("slot");
-    if (slot && e.which===this.get("unselectKey")) {
+    if (slot && e.which===this.get("unselectKey") && !alreadyPressed) {
       e.preventDefault();
       this.trigger("unselect");
     }
-    else if (e.which===this.get("playKey")) {
+    else if (e.which===this.get("playKey") && !alreadyPressed) {
       e.preventDefault();
       this.trigger("play-pause");
     }
@@ -55,7 +74,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
         e.preventDefault();
         this.trigger("tracker-delete");
       }
-      else if (CURRENT_USER.get("module")) {
+      else if (CURRENT_USER.get("module") && !alreadyPressed) {
         e.preventDefault();
         this.trigger("module-delete");
       }
@@ -80,11 +99,11 @@ zound.models.KeyboardController = Backbone.Model.extend({
     }
     else {
       var tone = this.get("keyCodeByTones").indexOf(e.which);
-      if (tone > -1) {
+      if (!alreadyPressed && tone > -1) {
         e.preventDefault();
         var note = this.get("octave")*12+tone;
         if (note >= 0 && note <= 127) {
-          this.trigger("note", note, 127);
+          this.trigger("noteOn", note, 127);
         }
       }
     }
