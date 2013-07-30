@@ -1,11 +1,19 @@
 
 zound.models.Slot = Backbone.Model.extend({
   defaults: {
-    note: null,
-    module: null
+    typ: "blank"
   },
   initialize: function () {
 
+  },
+  setNote: function (note, moduleId) {
+    this.set({ typ: "note", note: note, module: moduleId });
+  },
+  setOff: function () {
+    this.set({ typ: "off", note: null, module: null });
+  },
+  setBlank: function () {
+    this.set({ typ: "blank", note: null, module: null });
   }
 });
 

@@ -42,20 +42,52 @@ zound.models.Song = Backbone.Model.extend({
     });
   },
 
+  holdingNotes: [],
+
+  releaseHoldingNotes: function () {
+    _.each(this.holdingNotes, function (note) {
+      note.module.noteOff(note.data, this.ctx, this.ctx.currentTime);
+    }, this);
+    this.holdingNotes = [];
+  },
+
+  noteOffForTrack: function (track, time) {
+    this.holdingNotes = _.filter(this.holdingNotes, function (note) {
+      if (track !== note.track) return true;
+      note.module.noteOff(note.data, this.ctx, time);
+    }, this);
+  },
+
   scheduleNote: function(lineNumber, time) {
+    if (lineNumber === 0) {
+      this.patterns.first().tracks.each(function (track) {
+        this.noteOffForTrack(track, time);
+      }, this);
+    }
     this.patterns.first().tracks.chain()
       .filter(function (track) {
         return track.isListenableFor(CURRENT_USER);
       })
       .each(function (track) {
       var slot = track.slots.at(lineNumber);
-      var note = slot.get("note");
-      if (note) {
+      switch (slot.get("typ")) {
+      case "note":
+        var note = slot.get("note");
         var moduleId = slot.get("module");
         var module = this.modules.get(moduleId);
         if (module) {
-          module.noteOn(note, this.ctx, time);
+          this.noteOffForTrack(track, time);
+          var data = module.noteOn(note, this.ctx, time);
+          this.holdingNotes.push({
+            data: data,
+            module: module,
+            track: track
+          });
         }
+        break;
+      case "off":
+        this.noteOffForTrack(track, time);
+        break;
       }
     }, this);
   }
