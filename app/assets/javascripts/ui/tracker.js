@@ -3,6 +3,7 @@ zound.ui.Slot = Backbone.View.extend({
   tagName: "li",
   className: "slot",
   tmpl: _.template('<span class="note"><%= note %></span>&nbsp;<span class="module"><%= module %></span>'),
+  tmplOff: _.template('<span class="off">----</span>'),
   initialize: function () {
     this.listenTo(this.model, "change", this.render);
     this.render(this.model);
@@ -28,15 +29,19 @@ zound.ui.Slot = Backbone.View.extend({
     this.$el.removeClass("highlighted");
   },
   render: function (model) {
-    if (model.get("note")) {
+    switch (model.get("typ")) {
+    case "note":
       var note = this.noteToText(model.get("note"));
       var module = zound.models.Module.idToText(model.get("module"));
       this.$el.html(this.tmpl({
         note: note,
         module: module
       }));
-    }
-    else {
+      break;
+    case "off":
+      this.$el.html(this.tmplOff());
+      break;
+    default:
       this.$el.empty();
     }
     if (this._highlighted) {

@@ -48,7 +48,6 @@
 
   users.on("change:slot", function (user, value) {
     var previous = user.previous("slot");
-    console.log(value, previous);
     if (previous) {
       tracker.getSlot(previous.track, previous.slot).setUserSelect(null);
     }
@@ -113,8 +112,10 @@
     tracker.highlightLine(lineNumber);
   });
   playerController.on("change:playing", function (model, playing) {
-    if (!playing)
+    if (!playing) {
       tracker.highlightLine(null);
+      song.releaseHoldingNotes();
+    }
   });
 
   // bind user style
@@ -140,40 +141,68 @@
     user: CURRENT_USER
   }, models.KeyboardController[window.KEYBOARD_LAYOUT+"config"]));
 
-  var handleNote = function (note) {
+
+  var noteDatas = {};
+
+  var handleNoteOn = function (note, velocity) {
     var module = song.modules.get(CURRENT_USER.get("module"));
     var slot = CURRENT_USER.get("slot");
 
-    if (module && module.canPlayNote())
-      module.noteOn(note, song.ctx, song.ctx.currentTime);
+    if (module && module.canPlayNote()) {
+      var data = module.noteOn(note, song.ctx, song.ctx.currentTime);
+      if (noteDatas[note]) {
+        noteDatas[note].module.noteOff(noteDatas[note].data, song.ctx, song.ctx.currentTime);
+      }
+      noteDatas[note] = { data: data, module: module };
+    }
 
     if (module && module.canPlayNote() && slot) {
       var slotModel = pattern.getSlot(slot.track, slot.slot);
-      slotModel.set({
-        note: note,
-        module: module.id
-      });
+      slotModel.setNote(note, module.id);
       CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"), pattern.tracks.size(), pattern.get("length"));
     }
   };
 
-  midiController.on("noteOn", handleNote);
+  var handleNoteOff = function (note) {
+    if (noteDatas[note]) {
+      noteDatas[note].module.noteOff(noteDatas[note].data, song.ctx, song.ctx.currentTime);
+      noteDatas[note] = null;
+    }
+    var module = song.modules.get(CURRENT_USER.get("module"));
+    var slot = CURRENT_USER.get("slot");
+    if (module && module.canPlayNote() && slot) {
+      var slotModel = pattern.getSlot(slot.track, slot.slot);
+      slotModel.setOff();
+    }
+  };
+
+  midiController.on({
+    "noteOn": handleNoteOn,
+    "noteOff": handleNoteOff
+  });
 
   keyboardController.on({
-    "note": handleNote,
+    "noteOn": handleNoteOn,
+    "noteOff": handleNoteOff,
+    "tracker-off": function () {
+      var slot = CURRENT_USER.get("slot");
+      var slotModel = pattern.getSlot(slot.track, slot.slot);
+      slotModel.setOff();
+      CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"), pattern.tracks.size(), pattern.get("length"));
+    },
     "tracker-move": function (incrX, incrY) {
       CURRENT_USER.moveTrackerSelection(incrX, incrY, pattern.tracks.size(), pattern.get("length"));
     },
     "tracker-backspace": function () {
       var slot = CURRENT_USER.get("slot");
       var slotModel = pattern.getSlot(slot.track, slot.slot);
-      slotModel.set({ note: null, module: null });
+      slotModel.setBlank();
       CURRENT_USER.moveTrackerSelection(0, -1, pattern.tracks.size(), pattern.get("length"));
     },
     "tracker-delete": function () {
       var slot = CURRENT_USER.get("slot");
       var slotModel = pattern.getSlot(slot.track, slot.slot);
-      slotModel.set({ note: null, module: null });
+      slotModel.setBlank();
       CURRENT_USER.moveTrackerSelection(0, CURRENT_USER.get("trackerIncrement"), pattern.tracks.size(), pattern.get("length"));
     },
     "unselect": function () {
@@ -197,22 +226,11 @@
 
     track.slots.each(function(slot){
       slot.on("change", function(slot){
-        var note = slot.get("note");
-        var module = slot.get("module");
-        if(note === null){
-          network.send("del-note", {
-            slot: slot.get("num"),
-            track: track.get("num")
-          });
-        }
-        else {
-          network.send("add-note", {
-            slot: slot.get("num"),
-            track: track.get("num"),
-            note: note,
-            module: module
-          });
-        }
+        network.send("set-slot", {
+          slot: slot.get("num"), // FIXME
+          track: track.get("num"),
+          data: slot.toJSON()
+        });
       });
     });
 
@@ -264,15 +282,8 @@
     users.get(user).set("slot", null);
   });
 
-  network.on("add-note", function(data, user){
-    pattern.getSlot(data.track, data.slot).set(data);
-  });
-
-  network.on("del-note", function(data){
-    pattern.getSlot(data.track, data.slot).set({
-      note: null,
-      module: null
-    });
+  network.on("set-slot", function(data, user){
+    pattern.getSlot(data.track, data.slot).set(data.data);
   });
 
   function bindModule (module) {

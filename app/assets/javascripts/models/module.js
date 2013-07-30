@@ -84,9 +84,8 @@ zound.models.SynthModule = zound.models.Module.extend({
     throw "noteOn not implemented";
   },
 
-  // FIXME needed?
-  noteOff: function () {
-    throw "noteOff not implemented";
+  noteOff: function (noteData, ctx, time) {
+    // noteData is the value returned by the noteOn function
   }
 });
 

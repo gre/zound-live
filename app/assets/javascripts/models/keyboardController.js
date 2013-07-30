@@ -7,7 +7,8 @@ var AZERTYconfig = {
   keyCodeByTones: [
     87,83,88,68,67,86,71,66,72,78,74,188, // first octave (lower keyboard)
     65,50,90,222,69,82,53,84,54,89,55,85 // second octave (up keyboard)
-  ]
+  ],
+  noteOff: 189 // use '-', can't make the '<' key working.. it is the same as ',' ...
 };
 
 var QWERTYconfig = {
@@ -16,7 +17,8 @@ var QWERTYconfig = {
   keyCodeByTones: [
     90,83,88,68,67,86,71,66,72,78,74,77, // first octave (lower keyboard)
     81,50,87,51,69,82,53,84,54,89,55,85 // second octave (up keyboard)
-  ]
+  ],
+  noteOff: 192
 };
 
 zound.models.KeyboardController = Backbone.Model.extend({
@@ -30,17 +32,36 @@ zound.models.KeyboardController = Backbone.Model.extend({
   }, AZERTYconfig),
   initialize: function () {
     $(window).on("keydown", _.bind(this.onKeydown, this));
+    $(window).on("keyup", _.bind(this.onKeyup, this));
+  },
+  keysDown: [],
+  onKeyup: function (e) {
+    if (!e.which) return;
+    this.keysDown = _.filter(this.keysDown, function (key) {
+      return key !== e.which;
+    });
+    var tone = this.get("keyCodeByTones").indexOf(e.which);
+    if (tone > -1) {
+      e.preventDefault();
+      var note = this.get("octave")*12+tone;
+      if (note >= 0 && note <= 127) {
+        this.trigger("noteOff", note);
+      }
+    }
   },
   onKeydown: function (e) {
+    if (!e.which) return;
+    var alreadyPressed = _.contains(this.keysDown, e.which);
+    this.keysDown.push(e.which);
     if (e.altKey || e.shiftKey || e.metaKey || e.altKey) return;
     var incrX = 0, incrY = 0;
 
     var slot = CURRENT_USER.get("slot");
-    if (slot && e.which===this.get("unselectKey")) {
+    if (slot && e.which===this.get("unselectKey") && !alreadyPressed) {
       e.preventDefault();
       this.trigger("unselect");
     }
-    else if (e.which===this.get("playKey")) {
+    else if (e.which===this.get("playKey") && !alreadyPressed) {
       e.preventDefault();
       this.trigger("play-pause");
     }
@@ -55,7 +76,7 @@ zound.models.KeyboardController = Backbone.Model.extend({
         e.preventDefault();
         this.trigger("tracker-delete");
       }
-      else if (CURRENT_USER.get("module")) {
+      else if (CURRENT_USER.get("module") && !alreadyPressed) {
         e.preventDefault();
         this.trigger("module-delete");
       }
@@ -78,13 +99,16 @@ zound.models.KeyboardController = Backbone.Model.extend({
     else if (e.which===this.get("decrementOctaveKey")) {
       this.set("octave", Math.max(0, this.get("octave")-1));
     }
+    else if (slot && e.which===this.get("noteOff")) {
+      this.trigger("tracker-off");
+    }
     else {
       var tone = this.get("keyCodeByTones").indexOf(e.which);
-      if (tone > -1) {
+      if (!alreadyPressed && tone > -1) {
         e.preventDefault();
         var note = this.get("octave")*12+tone;
         if (note >= 0 && note <= 127) {
-          this.trigger("note", note, 127);
+          this.trigger("noteOn", note, 127);
         }
       }
     }

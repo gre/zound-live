@@ -5,8 +5,16 @@
       return out.canPlayNote();
     },
     noteOn: function (note, ctx, time) {
-      this.outputs.each(function (output) {
-        output.noteOn(note, ctx, time);
+      return this.outputs.map(function (output) {
+        return {
+          output: output,
+          data: output.noteOn(note, ctx, time)
+        };
+      });
+    },
+    noteOff: function (noteDatas, ctx, time) {
+      _.each(noteDatas, function (noteData) {
+        noteData.output.noteOff(noteData.data, ctx, time);
       });
     }
   });
