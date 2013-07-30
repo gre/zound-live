@@ -22,15 +22,22 @@ zound.modules.Generator = SynthModule.extend({
       this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Decay", value: 200 }),
       this.pRelease = new zound.models.ModulePropertyRange({ min: 0, max: 4000, title: "Release", value: 200 }),
       this.pDecayVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Decay Volume", value: 70 }),
+      this.pSustain = new zound.models.ModulePropertySelect({ values: [ "off", "on" ], title: "Sustain", value: 1 }),
       this.pGlide = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Glide", value: 0 })
     ]);
   },
   noteOn: function (note, ctx, time) {
     var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    var nodes = {
+      osc: osc,
+      gain: gain
+    };
+
     osc.type = GENERATOR_TYPES_OSCVALUE[this.pType.get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
     osc.start(time);
-    var gain = ctx.createGain();
+
     gain.gain.value = this.pVolume.getPercent();
 
     osc.connect(gain);
@@ -46,6 +53,10 @@ zound.modules.Generator = SynthModule.extend({
     gain.gain.linearRampToValueAtTime(volume, time + attackTime);
     gain.gain.linearRampToValueAtTime(volume*this.pDecayVolume.getPercent(), time + attackTime + decayTime);
 
+    if (!this.pSustain.getValue()) {
+      this.noteOff(nodes, ctx, time + attackTime + decayTime);
+    }
+
     // Glide to note
     var glideTime = this.pGlide.getValue() / 100;
     if (glideTime > 0 && this.lastNote) {
@@ -53,10 +64,7 @@ zound.modules.Generator = SynthModule.extend({
       osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackTime + decayTime) * glideTime));
     }
     this.lastNote = note;
-    return {
-      osc: osc,
-      gain: gain
-    };
+    return nodes;
 
   },
   noteOff: function (nodes, ctx, time) {

@@ -1,5 +1,5 @@
 
-// TODO: make a moduleproperty type which adapt on the property value (minValue, maxValue)
+// TODO : BooleanProperty
 
 zound.models.ModuleProperty = Backbone.Model.extend({
   initialize: function () {
