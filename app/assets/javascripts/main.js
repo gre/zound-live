@@ -168,6 +168,12 @@
       noteDatas[note].module.noteOff(noteDatas[note].data, song.ctx, song.ctx.currentTime);
       noteDatas[note] = null;
     }
+    var module = song.modules.get(CURRENT_USER.get("module"));
+    var slot = CURRENT_USER.get("slot");
+    if (module && module.canPlayNote() && slot) {
+      var slotModel = pattern.getSlot(slot.track, slot.slot);
+      slotModel.setOff();
+    }
   };
 
   midiController.on({
