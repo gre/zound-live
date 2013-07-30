@@ -213,6 +213,18 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("y", function(d){ return d.get('y') + 10; })
       .text(get('id'));
 
+    // note animation
+    g.each(function(m){
+      var group = d3.select(this),
+          inner = group.select('.inner');
+      editor.listenTo(m, "note", function(){
+        inner.style("opacity",  .5)
+          .transition()
+          .style("opacity",  1)
+          .duration(200);
+      });
+    });
+
     return e;
   }
 
