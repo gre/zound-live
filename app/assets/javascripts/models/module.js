@@ -15,6 +15,19 @@ zound.models.Module = Backbone.Model.extend({
     if (!this.get("title")) this.set("title", this.constructor.moduleName+this.id);
     this.outputs = new zound.models.Modules();
     this.properties = new zound.models.ModuleProperties();
+
+    // XXX: trigger 'note' when a note is played by the module
+    if(this.canPlayNote) {
+      var noteOn = this.noteOn,
+          me = this;
+      this.noteOn = function(note, ctx, time){
+        setTimeout(function(){
+          me.trigger('note');
+        }, time - Date.now());
+        noteOn.apply(me, arguments);
+      };
+    }
+
   },
   getDisplayId: function () {
     zound.models.Module.idToText(this.id);
