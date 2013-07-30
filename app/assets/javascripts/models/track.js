@@ -12,14 +12,6 @@ zound.models.Track = Backbone.Model.extend({
     }, this).value());
 
   },
-  addNote: function (position, note, module) {
-    var slot = this.slots.at(position);
-    slot.set({ note: note, module: module.id });
-  },
-  removeNote: function (position) {
-    var slot = this.slots.at(position);
-    slot.set({ note: null, module: null });
-  },
   isListenableFor: function (user) {
     var offmode = this.get("offmode");
     return offmode===null || offmode===user.id;

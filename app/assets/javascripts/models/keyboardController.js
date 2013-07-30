@@ -7,7 +7,8 @@ var AZERTYconfig = {
   keyCodeByTones: [
     87,83,88,68,67,86,71,66,72,78,74,188, // first octave (lower keyboard)
     65,50,90,222,69,82,53,84,54,89,55,85 // second octave (up keyboard)
-  ]
+  ],
+  noteOff: 189 // use '-', can't make the '<' key working.. it is the same as ',' ...
 };
 
 var QWERTYconfig = {
@@ -16,7 +17,8 @@ var QWERTYconfig = {
   keyCodeByTones: [
     90,83,88,68,67,86,71,66,72,78,74,77, // first octave (lower keyboard)
     81,50,87,51,69,82,53,84,54,89,55,85 // second octave (up keyboard)
-  ]
+  ],
+  noteOff: 192
 };
 
 zound.models.KeyboardController = Backbone.Model.extend({
@@ -96,6 +98,9 @@ zound.models.KeyboardController = Backbone.Model.extend({
     }
     else if (e.which===this.get("decrementOctaveKey")) {
       this.set("octave", Math.max(0, this.get("octave")-1));
+    }
+    else if (slot && e.which===this.get("noteOff")) {
+      this.trigger("tracker-off");
     }
     else {
       var tone = this.get("keyCodeByTones").indexOf(e.which);

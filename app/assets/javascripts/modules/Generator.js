@@ -59,8 +59,7 @@ zound.modules.Generator = SynthModule.extend({
     };
 
   },
-  noteOff: function (nodes, ctx) {
-    var time = ctx.currentTime;
+  noteOff: function (nodes, ctx, time) {
     var releaseTime = this.pRelease.getValue()/1000;
     var gain = nodes.gain.gain;
     gain.cancelScheduledValues(time);

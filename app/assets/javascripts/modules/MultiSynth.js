@@ -12,9 +12,9 @@
         };
       });
     },
-    noteOff: function (noteDatas, ctx) {
+    noteOff: function (noteDatas, ctx, time) {
       _.each(noteDatas, function (noteData) {
-        noteData.output.noteOff(noteData.data, ctx);
+        noteData.output.noteOff(noteData.data, ctx, time);
       });
     }
   });

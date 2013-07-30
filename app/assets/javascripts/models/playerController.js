@@ -28,7 +28,6 @@ zound.models.PlayerController = Backbone.Model.extend({
     this.nextLineTime = ctx.currentTime;
     this.scheduler(ctx);
     this.set("playing", true);
-    this.trigger("play");
   },
 
   stop: function () {
