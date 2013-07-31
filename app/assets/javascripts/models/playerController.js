@@ -22,6 +22,7 @@ zound.models.PlayerController = Backbone.Model.extend({
   },
 
   play: function () {
+    this.trigger("play"); // play button pressed trigger, whatever if already playing
     if (this.get("playing")) return;
     var ctx = this.ctx;
     this.currentLine = 0;
@@ -31,6 +32,7 @@ zound.models.PlayerController = Backbone.Model.extend({
   },
 
   stop: function () {
+    this.trigger("stop"); // stop button pressed trigger, whatever if already playing
     if (!this.get("playing")) return;
     window.clearTimeout(this.timerId);
     this.set("recording", false);

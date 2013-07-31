@@ -9,7 +9,7 @@ zound.Network = Backbone.Model.extend({
       var o = JSON.parse(m.data);
 
       if(o.user != window.CURRENT_USER.id){
-        console.log(o);
+        //console.log(o);
         this.dontSend = true;
         this.trigger(o.type, o.data, o.user);
         this.dontSend = false;
@@ -37,7 +37,7 @@ zound.Network = Backbone.Model.extend({
         type: type,
         data: data
       };
-    console.log("send ", o);
+    //console.log("send ", o);
     if(this.connected) {
       this.sock.send(JSON.stringify(o));
     }
