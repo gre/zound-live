@@ -5,7 +5,7 @@ zound.modules.Reverb = EffectModule.extend({
   initialize: function () {
     EffectModule.prototype.initialize.call(this);
     this.pMix = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Mix", value: 20 });
-    this.pTime = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Time", value: 10 });
+    this.pTime = new zound.models.ModulePropertyRange({ min: 1, max: 100, title: "Time", value: 10 });
     this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 50, title: "Decay", value: 2});
     this.properties.add([this.pMix, this.pTime, this.pDecay]);
   },
