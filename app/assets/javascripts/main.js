@@ -183,6 +183,11 @@
   });
   $('#tracker').append(trackerIncrement.el);
 
+  var volumeControl = new ui.VolumeControl({
+    model: song.modules.get(0).pVolume
+  });
+  $('#toolbar').append(volumeControl.el);
+
   var player = new ui.Player({
     model: playerController
   });

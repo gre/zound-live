@@ -10,12 +10,22 @@ zound.modules.Output = Module.extend({
   canPlayNote: function () {
     return false;
   },
+  initialize: function () {
+    Module.prototype.initialize.call(this);
+    this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, value: 100, title: "Volume" })
+  },
   init: function (ctx) {
-    this.input = ctx.destination;
+    this.gain = ctx.createGain();
+    this.gain.connect(ctx.destination);
+    this.updateGain();
+    this.pVolume.on("change", _.bind(this.updateGain, this));
+    this.input = this.gain;
+  },
+  updateGain: function () {
+    this.gain.gain.value = this.pVolume.getPercent();
   },
   plugInput: function (nodeInput, ctx) {
     nodeInput.connect(this.input);
-    this.broadcastToOutputs(this.output, ctx);
   },
   unplugInput: function (nodeInput, ctx) {
     nodeInput.disconnect(this.input);

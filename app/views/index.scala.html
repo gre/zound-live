@@ -7,14 +7,6 @@
       <div id="tracker"></div>
     </div>
     <div id="toolbar">
-      <!-- FIXME this are mocks and could be replace with a Backbone.View -->
-      <!--
-      <label class="volume">
-        <i class="icon-volume-up"></i>
-        <input id="volume" type="range" min=0 max=100 value=100 />
-      </label>
-      <span class="sep"></span>
-      -->
       <div id="midiNotification"></div>
     </div>
     <div id="modules-panel">
@@ -77,6 +69,7 @@
   <script src="@routes.Assets.at("javascripts/ui/tracker.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/trackerIncrement.js")" type="text/javascript"></script>
   <script src="@routes.Assets.at("javascripts/ui/player.js")" type="text/javascript"></script>
+  <script src="@routes.Assets.at("javascripts/ui/volumeControl.js")" type="text/javascript"></script>
   <script type="text/javascript">
     var WEBSOCKET_ENDPOINT = "@routes.EventManager.endpoint().webSocketURL()";
   </script>
