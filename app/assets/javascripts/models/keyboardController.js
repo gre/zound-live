@@ -23,7 +23,7 @@ var QWERTYconfig = {
 
 zound.models.KeyboardController = Backbone.Model.extend({
   defaults: _.extend({
-    octave: 3,
+    octave: 4,
     unselectKey: 27, // escape
     playKey: 32, // space
     backspaceKey: 8,
