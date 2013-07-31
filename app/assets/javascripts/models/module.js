@@ -30,7 +30,7 @@ zound.models.Module = Backbone.Model.extend({
 
   },
   getDisplayId: function () {
-    zound.models.Module.idToText(this.id);
+    return zound.models.Module.idToText(this.id);
   },
   // Add an output module
   connect: function (outModule) {

@@ -204,14 +204,15 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // id
     g.append("svg:text")
       .attr('class', 'id')
-      .attr("fill", "#fff")
+      .attr("fill", "#FFD384")
       .attr("text-anchor", "middle")
       .attr("font-family", "monospace")
+      .attr("font-weight", "bold")
       .attr("font-size", "8px");
     e.select('.id')
       .attr("x", get('x'))
       .attr("y", function(d){ return d.get('y') + 10; })
-      .text(get('id'));
+      .text(function(m){ return m.getDisplayId(); });
 
     // note animation
     g.each(function(m){
