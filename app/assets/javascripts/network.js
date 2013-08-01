@@ -1,49 +1,91 @@
 // FIXME: we need a zound.ui.NetworkNotification to listen to that model
 zound.Network = Backbone.Model.extend({
+
+  defaults: {
+    initialRetryTime: 150+Math.floor(50*Math.round()), // randomness: try to not make everyone restart together
+    retryMultiplicator: 1.8,
+    maxTry: 10
+  },
+
   initialize: function(){
-    this.sock = new WebSocket(WEBSOCKET_ENDPOINT);
-   
-    // FIXME: We should promisify the connection, then we won't need a buffer anymore :-)
-    this.buffer = [];
-    this.connected = false;
+    this.retryTime = this.get("initialRetryTime");
+    this.tryNb = 0;
+    this.socket = this.initSocket();
+  },
+  
+  initSocket: function () {
+    console.log("websocket connecting...");
+    var socket = zound.Network.createWebSocketPromise(
+      _.bind(this.onmessage, this), 
+      _.bind(this.onerror, this), 
+      _.bind(this.onclose, this)
+    );
+    socket.then(_.bind(function (ws) {
+      console.log("websocket connected.", ws);
+      this.retryTime = this.get("initialRetryTime");
+      this.tryNb = 0;
+      this.trigger("open");
+    }, this));
+    return socket;
+  },
 
-    this.sock.onmessage = _.bind(function(m) { 
-      var o = JSON.parse(m.data);
-      // FIXME We should probably not filter this because it may create inconsistency,
-      // backbone should solve for the us the "not retrigger unchanged .set"
-      if(o.user != window.CURRENT_USER.id){
-        // console.log(o);
-        this.trigger(o.type, o.data, o.user);
-      }
-    }, this);
-    
-    this.sock.onclose = _.bind(function() {
-      console.log("An error occured with the WebSocket connection... Please try again.");
-      this.connected = false;
-      // FIXME TODO : implement a retry strategy
-    }, this);
+  onmessage: function (m) {
+    var o = JSON.parse(m.data);
+    // console.log("receive", o);
+    // FIXME We should probably not filter this because it may create inconsistency,
+    // backbone should solve for the us the "not retrigger unchanged .set"
+    // [EDIT] this is not as trivial as I thought!
+    if (o.user != window.CURRENT_USER.id) {
+      this.trigger(o.type, o.data, o.user);
+    }
+  },
 
-    this.sock.onopen = _.bind(function() {
-      _.each(this.buffer, function(o) {
-        this.sock.send(JSON.stringify(o));
-      }, this);
+  onerror: function (e) {
+    console.log("websocket error: ", e);
+    this.trigger("error", e);
+  },
 
-      this.connected = true;
-    }, this);
+  onclose: function (e) {
+    console.log("websocket close: ", e);
+    this.trigger("close", e);
+    if (this.tryNb >= this.get("maxTry")) return;
+
+    this.socket = Q.delay(this.retryTime).then(_.bind(function () {
+      this.trigger("retry");
+      return this.initSocket();
+    }, this));
+
+    this.retryTime *= this.get("retryMultiplicator");
+    this.tryNb++;
   },
 
   send: function(type, data) {
-    var o ={
+    this.socket.then(function (ws) {
+      // console.log("send", type, data);
+      ws.send(JSON.stringify({
         user: CURRENT_USER.id,
         type: type,
         data: data
-      };
-    // console.log("send ", o);
-    if(this.connected) {
-      this.sock.send(JSON.stringify(o));
-    }
-    else this.buffer.push(o);
+      }));
+    });
   }
 
+}, {
+  createWebSocketPromise: function (onmessage, onerror, onclose) {
+    return Q.fcall(function () {
+      var d = Q.defer();
+      var ws = new WebSocket(WEBSOCKET_ENDPOINT);
+      ws.onopen = function () {
+        d.resolve(ws);
+      };
+      ws.onclose = function (e) {
+        d.reject(e);
+        return onclose.apply(this, arguments);
+      };
+      ws.onmessage = onmessage;
+      ws.onerror = onerror;
+      return d.promise;
+    });
+  }
 });
 
