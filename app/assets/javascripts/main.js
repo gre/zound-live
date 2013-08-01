@@ -109,7 +109,8 @@
     var slot = CURRENT_USER.get("slot");
     if (module && module.canPlayNote() && slot) {
       var slotModel = pattern.getSlot(slot.track, slot.slot);
-      slotModel.setOff();
+      if (slotModel.get("typ")==="blank")
+        slotModel.setOff();
     }
   };
 
@@ -252,7 +253,8 @@
 
   // Tracks
   pattern.tracks.each(function(track){
-    track.slots.on("change", function (slot) {
+    track.slots.on("change", function (slot, options) {
+      if (options.network) return;
       network.send("set-slot", {
         slot: slot.get("num"), // FIXME
         track: track.get("num"),
@@ -260,7 +262,8 @@
       });
     });
   });
-  pattern.tracks.on("change:offmode", function (track, value) {
+  pattern.tracks.on("change:offmode", function (track, value, options) {
+    if (options.network) return;
     if (value===CURRENT_USER.id) {
       network.send("user-track-take", {
         track: pattern.tracks.indexOf(track)
@@ -274,40 +277,41 @@
   });
 
   // Current user
-  CURRENT_USER.on("change:slot", function (user, value) {
+  CURRENT_USER.on("change:slot", function (user, value, options) {
+    if (options.network) return;
     network.send("user-select-slot", value);
-  });
-  CURRENT_USER.on("user-unselect-slot", function () {
-    network.send("user-unselect-slot");
   });
 
   // Modules
   function bindModule (module) {
     module.properties.each(function (property, i) {
-      property.on("change", function (property) {
-          network.send("property-change", {
-            module: module.id,
-            property: i, // FIXME
-            value: property.get("value")
-          });
+      property.on("change", function (property, options) {
+        if (options.network) return;
+        network.send("property-change", {
+          module: module.id,
+          property: i, // FIXME
+          value: property.get("value")
+        });
       });
     });
 
-    // FIXME: this throttle makes the event going crazy ping / pong due to the hacky way we avoid recursivity loop in network
-    module.on("change:x change:y", /*_.throttle(*/function () {
+    module.on("change:x change:y", _.throttle(function (model, change, options) {
+      if (options.network) return;
       network.send("module-position", {
         module: module.id,
         position: { x: module.get("x"), y: module.get("y") }
       });
-    }/*, 200)*/);
+    }, 100));
 
-    module.outputs.on("add", function (add) {
+    module.outputs.on("add", function (add, collection, options) {
+      if (options.network) return;
       network.send("module-output-add", {
         module: module.id,
         output: add.id
       });
     });
-    module.outputs.on("remove", function (remove) {
+    module.outputs.on("remove", function (remove, collection, options) {
+      if (options.network) return;
       network.send("module-output-remove", {
         module: module.id,
         output: remove.id
@@ -315,14 +319,16 @@
     });
   }
   song.modules.each(bindModule);
+  song.modules.on("add", bindModule);
   song.modules.on({
-    "add": function(module) {
+    "add": function(module, collection, options) {
+      if (options.network) return;
       var data = module.toJSON();
       data.properties = module.properties.toJSON();
       network.send("add-module", data);
-      bindModule(module);
     },
-    "remove": function (module) {
+    "remove": function (module, collection, options) {
+      if (options.network) return;
       network.send("remove-module", { module: module.id });
     }
   });
@@ -332,43 +338,41 @@
 
   network.on({
     "user-track-take": function (data, user) {
-      pattern.tracks.at(data.track).set("offmode", user);
+      pattern.tracks.at(data.track).set("offmode", user, { network: true });
     },
     "user-track-release": function (data, user) {
-      pattern.tracks.at(data.track).set("offmode", null);
+      pattern.tracks.at(data.track).set("offmode", null, { network: true });
     },
     "user-connect": function (data) {
-      users.add(new zound.models.User({ id: data.user }));
+      users.add(new zound.models.User({ id: data.user }), { network: true });
     },
     "user-select-slot": function (data, user) {
-      users.get(user).set("slot", data);
-    },
-    "user-unselect-slot": function(data, user){
-      users.get(user).set("slot", null);
+      users.get(user).set("slot", data, { network: true });
     },
     "set-slot": function(data, user){
-      pattern.getSlot(data.track, data.slot).set(data.data);
+      pattern.getSlot(data.track, data.slot).set(data.data, { network: true });
     },
     "module-position": function (data) {
-      song.modules.get(data.module).set(data.position);
+      song.modules.get(data.module).set(data.position, { network: true });
     },
     "module-output-add": function (data) {
       song.modules.get(data.module).outputs.add(
-        song.modules.get(data.output));
+        song.modules.get(data.output), { network: true }
+      );
     },
     "module-output-remove": function (data) {
-      song.modules.get(data.module).outputs.remove(data.output)
+      song.modules.get(data.module).outputs.remove(data.output, { network: true });
     },
     "add-module": function(data) {
-      song.modules.add(new modules[data.moduleName](data));
+      song.modules.add(new modules[data.moduleName](data), { network: true });
     },
     "remove-module": function(data) {
-      song.removeModule(data.module);
+      song.removeModule(data.module, { network: true });
     },
     "property-change": function(data, user) {
       song.modules.get(data.module)
         .properties.at(data.property)
-          .set("value", data.value);
+          .set("value", data.value, { network: true });
     }
   });
 

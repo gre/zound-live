@@ -31,7 +31,7 @@ zound.modules.Drum = SynthModule.extend({
     SynthModule.prototype.initialize.call(this);
     this.properties.add([
       this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 }),
-      this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit" }),
+      this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit", value: 5 }),
       this.pHihatVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "HiHat Volume", value: 100 }),
       this.pKickVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Kick Volume", value: 100 }),
       this.pSnareVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Snare Volume", value: 100 }),
