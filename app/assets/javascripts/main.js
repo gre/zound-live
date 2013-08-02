@@ -30,7 +30,8 @@
     new modules.MultiSynth({ title: "MultiSynth" }),
     new modules.Filter({ title: "Filter" }),
     new modules.Delay({ title: "Delay" }),
-    new modules.Reverb({ title: "Reverb" })
+    new modules.Reverb({ title: "Reverb" }),
+    new modules.Compressor({ title: "Comp" })
   ]);
 
   // Bind models together
@@ -159,8 +160,8 @@
   });
 
 
-  //~~~ VIEWS 
-  
+  //~~~ VIEWS
+
   // init views
 
   var midiControllerNotification = new ui.MIDIControllerNotification({
