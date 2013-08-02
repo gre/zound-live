@@ -74,16 +74,16 @@ function song_sample1 () {
     title: "Reverb"
   });
 
-  multisynth1.connect(generator1);
-  multisynth1.connect(generator2);
-  generator1.connect(filter1);
-  generator2.connect(verb1);
-  generator3.connect(filter2);
-  drum1.connect(verb1);
-  filter1.connect(verb1);
-  filter2.connect(delay1);
-  delay1.connect(verb1);
-  verb1.connect(output);
+  multisynth1.outputs.add(generator1);
+  multisynth1.outputs.add(generator2);
+  generator1.outputs.add(filter1);
+  generator2.outputs.add(verb1);
+  generator3.outputs.add(filter2);
+  drum1.outputs.add(verb1);
+  filter1.outputs.add(verb1);
+  filter2.outputs.add(delay1);
+  delay1.outputs.add(verb1);
+  verb1.outputs.add(output);
 
   return song;
 }

@@ -29,10 +29,6 @@ zound.modules.Generator = SynthModule.extend({
   noteOn: function (note, ctx, time) {
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
-    var nodes = {
-      osc: osc,
-      gain: gain
-    };
 
     osc.type = GENERATOR_TYPES_OSCVALUE[this.pType.get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
@@ -41,39 +37,48 @@ zound.modules.Generator = SynthModule.extend({
     gain.gain.value = this.pVolume.getPercent();
 
     osc.connect(gain);
-    this.broadcastToOutputs(gain, ctx);
+    var connectData = this.connect(gain, ctx);
 
     // Note envelope (Attack/Delay)
-    var attackTime = this.pAttack.getValue() / 1000;
-    var decayTime = this.pDecay.getValue() / 1000;
+    var attackDuration = this.pAttack.getValue() / 1000;
+    var decayDuration = this.pDecay.getValue() / 1000;
     var volume = this.pVolume.getPercent();
+
+    var data = {
+      osc: osc,
+      gain: gain,
+      time: time,
+      attackTime: time+attackDuration,
+      decayTime: time+attackDuration+decayDuration,
+      connectData: connectData
+    };
 
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(volume, time + attackTime);
-    gain.gain.linearRampToValueAtTime(volume*this.pDecayVolume.getPercent(), time + attackTime + decayTime);
+    gain.gain.linearRampToValueAtTime(volume, time+attackDuration);
+    gain.gain.linearRampToValueAtTime(volume*this.pDecayVolume.getPercent(), time+attackDuration+decayDuration);
 
     if (!this.pSustain.getValue()) {
-      this.noteOff(nodes, ctx, time + attackTime + decayTime);
+      this.noteOff(data, ctx, time+attackDuration+decayDuration);
     }
 
     // Glide to note
-    var glideTime = this.pGlide.getValue() / 100;
-    if (glideTime > 0 && this.lastNote) {
+    var glideDuration = this.pGlide.getValue() / 100;
+    if (glideDuration > 0 && this.lastNote) {
       osc.frequency.setValueAtTime(zound.AudioMath.noteToFrequency(this.lastNote), time);
-      osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackTime + decayTime) * glideTime));
+      osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackDuration + decayDuration) * glideDuration));
     }
     this.lastNote = note;
-    return nodes;
-
+    return data;
   },
-  noteOff: function (nodes, ctx, time) {
+  noteOff: function (data, ctx, time) {
     var releaseTime = this.pRelease.getValue()/1000;
-    var gain = nodes.gain.gain;
+    var gain = data.gain.gain;
     gain.cancelScheduledValues(time);
     gain.setValueAtTime(gain.value, time);
     gain.linearRampToValueAtTime(0, time + releaseTime);
-    nodes.osc.stop(time + releaseTime);
+    data.osc.stop(time + releaseTime);
+    this.disconnect(data.connectData);
   }
 }, {
   GENERATOR_TYPES: GENERATOR_TYPES,

@@ -32,14 +32,6 @@ zound.models.Module = Backbone.Model.extend({
   getDisplayId: function () {
     return zound.models.Module.idToText(this.id);
   },
-  // Add an output module
-  connect: function (outModule) {
-    this.outputs.add(outModule);
-  },
-  // Remove an output module
-  disconnect: function (outModule) {
-    this.outputs.remove(outModule);
-  },
   // Can the module ever have outputs?
   canHaveOutputs: function (module) {
     return true;
@@ -58,17 +50,27 @@ zound.models.Module = Backbone.Model.extend({
   },
 
   // FIXME: leak?
-  broadcastToOutputs: function (node, ctx) {
-    this.outputs.each(function (outModule) {
+  connect: function (node, ctx) {
+    var plugInputF = function (outModule) {
       outModule.plugInput(node, ctx);
-    });
-    this.outputs.on("add", function (outModule) {
-      outModule.plugInput(node, ctx);
-    });
-    this.outputs.on("remove", function (outModule) {
+    };
+    var unplugInputF = function (outModule) {
       outModule.unplugInput(node, ctx);
-    });
+    };
+    this.outputs.each(plugInputF);
+    this.outputs.on("add", plugInputF);
+    this.outputs.on("remove", unplugInputF);
+    return {
+      plugInputF: plugInputF,
+      unplugInputF: unplugInputF
+    };
+  },
+
+  disconnect: function (connectData) {
+    this.outputs.off("add", connectData.plugInputF);
+    this.outputs.off("remove", connectData.unplugInputF);
   }
+
 }, {
   idToText: function (id) {
     var name = ""+id;
@@ -94,10 +96,11 @@ zound.models.EffectModule = zound.models.Module.extend({
   // you have to set it in your init() implementation
   plugInput: function (nodeInput, ctx) {
     nodeInput.connect(this.input);
-    this.broadcastToOutputs(this.output, ctx);
+    this.connect(this.output, ctx);
   },
   unplugInput: function (nodeInput, ctx) {
     nodeInput.disconnect(this.input);
+    this.disconnect(this.output, ctx);
   }
 });
 
