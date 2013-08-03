@@ -51,14 +51,18 @@ zound.models.MIDIController = Backbone.Model.extend({
         assign.node.attr("data-assignable", "");
       });
       this.assigned = split.keep||[];
-      this.assigned.push({ node: node, controlNumber: controlNumber });
+      this.assigned.push({
+        node: node,
+        controlNumber: controlNumber,
+        f: node.data("assignable")
+      });
       node.attr("data-assignable", "cn=" + controlNumber);
     }
     var assign = _.find(this.assigned, function (assign) {
       return assign.controlNumber === controlNumber;
     });
     if (assign) {
-      assign.node.trigger("assignValue", value);
+      assign.f(value);
     }
   },
 

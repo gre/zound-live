@@ -24,9 +24,15 @@ zound.ui.ModulePropertyEditor = Backbone.View.extend({
       this._dontSetInputValue = false;
     }, this));
 
+    this.$component.data("assignable", _.bind(function (midiValue) {
+      this.model.setPercent(midiValue / 127);
+    }, this));
+
+    /*
     this.$component.on("assignValue", _.bind(function (e, midiValue) {
       this.model.setPercent(midiValue / 127);
     }, this));
+    */
     return this;
   },
   onValueChange: function (model, rawValue) {
