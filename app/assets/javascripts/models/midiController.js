@@ -177,10 +177,10 @@ zound.models.MIDIController = Backbone.Model.extend({
 
 }, {
   setAssignableValueForControlNumber: function (node, cn) {
-    $(node).attr("data-assignable", "cn="+cn);
+    $(node).attr("data-assignable", ""+cn);
   },
   setAssignableValueForWaiting: function (node) {
-    $(node).attr("data-assignable", "waiting");
+    $(node).attr("data-assignable", "?");
   },
   setAssignableValueForEmpty: function (node) {
     $(node).attr("data-assignable", "");
