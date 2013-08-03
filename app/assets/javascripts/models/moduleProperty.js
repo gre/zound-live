@@ -3,7 +3,7 @@
 
 zound.models.ModuleProperty = Backbone.Model.extend({
   initialize: function () {
-
+    if (!this.get("id")) this.set("id", this.cid);
   },
   setPercent: function (percent) {
     this.set("value", percent);
@@ -31,7 +31,7 @@ zound.models.ModulePropertyRange = zound.models.ModuleProperty.extend({
     title: "no title"
   },
   initialize: function () {
-    
+    zound.models.ModuleProperty.prototype.initialize.apply(this, arguments);
   },
   setPercent: function (percent) {
     var min = this.get("min");
@@ -61,7 +61,7 @@ zound.models.ModulePropertySelect = zound.models.ModuleProperty.extend({
     title: "no title"
   },
   initialize: function () {
-    
+    zound.models.ModuleProperty.prototype.initialize.apply(this, arguments);
   },
   setPercent: function (percent) {
     var values = this.get("values");

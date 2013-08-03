@@ -3,8 +3,10 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-GET     /events                     controllers.EventManager.endpoint
+GET     /events                     controllers.EventManager.endpoint(user: String)
+
+GET     /users               		controllers.Application.listUsers
+GET     /                           controllers.Application.index(user: Option[String] ?= None)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

@@ -7,6 +7,7 @@ zound.models.Track = Backbone.Model.extend({
   initialize: function () {
     this.slots = new zound.models.Slots(_.chain(_.range(0, this.get("length"))).map(function (num) {
       return new zound.models.Slot({
+        id: this.id+"-"+num,
         num: num
       });
     }, this).value());

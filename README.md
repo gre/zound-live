@@ -3,6 +3,11 @@ ZOUND Live
 
 Audio modular collaborative tracker using web technologies.
 
+Links
+---
+
+- http://greweb.me/2013/07/zound-live/
+
 Keyboard
 ---
 

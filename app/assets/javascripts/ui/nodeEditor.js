@@ -108,9 +108,9 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
           if (out && module !== out) {
             if (module.outputs.contains(out))
-              module.disconnect(out);
+              module.outputs.remove(out);
             else
-              module.connect(out);
+              module.outputs.add(out);
           }
 
        });
