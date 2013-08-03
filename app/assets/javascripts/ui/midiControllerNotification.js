@@ -28,20 +28,11 @@ zound.ui.MIDIControllerNotification = Backbone.View.extend({
 
     $body.on("mousedown", "[data-assignable]", _.bind(function (e) {
       if (!this.model.get("assignMode")) return;
-      e.preventDefault();
+      e.preventDefault(); // Prevent default component behavior (like input range sliding)
     }, this));
     $body.on("click", "[data-assignable]", _.bind(function (e) {
       if (!this.model.get("assignMode")) return;
-      var node = $(e.currentTarget);
-      var assignable = node.data("assignable");
-      if (assignable) {
-        var isAssignable = this.model.addAssignable(assignable, function (text) {
-          node.attr("data-assignable", text);
-        });
-        if(isAssignable){
-          node.attr("data-assignable", "waiting");
-        }
-      }
+      this.model.addAssignableNode($(e.currentTarget));
     }, this));
 
     this.render();

@@ -22,10 +22,10 @@ zound.models.MIDIController = Backbone.Model.extend({
     input.onmidimessage = _.bind(this.onMidiMessage, this);
   },
 
-  addAssignable: function (assignable, onAssigned) {
+  addAssignableNode: function (node) {
     if(this.assignable) return false;
-    console.log("assign", this, assignable);
-    this.assignable = [ assignable, onAssigned ];
+    this.assignable = node;
+    node.attr("data-assignable", "waiting");
     return true;
   },
 
@@ -37,21 +37,29 @@ zound.models.MIDIController = Backbone.Model.extend({
     this.trigger("noteOff", noteNumber, noteVelocity);
   },
 
+  assigned: [],
+
   control: function (controlNumber, value) {
     if (this.assignable) {
-      var assign = this.assignable;
+      var node = this.assignable;
       this.assignable = null;
-
       var control = this.assignedControls[controlNumber];
-
-      
-
-      this.off( "control:" + controlNumber);
-      this.on(  "control:" + controlNumber, assign[0].handleMessage);
-      assign[1]("cn=" + controlNumber);
-
+      var split = _.groupBy(this.assigned, function (assign) {
+        return (assign.node.is(node) || assign.controlNumber === controlNumber) ? "reject" : "keep";
+      });
+      _.each(split.reject, function (assign) {
+        assign.node.attr("data-assignable", "");
+      });
+      this.assigned = split.keep||[];
+      this.assigned.push({ node: node, controlNumber: controlNumber });
+      node.attr("data-assignable", "cn=" + controlNumber);
     }
-    this.trigger("control:" + controlNumber, value);
+    var assign = _.find(this.assigned, function (assign) {
+      return assign.controlNumber === controlNumber;
+    });
+    if (assign) {
+      assign.node.trigger("assignValue", value);
+    }
   },
 
   removeControl: function(){},
