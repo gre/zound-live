@@ -31,7 +31,7 @@
     new modules.Filter({ title: "Filter" }),
     new modules.Delay({ title: "Delay" }),
     new modules.Reverb({ title: "Reverb" }),
-    new modules.Compressor({ title: "Comp" })
+    new modules.Compressor({ title: "Compressor" })
   ]);
 
   // Bind models together

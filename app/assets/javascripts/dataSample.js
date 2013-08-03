@@ -15,7 +15,7 @@ function song_sample1 () {
   var multisynth1 = song.createModule(zound.modules.MultiSynth, {
     x: 60,
     y: 120,
-    title: "MultiSynth"
+    title: "Multi1"
   });
 
   var generator1 = song.createModule(zound.modules.Generator, {
