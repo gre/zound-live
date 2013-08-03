@@ -5,8 +5,9 @@ zound.ui.ModulePropertyEditor = Backbone.View.extend({
     this.render();
     this.listenTo(this.model, "change:value", this.onValueChange);
   },
-  template: _.template('<span class="title"><%= title %></span><div class="component" data-assignable></div>'),
+  template: _.template('<span class="title"><%= title %></span><div class="component"></div>'),
   render: function() {
+    this.$el.attr("id", this.model.get("id"));
     // FIXME We use an input[type=range] for quick impl. - this can be replaced in the future.
     var granularity = this.model.getValueGranularity();
     if (!isFinite(granularity)) granularity = 1000;
@@ -24,15 +25,9 @@ zound.ui.ModulePropertyEditor = Backbone.View.extend({
       this._dontSetInputValue = false;
     }, this));
 
-    this.$component.data("assignable", _.bind(function (midiValue) {
+    zound.models.MIDIController.makeAssignable(this.$el, _.bind(function (midiValue) {
       this.model.setPercent(midiValue / 127);
     }, this));
-
-    /*
-    this.$component.on("assignValue", _.bind(function (e, midiValue) {
-      this.model.setPercent(midiValue / 127);
-    }, this));
-    */
     return this;
   },
   onValueChange: function (model, rawValue) {

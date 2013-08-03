@@ -72,9 +72,9 @@ zound.ui.Track = Backbone.View.extend({
     this.onChangeOffmode();
   },
   headerTmpl: _.template('<li class="head"><%= title %></li>'),
-  footerTmpl: _.template('<li class="foot"><a href="#" class="off-mode"><i class="icon-microphone-off"></i></a></li>'),
+  footerTmpl: _.template('<li class="foot" id="foot-<%= model.id %>"><a href="#" class="off-mode"><i class="icon-microphone-off"></i></a></li>'),
   onClickOffMode: function (e) {
-    e.preventDefault();
+    e && e.preventDefault();
     var offmode = this.model.get("offmode");
     var me = CURRENT_USER.id;
     if (!offmode) {
@@ -111,6 +111,12 @@ zound.ui.Track = Backbone.View.extend({
     }, this);
     var $footer = $(this.footerTmpl(this.options));
     this.$el.append($footer);
+
+    zound.models.MIDIController.makeAssignable($footer, _.bind(function (midiValue) {
+      if (midiValue > 63) {
+        this.onClickOffMode();
+      }
+    }, this));
   }
 });
 

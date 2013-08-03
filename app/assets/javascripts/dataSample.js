@@ -1,7 +1,9 @@
 
 function song_sample1 () {
   var song = new zound.models.Song();
-  var pattern = new zound.models.Pattern();
+  var pattern = new zound.models.Pattern({
+    id: 0
+  });
   song.patterns.add(pattern);
 
   var output = song.createModule(zound.modules.Output, {

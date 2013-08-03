@@ -278,15 +278,15 @@ input[type=range] {
 #module-properties {
   padding: 0 10px 0 0;
   ul {
-    padding: 10px;
+    padding: 5px;
     margin: 0;
     border-radius: 4px;
     border: 1px solid #CAD5E1;
   }
   li {
     list-style: none;
-    padding: 5px 10px 0px 0px;
-    margin: 0;
+    padding: 1px 5px;
+    margin-bottom: 2px;
     position: relative;
     .title {
       font-family: 'Open Sans';
@@ -301,6 +301,13 @@ input[type=range] {
       color: #7598B2;
     }
   }
+}
+
+#midiNotification .assign {
+  opacity: 0.4;
+}
+body.assign-mode #midiNotification .assign {
+  opacity: 1;
 }
 
 #midiNotification {
@@ -326,16 +333,8 @@ input[type=range] {
     height: 35px;
     display: none;
     float: left;
-    padding: 10px 10px 0 10px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
     margin: 0 5px 0;
-    border-radius: 4px;
-    background: #FFFFFF;
-    border: 1px solid #D9E8F5;
     color: #7598B2;
-
   }
 
   .notification {
@@ -379,32 +378,36 @@ body.assign-mode {
   .visible-if-not-assign-mode {
     display: none;
   }
-  [data-assignable=""] {
-    &:after {
-      display: none;
-    }
-  }
   [data-assignable] {
-    border: 1px dashed #0f0;
-    background: rgba(0,255,0,0.1);
+    border: 1px dashed #0c3 !important;
+    background: rgba(0,255,64,0.2) !important;
     position: relative;
     &:after {
       content: attr(data-assignable);
       font-size: 10px;
       font-family: monospace;
-      background: #0f0;
-      color: #000;
+      background: #0f9;
+      color: #fff;
+      line-height: 12px;
       padding: 2px 5px;
       position: absolute;
       bottom: 0px;
       left: 0px;
+      transition: 0.2s;
+    }
+  }
+  [data-assignable=""] {
+    border: 1px dashed #09f !important;
+    background: rgba(0,127,255,0.1) !important;
+    &:after {
+      display: none;
     }
   }
   [data-assignable=waiting] {
-    border: 1px dashed #00f;
-    background: rgba(0,0,255,0.1);
+    border: 1px dashed #f09 !important;
+    background: rgba(255,0,127,0.2) !important;
     &:after {
-      background: #00f;
+      background: #f09;
       color: #fff;
     }
   }

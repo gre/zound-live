@@ -7,26 +7,23 @@ zound.models.MIDIController = Backbone.Model.extend({
       return;
     }
 
-    this.assignedControls = {};
-
     this.set("state", "loading");
     this.midiAccessPromise = navigator.requestMIDIAccess();
     this.midiAccessPromise.then(_.bind(this.onMidiSuccess, this), _.bind(this.onMidiError, this));
-    this.assignable = null;
+    this.assigned = [];
+    this.assignables = []; // Array of DOM element (not jQuery)
+    this.lastAssigned = []; // copy of assignables elements when assignables is affected
     this.on("change:assignMode", _.bind(function () {
-      this.assignable = null;
+      this.lastAssigned = [];
+      _.each(this.assignables, function (node) {
+        zound.models.MIDIController.setAssignableValueForEmpty(node);
+      });
+      this.assignables = [];
     }, this));
   },
 
   bindInput: function (input) {
     input.onmidimessage = _.bind(this.onMidiMessage, this);
-  },
-
-  addAssignableNode: function (node) {
-    if(this.assignable) return false;
-    this.assignable = node;
-    node.attr("data-assignable", "waiting");
-    return true;
   },
 
   noteOn: function (noteNumber, noteVelocity) {
@@ -37,36 +34,41 @@ zound.models.MIDIController = Backbone.Model.extend({
     this.trigger("noteOff", noteNumber, noteVelocity);
   },
 
-  assigned: [],
-
   control: function (controlNumber, value) {
-    if (this.assignable) {
-      var node = this.assignable;
-      this.assignable = null;
-      var control = this.assignedControls[controlNumber];
-      var split = _.groupBy(this.assigned, function (assign) {
-        return (assign.node.is(node) || assign.controlNumber === controlNumber) ? "reject" : "keep";
-      });
-      _.each(split.reject, function (assign) {
-        assign.node.attr("data-assignable", "");
-      });
-      this.assigned = split.keep||[];
-      this.assigned.push({
-        node: node,
-        controlNumber: controlNumber,
-        f: node.data("assignable")
-      });
-      node.attr("data-assignable", "cn=" + controlNumber);
-    }
     var assign = _.find(this.assigned, function (assign) {
       return assign.controlNumber === controlNumber;
     });
     if (assign) {
       assign.f(value);
     }
+
+    if (this.assignables.length > 0) {
+      var node = this.assignables.shift();
+      if (_.any(this.lastAssigned, function (assign) {
+        return assign.controlNumber === controlNumber;
+      })) {
+        this.assignables.unshift(node);
+        return; // already in my last assignables
+      }
+      
+      this.removeAssigned(function (assign) {
+        return assign.nodeId === node.id || assign.controlNumber === controlNumber;
+      });
+      var f = $(node).data("assignable");
+      var assign = {
+        nodeId: node.id,
+        controlNumber: controlNumber,
+        f: f
+      };
+      this.assigned.push(assign);
+      this.lastAssigned.push(assign);
+      zound.models.MIDIController.setAssignableValueForControlNumber(node, controlNumber);
+      if (this.assignables.length == 0) {
+        this.lastAssigned = [];
+      }
+    }
   },
 
-  removeControl: function(){},
   onMidiMessage: function (message) {
     // @see http://www.midi.org/techspecs/midimessages.php 
     var status = message.data[0];
@@ -122,5 +124,74 @@ zound.models.MIDIController = Backbone.Model.extend({
   onMidiError: function (error) {
     console.log("MIDI Access failed:", error);
     this.set("state", "error", error);
+  },
+
+  // Assignables functions
+
+  nodeIsInAssignables: function (node) {
+    return _.any(this.assignables, function (n) { return n.id === node.id });
+  },
+
+  removeAssignableNode: function (node) {
+    this.removeAssignedByNode(node);
+    this.assignables = _.without(this.assignables, node);
+    zound.models.MIDIController.setAssignableValueForEmpty(node);
+  },
+
+  addAssignableNode: function (node) {
+    this.removeAssignedByNode(node);
+    zound.models.MIDIController.setAssignableValueForWaiting(node);
+    this.assignables.push(node);
+  },
+
+  setAssignableValueForNode: function (node) {
+    if (this.nodeIsInAssignables(node))
+      return zound.models.MIDIController.setAssignableValueForWaiting(node);
+    var assign = _.find(this.assigned, function (assign) {
+      return assign.nodeId === node.id;
+    });
+    if (assign) {
+      return zound.models.MIDIController.setAssignableValueForControlNumber(node, assign.controlNumber);
+    }
+    return zound.models.MIDIController.setAssignableValueForEmpty(node);
+  },
+
+  // Assigned functions
+
+  removeAssignedByNode: function (node) {
+    return this.removeAssigned(function (assign) {
+      return assign.nodeId === node.id;
+    });
+  },
+
+  removeAssigned: function (rejectFunction) {
+    var split = _.groupBy(this.assigned, function (assign) {
+      return rejectFunction(assign) ? "reject" : "keep";
+    });
+    _.each(split.reject, function (assign) {
+      zound.models.MIDIController.setAssignableValueForEmpty(document.getElementById(assign.nodeId));
+    });
+    this.assigned = split.keep||[];
+  }
+
+
+}, {
+  setAssignableValueForControlNumber: function (node, cn) {
+    $(node).attr("data-assignable", "cn="+cn);
+  },
+  setAssignableValueForWaiting: function (node) {
+    $(node).attr("data-assignable", "waiting");
+  },
+  setAssignableValueForEmpty: function (node) {
+    $(node).attr("data-assignable", "");
+  },
+  makeAssignable: function (node, func) {
+    node = $(node)[0];
+    if (!node.id) {
+      console.log(node);
+      throw new Error("node must have an id attribute!");
+    }
+    $(node).attr("data-assignable", "").data("assignable", func);
+    $(document).trigger("newAssignable", node);
   }
 });
