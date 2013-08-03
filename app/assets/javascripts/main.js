@@ -349,6 +349,13 @@
     },
     "user-disconnect": function (data) {
       users.remove(data.user);
+      pattern.tracks.chain()
+        .filter(function (track) {
+          return track.get("offmode")===data.user;
+        })
+        .each(function (track) {
+          track.set("offmode", null);
+        });
     },
     "user-select-slot": function (data, user) {
       users.get(user).set("slot", data, { network: true });
