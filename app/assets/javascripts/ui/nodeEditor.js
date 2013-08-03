@@ -3,8 +3,9 @@ zound.ui.NodeEditor = Backbone.View.extend({
     w: 700,
     h: 380,
     // nodes options
-    margin: 15,
-    r: 35
+    outerCircleWidth: 8,
+    margin: 12,
+    r: 30
   },
 
   initialize: function () {
@@ -172,7 +173,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
     g.append('svg:circle')
       .attr('class', 'outer')
       .attr("fill", "#f3f9ff")
-      .attr("stroke-width", 10)
+      .attr("stroke-width", options.outerCircleWidth)
       .attr("r",  options.r + options.margin);
     e.select('.outer')
       .attr("cx", get('x'))
@@ -182,7 +183,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // center circle
     g.append('svg:circle')
       .attr('class', 'inner')
-      .attr("fill", "#314355")
+      .attr("fill", "#456")
       .attr("stroke-width", 0)
       .attr("r", options.r);
     e.select('.inner')
@@ -193,7 +194,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
     g.append("svg:text")
       .attr('class', 'title')
       .attr("fill", '#fff')
-      .attr("font-family", "monospace")
+      .attr("font-family", "Open Sans")
       .attr("font-size", "10px")
       .attr("text-anchor", "middle");
     e.select('.title')
