@@ -347,6 +347,9 @@
     "user-connect": function (data) {
       users.add(new zound.models.User({ id: data.user }), { network: true });
     },
+    "user-disconnect": function (data) {
+      users.remove(data.user);
+    },
     "user-select-slot": function (data, user) {
       users.get(user).set("slot", data, { network: true });
     },
