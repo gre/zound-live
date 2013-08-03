@@ -98,6 +98,23 @@ zound.ui.Track = Backbone.View.extend({
       this.currentSlot.highlight();
     }
   },
+  onSlotChange: function (slot) {
+    var noteOn = false;
+    for (var i = 0; i<this.slots.length; ++i) {
+      var view = this.slots[i];
+      var model = view.model;
+      switch (model.get("typ")) {
+        case "note":
+          noteOn = true;
+          break;
+        case "off":
+          noteOn = false;
+          break;
+        case "blank":
+          view.$el.text(noteOn ? "'' ''" : "");
+      }
+    }
+  },
   render: function () {
     var $header = $(this.headerTmpl(this.options));
     this.$el.append($header);
@@ -106,6 +123,7 @@ zound.ui.Track = Backbone.View.extend({
         model: slot
       });
       slotUI.track = this;
+      slot.on("change", _.bind(this.onSlotChange, this));
       this.$el.append(slotUI.el);
       return slotUI;
     }, this);
