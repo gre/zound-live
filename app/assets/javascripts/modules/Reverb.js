@@ -11,6 +11,7 @@ zound.modules.Reverb = EffectModule.extend({
   },
 
   init: function (ctx) {
+    EffectModule.prototype.init.apply(this, arguments);
     this.input = ctx.createGain();
     this.output = ctx.createGain();
     this.drygain = ctx.createGain();

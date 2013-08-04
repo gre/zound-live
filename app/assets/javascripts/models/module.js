@@ -28,7 +28,24 @@ zound.models.Module = Backbone.Model.extend({
       };
     }
 
+    this.samplesLength = 256;
+    this.waveData = new Uint8Array(this.samplesLength);
   },
+  init: function (ctx) { // <- FIXME this will be a "song" model parameter instead.
+    // init with an AudioContext
+    this.analyserNode = ctx.createAnalyser();
+    setInterval(_.bind(function () {
+      /*
+      this.waveData = d3.range(this.samplesLength).map(function (i) {
+        return Math.random()*2-1;
+      });
+      */
+      //console.log(this.waveData);
+      this.analyserNode.getByteTimeDomainData(this.waveData);
+      this.trigger("waveData", this.waveData);
+    }, this), 30);
+  },
+
   getDisplayId: function () {
     return zound.models.Module.idToText(this.id);
   },
@@ -45,11 +62,6 @@ zound.models.Module = Backbone.Model.extend({
     return "plugInput" in module; // duck typing by default
   },
 
-  init: function (ctx) {
-    // init with an AudioContext
-  },
-
-  // FIXME: leak?
   connect: function (node, ctx) {
     var plugInputF = function (outModule) {
       outModule.plugInput(node, ctx);
@@ -60,7 +72,9 @@ zound.models.Module = Backbone.Model.extend({
     this.outputs.each(plugInputF);
     this.outputs.on("add", plugInputF);
     this.outputs.on("remove", unplugInputF);
+    node.connect(this.analyserNode);
     return {
+      node: node,
       plugInputF: plugInputF,
       unplugInputF: unplugInputF
     };
@@ -69,6 +83,7 @@ zound.models.Module = Backbone.Model.extend({
   disconnect: function (connectData) {
     this.outputs.off("add", connectData.plugInputF);
     this.outputs.off("remove", connectData.unplugInputF);
+    //connectData.node.disconnect(this.analyserNode);
   }
 
 }, {

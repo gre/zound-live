@@ -24,6 +24,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
   listenModule: function (module) {
     this.listenTo(module, "change", this.render);
+    this.listenTo(module, "waveData", this.render);
     this.listenTo(module.outputs, "add", this.render);
     this.listenTo(module.outputs, "remove", this.render);
   },
@@ -132,6 +133,10 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   draw: function (data) {
+    // TODO FIXME: performance need to be improved here, 
+    // we need to not re-render everything everytime
+    // + we have to use more "transform" attr.
+
     var editor = this,
         svg = this.svg,
         options = this.options;
@@ -175,6 +180,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("fill", "#f3f9ff")
       .attr("stroke-width", options.outerCircleWidth)
       .attr("r",  options.r + options.margin);
+
     e.select('.outer')
       .attr("cx", get('x'))
       .attr("cy", get('y'))
@@ -189,6 +195,35 @@ zound.ui.NodeEditor = Backbone.View.extend({
     e.select('.inner')
       .attr("cx", get('x'))
       .attr("cy", get('y'));
+
+    // Waveform in real time
+    (function () {    
+        var r = options.r;
+
+        g.append("svg:path")
+            .attr('class', 'waveform')
+            .attr("fill", "transparent")
+            .attr("stroke-width", 1)
+            .attr("stroke", "rgba(255,255,255,0.4)");
+
+        e.select('.waveform')
+          .attr("d", function(m) {
+              var x = d3.scale.linear()
+                  .domain([0, m.samplesLength])
+                  .range([-r, +r]);
+
+              var y = d3.scale.linear()
+                  .domain([-127, 128]) // Uint8
+                  .range([+r, -r]);
+
+              return d3.svg.line()
+                .x(function(d) { return m.get("x")+x(d.x); })
+                .y(function(d) { return m.get("y")+y(d.y); })
+                (_.map(m.waveData, function (byt, i) {
+                  return { x: i, y: (byt-127) };
+                }));
+            });
+    }());
 
     // title
     g.append("svg:text")

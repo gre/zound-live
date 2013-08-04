@@ -43,6 +43,7 @@ zound.modules.Drum = SynthModule.extend({
   },
 
   init: function (ctx) {
+    SynthModule.prototype.init.apply(this, arguments);
     var me = this;
     var as = _.map(_.pairs(sounds), function(v){
 

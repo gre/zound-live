@@ -39,6 +39,7 @@ zound.modules.Filter = EffectModule.extend({
   },
 
   init: function (ctx) {
+    EffectModule.prototype.init.apply(this, arguments);
     this.filter = ctx.createBiquadFilter();
     this.updateFrequency();
     this.pFrequency.on("change", _.bind(this.updateFrequency, this));

@@ -15,6 +15,7 @@ zound.modules.Output = Module.extend({
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, value: 100, title: "Volume" })
   },
   init: function (ctx) {
+    Module.prototype.init.apply(this, arguments);
     this.gain = ctx.createGain();
     this.gain.connect(ctx.destination);
     this.updateGain();

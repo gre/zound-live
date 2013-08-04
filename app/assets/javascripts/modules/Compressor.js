@@ -11,6 +11,7 @@ zound.modules.Compressor = EffectModule.extend({
   },
 
   init: function (ctx) {
+    EffectModule.prototype.init.apply(this, arguments);
 
     this.compressor = ctx.createDynamicsCompressor();
     this.gain = ctx.createGain();
