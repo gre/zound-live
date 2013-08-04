@@ -78,7 +78,10 @@ zound.modules.Generator = SynthModule.extend({
     gain.setValueAtTime(gain.value, time);
     gain.linearRampToValueAtTime(0, time + releaseTime);
     data.osc.stop(time + releaseTime);
-    this.disconnect(data.connectData);
+    setTimeout(_.bind(function () {
+      this.disconnect(data.connectData);
+      this.refreshAnalyser();
+    }, this), 1000*((ctx.currentTime-time)+releaseTime));
   }
 }, {
   GENERATOR_TYPES: GENERATOR_TYPES,

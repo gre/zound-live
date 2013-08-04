@@ -19,31 +19,36 @@ zound.models.Module = Backbone.Model.extend({
     // XXX: trigger 'note' when a note is played by the module
     if(this.canPlayNote()) {
       var noteOn = this.noteOn,
+          noteOff = this.noteOff,
           me = this;
       this.noteOn = function (note, ctx, time) {
         setTimeout(function(){
-          me.trigger('note');
-        }, time - Date.now());
+          me.trigger('noteOn');
+        }, 1000*time - Date.now());
         return noteOn.apply(me, arguments);
+      };
+      this.noteOff = function (noteData, ctx, time) {
+        setTimeout(function(){
+          me.trigger('noteOff');
+        }, 1000*time - Date.now());
+        return noteOff.apply(me, arguments);
       };
     }
 
-    this.samplesLength = 256;
+    this.samplesLength = 512;
     this.waveData = new Uint8Array(this.samplesLength);
   },
   init: function (ctx) { // <- FIXME this will be a "song" model parameter instead.
     // init with an AudioContext
     this.analyserNode = ctx.createAnalyser();
     setInterval(_.bind(function () {
-      /*
-      this.waveData = d3.range(this.samplesLength).map(function (i) {
-        return Math.random()*2-1;
-      });
-      */
-      //console.log(this.waveData);
-      this.analyserNode.getByteTimeDomainData(this.waveData);
-      this.trigger("waveData", this.waveData);
+      this.refreshAnalyser();
     }, this), 30);
+  },
+
+  refreshAnalyser: function () {
+    this.analyserNode.getByteTimeDomainData(this.waveData);
+    this.trigger("waveData", this.waveData);
   },
 
   getDisplayId: function () {
@@ -83,7 +88,7 @@ zound.models.Module = Backbone.Model.extend({
   disconnect: function (connectData) {
     this.outputs.off("add", connectData.plugInputF);
     this.outputs.off("remove", connectData.unplugInputF);
-    //connectData.node.disconnect(this.analyserNode);
+    connectData.node.disconnect(this.analyserNode);
   }
 
 }, {

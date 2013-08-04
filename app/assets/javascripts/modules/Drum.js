@@ -79,13 +79,16 @@ zound.modules.Drum = SynthModule.extend({
 
     var gain = ctx.createGain();
     gain.gain.value = this.pVolume.getPercent()*this.volumeControls[i].getPercent();
-
     sample.connect(gain);
-    return this.connect(gain, ctx);
+
+    var connectData = this.connect(gain, ctx);
+    setTimeout(_.bind(function () {
+      this.disconnect(connectData);
+      this.refreshAnalyser();
+    }, this), 1000*((ctx.currentTime-time)+sample.buffer.duration));
   },
 
   noteOff: function (connectData) {
-    this.disconnect(connectData);
   },
 
   _loadSound: function(ctx, url) {

@@ -217,7 +217,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
                   .range([+r, -r]);
 
               return d3.svg.line()
-                .x(function(d) { return m.get("x")+x(d.x); })
+                .interpolate("linear")
+                .x(function(d,i) { return m.get("x")+x(i); })
                 .y(function(d) { return m.get("y")+y(d.y); })
                 (_.map(m.waveData, function (byt, i) {
                   return { x: i, y: (byt-127) };
@@ -234,7 +235,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("text-anchor", "middle");
     e.select('.title')
       .attr("x", get('x'))
-      .attr("y", get('y'))
+      .attr("y", function(d){ return d.get('y') - 5; })
       .text(get('title'));
 
     // id
@@ -254,10 +255,15 @@ zound.ui.NodeEditor = Backbone.View.extend({
     g.each(function(m){
       var group = d3.select(this),
           inner = group.select('.inner');
-      editor.listenTo(m, "note", function(){
-        inner.style("opacity",  .5)
+      editor.listenTo(m, "noteOn", function(){
+        inner
           .transition()
-          .style("opacity",  1)
+          .attr("r", options.r+options.margin)
+          .duration(0);
+      });
+      editor.listenTo(m, "noteOff", function(){
+        inner.transition()
+          .attr("r", options.r)
           .duration(200);
       });
     });
