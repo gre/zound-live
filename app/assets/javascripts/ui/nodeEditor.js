@@ -256,9 +256,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
       var group = d3.select(this),
           inner = group.select('.inner');
       editor.listenTo(m, "noteOn", function(){
-        inner
-          .transition()
-          .attr("r", options.r+options.margin)
+        inner.transition()
+          .attr("r", options.r+options.margin-options.outerCircleWidth/2)
           .duration(0);
       });
       editor.listenTo(m, "noteOff", function(){
