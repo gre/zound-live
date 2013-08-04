@@ -74,7 +74,7 @@ zound.modules.Generator = SynthModule.extend({
   noteOff: function (data, ctx, time) {
     var releaseTime = this.pRelease.getValue()/1000;
     var gain = data.gain.gain;
-    gain.cancelScheduledValues(time);
+    gain.cancelScheduledValues(0);
     gain.setValueAtTime(gain.value, time);
     gain.linearRampToValueAtTime(0, time + releaseTime);
     data.osc.stop(time + releaseTime);
