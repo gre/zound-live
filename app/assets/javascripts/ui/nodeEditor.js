@@ -258,13 +258,20 @@ zound.ui.NodeEditor = Backbone.View.extend({
       editor.listenTo(m, "noteOn", function(){
         inner.transition()
           .attr("r", options.r+options.margin-options.outerCircleWidth/2)
-          .duration(0);
+          .duration(0)
+          .transition()
+          .attr("r", options.r)
+          .duration(200)
       });
+      
+      /*
       editor.listenTo(m, "noteOff", function(){
         inner.transition()
           .attr("r", options.r)
           .duration(200);
       });
+      */
+      
     });
 
     return e;

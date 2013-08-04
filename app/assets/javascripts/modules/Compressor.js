@@ -10,11 +10,11 @@ zound.modules.Compressor = EffectModule.extend({
     this.properties.add([this.pThreshold, this.pRatio, this.pGain]);
   },
 
-  init: function (ctx) {
+  init: function (song) {
     EffectModule.prototype.init.apply(this, arguments);
 
-    this.compressor = ctx.createDynamicsCompressor();
-    this.gain = ctx.createGain();
+    this.compressor = song.ctx.createDynamicsCompressor();
+    this.gain = song.ctx.createGain();
     this.compressor.connect(this.gain);
 
     this.input = this.compressor;

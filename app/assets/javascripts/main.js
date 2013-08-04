@@ -67,7 +67,7 @@
     if (!playing) {
       song.releaseHoldingNotes();
       for (note in HOLDING_USER_NOTES) {
-        HOLDING_USER_NOTES[note].module.noteOff(HOLDING_USER_NOTES[note].data, song.ctx, song.ctx.currentTime);
+        HOLDING_USER_NOTES[note].module.noteOff(HOLDING_USER_NOTES[note].data, song, song.ctx.currentTime);
       }
       HOLDING_USER_NOTES = {};
     }
@@ -87,9 +87,9 @@
     var slot = CURRENT_USER.get("slot");
 
     if (module && module.canPlayNote()) {
-      var data = module.noteOn(note, song.ctx, song.ctx.currentTime);
+      var data = module.noteOn(note, song, song.ctx.currentTime);
       if (HOLDING_USER_NOTES[note]) {
-        HOLDING_USER_NOTES[note].module.noteOff(HOLDING_USER_NOTES[note].data, song.ctx, song.ctx.currentTime);
+        HOLDING_USER_NOTES[note].module.noteOff(HOLDING_USER_NOTES[note].data, song, song.ctx.currentTime);
       }
       HOLDING_USER_NOTES[note] = { data: data, module: module };
     }
@@ -103,7 +103,7 @@
 
   var handleNoteOff = function (note) {
     if (HOLDING_USER_NOTES[note]) {
-      HOLDING_USER_NOTES[note].module.noteOff(HOLDING_USER_NOTES[note].data, song.ctx, song.ctx.currentTime);
+      HOLDING_USER_NOTES[note].module.noteOff(HOLDING_USER_NOTES[note].data, song, song.ctx.currentTime);
       delete HOLDING_USER_NOTES[note];
     }
     var module = song.modules.get(CURRENT_USER.get("module"));

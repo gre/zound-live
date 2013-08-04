@@ -16,34 +16,19 @@ zound.models.Module = Backbone.Model.extend({
     this.outputs = new zound.models.Modules();
     this.properties = new zound.models.ModuleProperties();
 
-    // XXX: trigger 'note' when a note is played by the module
-    if(this.canPlayNote()) {
-      var noteOn = this.noteOn,
-          noteOff = this.noteOff,
-          me = this;
-      this.noteOn = function (note, ctx, time) {
-        setTimeout(function(){
-          me.trigger('noteOn');
-        }, 1000*time - Date.now());
-        return noteOn.apply(me, arguments);
-      };
-      this.noteOff = function (noteData, ctx, time) {
-        setTimeout(function(){
-          me.trigger('noteOff');
-        }, 1000*time - Date.now());
-        return noteOff.apply(me, arguments);
-      };
-    }
-
     this.samplesLength = 512;
     this.waveData = new Uint8Array(this.samplesLength);
+    for (var i=0; i<this.samplesLength; ++i) {
+      this.waveData[i] = 127;
+    }
   },
-  init: function (ctx) { // <- FIXME this will be a "song" model parameter instead.
+
+  init: function (song) {
     // init with an AudioContext
-    this.analyserNode = ctx.createAnalyser();
+    this.analyserNode = song.ctx.createAnalyser();
     setInterval(_.bind(function () {
       this.refreshAnalyser();
-    }, this), 30);
+    }, this), 1000);
   },
 
   refreshAnalyser: function () {
@@ -67,12 +52,12 @@ zound.models.Module = Backbone.Model.extend({
     return "plugInput" in module; // duck typing by default
   },
 
-  connect: function (node, ctx) {
+  connect: function (node, song) {
     var plugInputF = function (outModule) {
-      outModule.plugInput(node, ctx);
+      outModule.plugInput(node, song);
     };
     var unplugInputF = function (outModule) {
-      outModule.unplugInput(node, ctx);
+      outModule.unplugInput(node, song);
     };
     this.outputs.each(plugInputF);
     this.outputs.on("add", plugInputF);
@@ -102,11 +87,11 @@ zound.models.Module = Backbone.Model.extend({
 
 zound.models.SynthModule = zound.models.Module.extend({
   // FIXME: leak?
-  noteOn: function (note, ctx, time) {
+  noteOn: function (note, song, time) {
     throw "noteOn not implemented";
   },
 
-  noteOff: function (noteData, ctx, time) {
+  noteOff: function (noteData, song, time) {
     // noteData is the value returned by the noteOn function
   }
 });
@@ -114,13 +99,13 @@ zound.models.SynthModule = zound.models.Module.extend({
 zound.models.EffectModule = zound.models.Module.extend({
   // Default plug and unplug functions are using this.input and this.output,
   // you have to set it in your init() implementation
-  plugInput: function (nodeInput, ctx) {
+  plugInput: function (nodeInput, song) {
     nodeInput.connect(this.input);
-    this.connect(this.output, ctx);
+    this.connect(this.output, song);
   },
-  unplugInput: function (nodeInput, ctx) {
+  unplugInput: function (nodeInput, song) {
     nodeInput.disconnect(this.input);
-    this.disconnect(this.output, ctx);
+    this.disconnect(this.output, song);
   }
 });
 

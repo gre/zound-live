@@ -30,7 +30,7 @@ zound.modules.Drum = SynthModule.extend({
   initialize: function () {
     SynthModule.prototype.initialize.call(this);
     this.properties.add([
-      this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 100 }),
+      this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 50 }),
       this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit", value: 5 }),
       this.pHihatVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "HiHat Volume", value: 100 }),
       this.pKickVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Kick Volume", value: 100 }),
@@ -42,7 +42,7 @@ zound.modules.Drum = SynthModule.extend({
     this.volumeControls = [this.pHihatVolume, this.pKickVolume, this.pSnareVolume, this.pTom1Volume, this.pTom2Volume, this.pTom3Volume];
   },
 
-  init: function (ctx) {
+  init: function (song) {
     SynthModule.prototype.init.apply(this, arguments);
     var me = this;
     var as = _.map(_.pairs(sounds), function(v){
@@ -52,7 +52,7 @@ zound.modules.Drum = SynthModule.extend({
 
       var es =
         Q.all(_.map(paths, function(p){
-          return me._loadSound(ctx, p);
+          return me._loadSound(song.ctx, p);
         })).then(function(sounds){
           return [kit, sounds];
         });
@@ -67,9 +67,9 @@ zound.modules.Drum = SynthModule.extend({
     }, this));
   },
 
-  noteOn: function (note, ctx, time) {
+  noteOn: function (note, song, time) {
     if(this.promiseOfSounds.isPending()) return;
-    var sample = ctx.createBufferSource();
+    var sample = song.ctx.createBufferSource();
     var l = sounds[this.pType.getText()].length;
     var i = note % l;
 
@@ -77,18 +77,25 @@ zound.modules.Drum = SynthModule.extend({
     sample.start(time);
     sample.stop(time + sample.buffer.duration);
 
-    var gain = ctx.createGain();
+    var gain = song.ctx.createGain();
     gain.gain.value = this.pVolume.getPercent()*this.volumeControls[i].getPercent();
     sample.connect(gain);
 
-    var connectData = this.connect(gain, ctx);
-    setTimeout(_.bind(function () {
+    var connectData = this.connect(gain, song);
+    
+    song.execAtTime(_.bind(function () {
+      this.trigger("noteOn");
+    }, this), time);
+    
+    song.execAtTime(_.bind(function () {
       this.disconnect(connectData);
       this.refreshAnalyser();
-    }, this), 1000*((ctx.currentTime-time)+sample.buffer.duration));
+      this.trigger("noteOff");
+    }, this), time+sample.buffer.duration);
   },
 
   noteOff: function (connectData) {
+    // noteOff has no effect in Drum
   },
 
   _loadSound: function(ctx, url) {

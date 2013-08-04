@@ -10,16 +10,16 @@ zound.modules.Delay = EffectModule.extend({
     this.properties.add([this.pMix, this.pTime, this.pFeedback]);
   },
 
-  init: function (ctx) {
+  init: function (song) {
     EffectModule.prototype.init.apply(this, arguments);
-    this.input = ctx.createGain();
-    this.output = ctx.createGain();
-    this.drygain = ctx.createGain();
-    this.wetgain = ctx.createGain();
+    this.input = song.ctx.createGain();
+    this.output = song.ctx.createGain();
+    this.drygain = song.ctx.createGain();
+    this.wetgain = song.ctx.createGain();
 
     // Feedback delay into itself
-    this.delay = ctx.createDelay();
-    this.feedbackGain = ctx.createGain();
+    this.delay = song.ctx.createDelay();
+    this.feedbackGain = song.ctx.createGain();
     this.feedbackGain.gain.value = 0;
     this.feedbackGain.connect(this.delay);
     this.delay.connect(this.feedbackGain);
