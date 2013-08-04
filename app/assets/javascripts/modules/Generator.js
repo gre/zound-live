@@ -29,6 +29,7 @@ zound.modules.Generator = SynthModule.extend({
   noteOn: function (note, song, time) {
     var osc = song.ctx.createOscillator();
     var gain = song.ctx.createGain();
+    osc.connect(gain);
 
     osc.type = GENERATOR_TYPES_OSCVALUE[this.pType.get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
@@ -36,8 +37,7 @@ zound.modules.Generator = SynthModule.extend({
 
     gain.gain.value = this.pVolume.getPercent();
 
-    osc.connect(gain);
-    var connectData = this.connect(gain, song);
+    this.connect(gain, song);
 
     // Note envelope (Attack/Delay)
     var attackDuration = this.pAttack.getValue() / 1000;
@@ -49,8 +49,7 @@ zound.modules.Generator = SynthModule.extend({
       gain: gain,
       time: time,
       attackTime: time+attackDuration,
-      decayTime: time+attackDuration+decayDuration,
-      connectData: connectData
+      decayTime: time+attackDuration+decayDuration
     };
 
     gain.gain.cancelScheduledValues(time);
@@ -84,7 +83,7 @@ zound.modules.Generator = SynthModule.extend({
     gain.linearRampToValueAtTime(0, time + releaseTime);
     data.osc.stop(time + releaseTime);
     song.execAtTime(_.bind(function () {
-      this.disconnect(data.connectData);
+      this.disconnect(data.gain);
       this.refreshAnalyser();
       this.trigger("noteOff");
     }, this), time+releaseTime);

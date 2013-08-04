@@ -70,6 +70,9 @@ zound.modules.Drum = SynthModule.extend({
   noteOn: function (note, song, time) {
     if(this.promiseOfSounds.isPending()) return;
     var sample = song.ctx.createBufferSource();
+    var gain = song.ctx.createGain();
+    sample.connect(gain);
+
     var l = sounds[this.pType.getText()].length;
     var i = note % l;
 
@@ -77,24 +80,22 @@ zound.modules.Drum = SynthModule.extend({
     sample.start(time);
     sample.stop(time + sample.buffer.duration);
 
-    var gain = song.ctx.createGain();
     gain.gain.value = this.pVolume.getPercent()*this.volumeControls[i].getPercent();
-    sample.connect(gain);
 
-    var connectData = this.connect(gain, song);
+    this.connect(gain, song);
     
     song.execAtTime(_.bind(function () {
       this.trigger("noteOn");
     }, this), time);
     
     song.execAtTime(_.bind(function () {
-      this.disconnect(connectData);
+      this.disconnect(gain);
       this.refreshAnalyser();
       this.trigger("noteOff");
     }, this), time+sample.buffer.duration);
   },
 
-  noteOff: function (connectData) {
+  noteOff: function () {
     // noteOff has no effect in Drum
   },
 

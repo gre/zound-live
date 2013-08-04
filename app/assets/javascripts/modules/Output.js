@@ -32,7 +32,7 @@ zound.modules.Output = Module.extend({
   },
   unplugInput: function (nodeInput, song) {
     nodeInput.disconnect(this.input);
-    this.disconnect(this.output, song);
+    this.disconnect(nodeInput);
   }
 });
 

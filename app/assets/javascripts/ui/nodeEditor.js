@@ -24,7 +24,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
   listenModule: function (module) {
     this.listenTo(module, "change", this.render);
-    this.listenTo(module, "waveData", this.render);
+    //this.listenTo(module, "waveData", this.render);
     this.listenTo(module.outputs, "add", this.render);
     this.listenTo(module.outputs, "remove", this.render);
   },
@@ -197,7 +197,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("cy", get('y'));
 
     // Waveform in real time
-    (function () {    
+    (function () {  
+        return; // temporary disabled
         var r = options.r;
 
         g.append("svg:path")

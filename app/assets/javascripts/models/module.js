@@ -1,4 +1,5 @@
 
+// FIXME need to clean some mess around all disconnect / unplug (leaks)
 
 zound.models.Module = Backbone.Model.extend({
   defaults: {
@@ -28,7 +29,7 @@ zound.models.Module = Backbone.Model.extend({
     this.analyserNode = song.ctx.createAnalyser();
     setInterval(_.bind(function () {
       this.refreshAnalyser();
-    }, this), 1000);
+    }, this), 20);
   },
 
   refreshAnalyser: function () {
@@ -52,6 +53,8 @@ zound.models.Module = Backbone.Model.extend({
     return "plugInput" in module; // duck typing by default
   },
 
+  connectDatas: [],
+
   connect: function (node, song) {
     var plugInputF = function (outModule) {
       outModule.plugInput(node, song);
@@ -63,17 +66,26 @@ zound.models.Module = Backbone.Model.extend({
     this.outputs.on("add", plugInputF);
     this.outputs.on("remove", unplugInputF);
     node.connect(this.analyserNode);
-    return {
+
+    this.connectDatas.push({
       node: node,
       plugInputF: plugInputF,
       unplugInputF: unplugInputF
-    };
+    });
   },
 
-  disconnect: function (connectData) {
-    this.outputs.off("add", connectData.plugInputF);
-    this.outputs.off("remove", connectData.unplugInputF);
-    connectData.node.disconnect(this.analyserNode);
+  disconnect: function (node) {
+    node.disconnect(this.analyserNode);
+    var split = _.groupBy(this.connectDatas, function (d) {
+      return d.node === node ? "node" : "others";
+    });
+    console.log(split);
+    this.connectDatas = split.others;
+    _.each(split.node, function (data) {
+      this.outputs.off("add", data.plugInputF);
+      this.outputs.off("remove", data.unplugInputF);
+    }, this);
+    node.disconnect(this.analyserNode);
   }
 
 }, {
@@ -105,7 +117,7 @@ zound.models.EffectModule = zound.models.Module.extend({
   },
   unplugInput: function (nodeInput, song) {
     nodeInput.disconnect(this.input);
-    this.disconnect(this.output, song);
+    this.disconnect(nodeInput);
   }
 });
 
