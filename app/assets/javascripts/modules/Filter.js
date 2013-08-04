@@ -38,13 +38,18 @@ zound.modules.Filter = EffectModule.extend({
     this.properties.add([this.pType, this.pFrequency, this.pQ]);
   },
 
-  init: function (ctx) {
-    this.filter = ctx.createBiquadFilter();
-    this.updateFrequency();
+  init: function (song) {
+    EffectModule.prototype.init.apply(this, arguments);
+    this.filter = song.ctx.createBiquadFilter();
     this.pFrequency.on("change", _.bind(this.updateFrequency, this));
     this.pType.on("change", _.bind(this.updateFilter, this));
     this.pQ.on("change", _.bind(this.updateQ, this));
     this.pGain.on("change", _.bind(this.updateGain, this));
+
+    this.updateFilter();
+    this.updateFrequency();
+    this.updateQ();
+    this.updateGain();
 
     this.input = this.filter;
     this.output = this.filter;

@@ -11,13 +11,13 @@ zound.models.Song = Backbone.Model.extend({
     this.ctx = zound.createAudioContext();
 
     var allModulesReady = Q.all(this.modules.map(function (module) {
-      return Q.fcall(_.bind(module.init, module), this.ctx);
+      return Q.fcall(_.bind(module.init, module), this);
     }, this));
 
     allModulesReady.done(); // For now we don't do nothing with that promise..
 
     this.modules.on("add", _.bind(function (module) {
-      Q.fcall(_.bind(module.init, module), this.ctx).done();
+      Q.fcall(_.bind(module.init, module), this).done();
     }, this));
   },
 
@@ -27,6 +27,10 @@ zound.models.Song = Backbone.Model.extend({
     var module = new constructor(attributes);
     this.addModule(module);
     return module;
+  },
+
+  execAtTime: function (f, t) {
+    setTimeout(f, 1000*(t-this.ctx.currentTime));
   },
 
   addModule: function (module) {
@@ -46,7 +50,7 @@ zound.models.Song = Backbone.Model.extend({
 
   releaseHoldingNotes: function () {
     _.each(this.holdingNotes, function (note) {
-      note.module.noteOff(note.data, this.ctx, this.ctx.currentTime);
+      note.module.noteOff(note.data, this, this.ctx.currentTime);
     }, this);
     this.holdingNotes = [];
   },
@@ -54,7 +58,7 @@ zound.models.Song = Backbone.Model.extend({
   noteOffForTrack: function (track, time) {
     this.holdingNotes = _.filter(this.holdingNotes, function (note) {
       if (track !== note.track) return true;
-      note.module.noteOff(note.data, this.ctx, time);
+      note.module.noteOff(note.data, this, time);
     }, this);
   },
 
@@ -77,7 +81,7 @@ zound.models.Song = Backbone.Model.extend({
         var module = this.modules.get(moduleId);
         if (module) {
           this.noteOffForTrack(track, time);
-          var data = module.noteOn(note, this.ctx, time);
+          var data = module.noteOn(note, this, time);
           this.holdingNotes.push({
             data: data,
             module: module,

@@ -10,16 +10,16 @@ zound.modules.Reverb = EffectModule.extend({
     this.properties.add([this.pMix, this.pTime, this.pDecay]);
   },
 
-  init: function (ctx) {
-    this.input = ctx.createGain();
-    this.output = ctx.createGain();
-    this.drygain = ctx.createGain();
-    this.wetgain = ctx.createGain();
+  init: function (song) {
+    EffectModule.prototype.init.apply(this, arguments);
+    this.input = song.ctx.createGain();
+    this.output = song.ctx.createGain();
+    this.drygain = song.ctx.createGain();
+    this.wetgain = song.ctx.createGain();
 
     // Feedback delay into itself
-    this.verb = ctx.createConvolver();
-    this.ctx = ctx;
-    this.buildImpulse();
+    this.verb = song.ctx.createConvolver();
+    this.buildImpulse(song);
     this.verb.connect(this.wetgain);
 
     this.input.connect(this.verb);
@@ -30,9 +30,9 @@ zound.modules.Reverb = EffectModule.extend({
 
     this.updateMix();
 
-    this.pTime.on("change", _.bind(this.buildImpulse, this));
-    this.pDecay.on("change", _.bind(this.buildImpulse, this));
-    this.pMix.on("change", _.bind(this.updateMix, this));
+    this.pTime.on("change", _.bind(this.buildImpulse, this, song));
+    this.pDecay.on("change", _.bind(this.buildImpulse, this, song));
+    this.pMix.on("change", _.bind(this.updateMix, this, song));
   },
 
   updateMix: function () {
@@ -43,10 +43,10 @@ zound.modules.Reverb = EffectModule.extend({
     this.drygain.gain.value = dry;
   },
 
-  buildImpulse: function () {
+  buildImpulse: function (song) {
     // FIXME: need the audio context to rebuild the buffer.
 
-    var ctx = this.ctx,
+    var ctx = song.ctx,
         rate = ctx.sampleRate,
         length = rate * (this.pTime.get("value") / 10), //seconds
         reverse = false,

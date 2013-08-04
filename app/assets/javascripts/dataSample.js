@@ -24,7 +24,7 @@ function song_sample1 () {
     title: "Gen1"
   });
   generator1.pType.set("value", zound.modules.Generator.GENERATOR_TYPES_NAME.indexOf("square"));
-  generator1.pVolume.set("value", 20);
+  generator1.pVolume.set("value", 10);
   generator1.pAttack.set("value", 125);
   generator1.pDecay.set("value", 500);
 
@@ -76,6 +76,14 @@ function song_sample1 () {
     title: "Reverb"
   });
 
+  var comp1 = song.createModule(zound.modules.Compressor, {
+    x: 550,
+    y: 250,
+    title: "Compr."
+  });
+  comp1.pThreshold.set("value", -20);
+  comp1.pGain.set("value", 60);
+
   multisynth1.outputs.add(generator1);
   multisynth1.outputs.add(generator2);
   generator1.outputs.add(filter1);
@@ -85,7 +93,8 @@ function song_sample1 () {
   filter1.outputs.add(verb1);
   filter2.outputs.add(delay1);
   delay1.outputs.add(verb1);
-  verb1.outputs.add(output);
+  verb1.outputs.add(comp1);
+  comp1.outputs.add(output);
 
   return song;
 }

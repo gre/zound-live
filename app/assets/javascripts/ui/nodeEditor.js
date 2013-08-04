@@ -24,6 +24,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
 
   listenModule: function (module) {
     this.listenTo(module, "change", this.render);
+    //this.listenTo(module, "waveData", this.render);
     this.listenTo(module.outputs, "add", this.render);
     this.listenTo(module.outputs, "remove", this.render);
   },
@@ -132,6 +133,10 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   draw: function (data) {
+    // TODO FIXME: performance need to be improved here, 
+    // we need to not re-render everything everytime
+    // + we have to use more "transform" attr.
+
     var editor = this,
         svg = this.svg,
         options = this.options;
@@ -175,6 +180,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("fill", "#f3f9ff")
       .attr("stroke-width", options.outerCircleWidth)
       .attr("r",  options.r + options.margin);
+
     e.select('.outer')
       .attr("cx", get('x'))
       .attr("cy", get('y'))
@@ -190,6 +196,37 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("cx", get('x'))
       .attr("cy", get('y'));
 
+    // Waveform in real time
+    (function () {  
+        return; // temporary disabled
+        var r = options.r;
+
+        g.append("svg:path")
+            .attr('class', 'waveform')
+            .attr("fill", "transparent")
+            .attr("stroke-width", 1)
+            .attr("stroke", "rgba(255,255,255,0.4)");
+
+        e.select('.waveform')
+          .attr("d", function(m) {
+              var x = d3.scale.linear()
+                  .domain([0, m.samplesLength])
+                  .range([-r, +r]);
+
+              var y = d3.scale.linear()
+                  .domain([-127, 128]) // Uint8
+                  .range([+r, -r]);
+
+              return d3.svg.line()
+                .interpolate("linear")
+                .x(function(d,i) { return m.get("x")+x(i); })
+                .y(function(d) { return m.get("y")+y(d.y); })
+                (_.map(m.waveData, function (byt, i) {
+                  return { x: i, y: (byt-127) };
+                }));
+            });
+    }());
+
     // title
     g.append("svg:text")
       .attr('class', 'title')
@@ -199,7 +236,7 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("text-anchor", "middle");
     e.select('.title')
       .attr("x", get('x'))
-      .attr("y", get('y'))
+      .attr("y", function(d){ return d.get('y') - 5; })
       .text(get('title'));
 
     // id
@@ -219,12 +256,23 @@ zound.ui.NodeEditor = Backbone.View.extend({
     g.each(function(m){
       var group = d3.select(this),
           inner = group.select('.inner');
-      editor.listenTo(m, "note", function(){
-        inner.style("opacity",  .5)
+      editor.listenTo(m, "noteOn", function(){
+        inner.transition()
+          .attr("r", options.r+options.margin-options.outerCircleWidth/2)
+          .duration(0)
           .transition()
-          .style("opacity",  1)
+          .attr("r", options.r)
+          .duration(200)
+      });
+      
+      /*
+      editor.listenTo(m, "noteOff", function(){
+        inner.transition()
+          .attr("r", options.r)
           .duration(200);
       });
+      */
+      
     });
 
     return e;

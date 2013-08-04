@@ -14,21 +14,25 @@ zound.modules.Output = Module.extend({
     Module.prototype.initialize.call(this);
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, value: 100, title: "Volume" })
   },
-  init: function (ctx) {
-    this.gain = ctx.createGain();
-    this.gain.connect(ctx.destination);
+  init: function (song) {
+    Module.prototype.init.apply(this, arguments);
+    this.gain = song.ctx.createGain();
+    this.gain.connect(song.ctx.destination);
     this.updateGain();
     this.pVolume.on("change", _.bind(this.updateGain, this));
     this.input = this.gain;
+    this.output = this.gain;
   },
   updateGain: function () {
     this.gain.gain.value = this.pVolume.getPercent();
   },
-  plugInput: function (nodeInput, ctx) {
+  plugInput: function (nodeInput, song) {
     nodeInput.connect(this.input);
+    this.connect(this.output, song);
   },
-  unplugInput: function (nodeInput, ctx) {
+  unplugInput: function (nodeInput, song) {
     nodeInput.disconnect(this.input);
+    this.disconnect(nodeInput);
   }
 });
 
