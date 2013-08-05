@@ -85,7 +85,7 @@ zound.modules.Generator = SynthModule.extend({
     song.execAtTime(_.bind(function () {
       this.disconnect(data.gain);
       this.trigger("noteOff");
-    }, this), time+releaseTime);
+    }, this), time+releaseTime+0.1);
   }
 }, {
   GENERATOR_TYPES: GENERATOR_TYPES,

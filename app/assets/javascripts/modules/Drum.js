@@ -91,7 +91,7 @@ zound.modules.Drum = SynthModule.extend({
     song.execAtTime(_.bind(function () {
       this.disconnect(gain);
       this.trigger("noteOff");
-    }, this), time+sample.buffer.duration);
+    }, this), time+sample.buffer.duration+0.1);
   },
 
   noteOff: function () {

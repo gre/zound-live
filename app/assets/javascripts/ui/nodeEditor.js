@@ -5,7 +5,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // nodes options
     outerCircleWidth: 8,
     margin: 12,
-    r: 30
+    r: 30,
+    refreshRate: 20
   },
 
   initialize: function () {
@@ -21,9 +22,18 @@ zound.ui.NodeEditor = Backbone.View.extend({
     this.model.modules.each(this.listenModule, this);
     this.render();
 
+    var renderTime = 0;
+    var renderInterval = 1000 / this.options.refreshRate;
+    
+    setInterval(_.bind(function(){ this.renderWaveforms() }, this), renderInterval);
+    return;
     var loop = _.bind(function () {
       requestAnimationFrame(loop);
-      this.renderWaveforms();
+      var now = Date.now();
+      if (now - renderTime > renderInterval) {
+        now = renderTime;
+        this.renderWaveforms();
+      }
     }, this);
     requestAnimationFrame(loop);
   },
@@ -55,7 +65,6 @@ zound.ui.NodeEditor = Backbone.View.extend({
     var e = this.svg
       .selectAll("g")
       .data(this.model.modules.models, function(m){ return m.get("id"); });
-
     e.select('.waveform')
       .attr("d", _.bind(this.lineWaveform, this));
   },
@@ -165,10 +174,6 @@ zound.ui.NodeEditor = Backbone.View.extend({
   },
 
   draw: function (data) {
-    // TODO FIXME: performance need to be improved here, 
-    // we need to not re-render everything everytime
-    // + we have to use more "transform" attr.
-
     var editor = this,
         svg = this.svg,
         options = this.options;
@@ -212,24 +217,23 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // outer circle
     g.append('svg:circle')
       .attr('class', 'outer')
+      .attr("cx", 0)
+      .attr("cy", 0)
       .attr("fill", "#f3f9ff")
       .attr("stroke-width", options.outerCircleWidth)
       .attr("r",  options.r + options.margin);
 
     e.select('.outer')
-      .attr("cx", 0)
-      .attr("cy", 0)
       .attr("stroke", function(m) { return CURRENT_USER.get("module")==m.id ? '#79838e' : '#bfcbdb'; });
 
     // center circle
     g.append('svg:circle')
       .attr('class', 'inner')
+      .attr("cx", 0)
+      .attr("cy", 0)
       .attr("fill", "#456")
       .attr("stroke-width", 0)
       .attr("r", options.r);
-    e.select('.inner')
-      .attr("cx", 0)
-      .attr("cy", 0);
 
     g.append("svg:path")
       .attr('class', 'waveform')
@@ -244,33 +248,32 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // title
     g.append("svg:text")
       .attr('class', 'title')
+      .attr("x", 0)
+      .attr("y", -5)
       .attr("fill", '#fff')
       .attr("font-family", "Open Sans")
       .attr("font-size", "10px")
       .attr("text-anchor", "middle");
     e.select('.title')
-      .attr("x", 0)
-      .attr("y", -5)
       .text(get('title'));
 
     // id
     g.append("svg:text")
       .attr('class', 'id')
+      .attr("x", 0)
+      .attr("y", 10)
       .attr("fill", "#FFD384")
       .attr("text-anchor", "middle")
       .attr("font-family", "monospace")
       .attr("font-weight", "bold")
       .attr("font-size", "8px");
     e.select('.id')
-      .attr("x", 0)
-      .attr("y", 10)
       .text(function(m){ return m.getDisplayId(); });
 
     // note animation
     g.each(function(m){
       var group = d3.select(this),
           inner = group.select('.inner');
-      // FIXME: multiple time bound???
       editor.listenTo(m, "noteOn", function(){
         inner.transition()
           .attr("r", options.r+options.margin-options.outerCircleWidth/2)

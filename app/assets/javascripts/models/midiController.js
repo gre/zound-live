@@ -34,9 +34,9 @@ zound.models.MIDIController = Backbone.Model.extend({
     this.trigger("noteOff", noteNumber, noteVelocity);
   },
 
-  control: function (controlNumber, value) {
+  control: function (controlId, value) {
     var assign = _.find(this.assigned, function (assign) {
-      return assign.controlNumber === controlNumber;
+      return assign.controlId === controlId;
     });
     if (assign) {
       assign.f(value);
@@ -45,24 +45,24 @@ zound.models.MIDIController = Backbone.Model.extend({
     if (this.assignables.length > 0) {
       var node = this.assignables.shift();
       if (_.any(this.lastAssigned, function (assign) {
-        return assign.controlNumber === controlNumber;
+        return assign.controlId === controlId;
       })) {
         this.assignables.unshift(node);
         return; // already in my last assignables
       }
       
       this.removeAssigned(function (assign) {
-        return assign.nodeId === node.id || assign.controlNumber === controlNumber;
+        return assign.nodeId === node.id || assign.controlId === controlId;
       });
       var f = $(node).data("assignable");
       var assign = {
         nodeId: node.id,
-        controlNumber: controlNumber,
+        controlId: controlId,
         f: f
       };
       this.assigned.push(assign);
       this.lastAssigned.push(assign);
-      zound.models.MIDIController.setAssignableValueForControlNumber(node, controlNumber);
+      zound.models.MIDIController.setAssignableValueForControlNumber(node, controlId);
       if (this.assignables.length == 0) {
         this.lastAssigned = [];
       }
@@ -82,8 +82,14 @@ zound.models.MIDIController = Backbone.Model.extend({
       case 144: // NOTE ON
         this.noteOn(byte2, byte3);
         break;
-      case 176: // control
+      case 176: // control change
         this.control(byte2, byte3);
+        break;
+      case 192: // program change
+        this.control("prog", byte2); // consider it as control
+        break;
+      case 224:
+        this.control("PB", byte3+byte2/127);
         break;
       default:
         console.log( "Unknown status code : " + status);
@@ -151,7 +157,7 @@ zound.models.MIDIController = Backbone.Model.extend({
       return assign.nodeId === node.id;
     });
     if (assign) {
-      return zound.models.MIDIController.setAssignableValueForControlNumber(node, assign.controlNumber);
+      return zound.models.MIDIController.setAssignableValueForControlNumber(node, assign.controlId);
     }
     return zound.models.MIDIController.setAssignableValueForEmpty(node);
   },
