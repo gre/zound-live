@@ -20,11 +20,16 @@ zound.ui.NodeEditor = Backbone.View.extend({
     this.listenTo(this.model.modules, "remove", this.render);
     this.model.modules.each(this.listenModule, this);
     this.render();
+
+    var loop = _.bind(function () {
+      requestAnimationFrame(loop);
+      this.renderWaveforms();
+    }, this);
+    requestAnimationFrame(loop);
   },
 
   listenModule: function (module) {
     this.listenTo(module, "change", this.render);
-    //this.listenTo(module, "waveData", this.render);
     this.listenTo(module.outputs, "add", this.render);
     this.listenTo(module.outputs, "remove", this.render);
   },
@@ -44,6 +49,15 @@ zound.ui.NodeEditor = Backbone.View.extend({
         g = this.draw(this.model.modules.models);
     this.addBehaviours(g);
     return g;
+  },
+
+  renderWaveforms: function () {
+    var e = this.svg
+      .selectAll("g")
+      .data(this.model.modules.models, function(m){ return m.get("id"); });
+
+    e.select('.waveform')
+      .attr("d", _.bind(this.lineWaveform, this));
   },
 
   addBehaviours: function(g) {
@@ -132,6 +146,24 @@ zound.ui.NodeEditor = Backbone.View.extend({
      return g;
   },
 
+  lineWaveform: function (m) {
+    var r = this.options.r;
+    var scalex = d3.scale.linear()
+      .domain([0, m.samplesLength])
+      .range([-r, +r]);
+
+    var scaley = d3.scale.linear()
+      .domain([0, 255]) // Uint8
+      .range([+r, -r]);
+
+    var line = d3.svg.line()
+      .interpolate("linear")
+      .x(function(d,i) { return scalex(i); })
+      .y(scaley);
+
+    return line(m.getWaveData());
+  },
+
   draw: function (data) {
     // TODO FIXME: performance need to be improved here, 
     // we need to not re-render everything everytime
@@ -171,8 +203,11 @@ zound.ui.NodeEditor = Backbone.View.extend({
     // groups
     var g = e.enter()
       .append("svg:g")
+      .attr('class', 'module')
       .attr('id', get('id'))
       .attr("cursor", "pointer");
+
+    e.attr("transform", function (m) { return "translate("+m.get("x")+","+m.get("y")+")" });
 
     // outer circle
     g.append('svg:circle')
@@ -182,8 +217,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("r",  options.r + options.margin);
 
     e.select('.outer')
-      .attr("cx", get('x'))
-      .attr("cy", get('y'))
+      .attr("cx", 0)
+      .attr("cy", 0)
       .attr("stroke", function(m) { return CURRENT_USER.get("module")==m.id ? '#79838e' : '#bfcbdb'; });
 
     // center circle
@@ -193,39 +228,18 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("stroke-width", 0)
       .attr("r", options.r);
     e.select('.inner')
-      .attr("cx", get('x'))
-      .attr("cy", get('y'));
+      .attr("cx", 0)
+      .attr("cy", 0);
+
+    g.append("svg:path")
+      .attr('class', 'waveform')
+      .attr("fill", "transparent")
+      .attr("stroke-width", 1)
+      .attr("stroke", "rgba(255,255,255,0.4)");
 
     // Waveform in real time
-    (function () {  
-        return; // temporary disabled
-        var r = options.r;
-
-        g.append("svg:path")
-            .attr('class', 'waveform')
-            .attr("fill", "transparent")
-            .attr("stroke-width", 1)
-            .attr("stroke", "rgba(255,255,255,0.4)");
-
-        e.select('.waveform')
-          .attr("d", function(m) {
-              var x = d3.scale.linear()
-                  .domain([0, m.samplesLength])
-                  .range([-r, +r]);
-
-              var y = d3.scale.linear()
-                  .domain([-127, 128]) // Uint8
-                  .range([+r, -r]);
-
-              return d3.svg.line()
-                .interpolate("linear")
-                .x(function(d,i) { return m.get("x")+x(i); })
-                .y(function(d) { return m.get("y")+y(d.y); })
-                (_.map(m.waveData, function (byt, i) {
-                  return { x: i, y: (byt-127) };
-                }));
-            });
-    }());
+    e.select('.waveform')
+      .attr("d", _.bind(this.lineWaveform, this));
 
     // title
     g.append("svg:text")
@@ -235,8 +249,8 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("font-size", "10px")
       .attr("text-anchor", "middle");
     e.select('.title')
-      .attr("x", get('x'))
-      .attr("y", function(d){ return d.get('y') - 5; })
+      .attr("x", 0)
+      .attr("y", -5)
       .text(get('title'));
 
     // id
@@ -248,14 +262,15 @@ zound.ui.NodeEditor = Backbone.View.extend({
       .attr("font-weight", "bold")
       .attr("font-size", "8px");
     e.select('.id')
-      .attr("x", get('x'))
-      .attr("y", function(d){ return d.get('y') + 10; })
+      .attr("x", 0)
+      .attr("y", 10)
       .text(function(m){ return m.getDisplayId(); });
 
     // note animation
     g.each(function(m){
       var group = d3.select(this),
           inner = group.select('.inner');
+      // FIXME: multiple time bound???
       editor.listenTo(m, "noteOn", function(){
         inner.transition()
           .attr("r", options.r+options.margin-options.outerCircleWidth/2)
@@ -264,15 +279,6 @@ zound.ui.NodeEditor = Backbone.View.extend({
           .attr("r", options.r)
           .duration(200)
       });
-      
-      /*
-      editor.listenTo(m, "noteOff", function(){
-        inner.transition()
-          .attr("r", options.r)
-          .duration(200);
-      });
-      */
-      
     });
 
     return e;

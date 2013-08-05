@@ -81,10 +81,9 @@ zound.modules.Generator = SynthModule.extend({
     gain.cancelScheduledValues(0);
     gain.setValueAtTime(gain.value, time);
     gain.linearRampToValueAtTime(0, time + releaseTime);
-    data.osc.stop(time + releaseTime);
+    data.osc.stop(time + releaseTime+1);
     song.execAtTime(_.bind(function () {
       this.disconnect(data.gain);
-      this.refreshAnalyser();
       this.trigger("noteOff");
     }, this), time+releaseTime);
   }
