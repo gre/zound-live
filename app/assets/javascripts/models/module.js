@@ -27,14 +27,12 @@ zound.models.Module = Backbone.Model.extend({
   init: function (song) {
     // init with an AudioContext
     this.analyserNode = song.ctx.createAnalyser();
-    setInterval(_.bind(function () {
-      this.refreshAnalyser();
-    }, this), 20);
   },
 
-  refreshAnalyser: function () {
-    this.analyserNode.getByteTimeDomainData(this.waveData);
-    this.trigger("waveData", this.waveData);
+  getWaveData: function () {
+    if (this.analyserNode)
+      this.analyserNode.getByteTimeDomainData(this.waveData);
+    return this.waveData;
   },
 
   getDisplayId: function () {
@@ -79,7 +77,6 @@ zound.models.Module = Backbone.Model.extend({
     var split = _.groupBy(this.connectDatas, function (d) {
       return d.node === node ? "node" : "others";
     });
-    console.log(split);
     this.connectDatas = split.others;
     _.each(split.node, function (data) {
       this.outputs.off("add", data.plugInputF);
