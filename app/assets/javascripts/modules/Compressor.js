@@ -4,10 +4,11 @@ zound.modules.Compressor = EffectModule.extend({
 
   initialize: function () {
     EffectModule.prototype.initialize.call(this);
-    this.pThreshold = new zound.models.ModulePropertyRange({ min: -100, max: 0, title: "Threshold", value: -24 });
-    this.pRatio = new zound.models.ModulePropertyRange({ min: 1, max: 20, title: "Ratio", value: 12 });
-    this.pGain = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Gain", value: 20 });
-    this.properties.add([this.pThreshold, this.pRatio, this.pGain]);
+    this.properties.add([
+      new zound.models.ModulePropertyRange({ id: "threshold", min: -100, max: 0, title: "Threshold", value: -24 }),
+      new zound.models.ModulePropertyRange({ id: "ratio", min: 1, max: 20, title: "Ratio", value: 12 }),
+      new zound.models.ModulePropertyRange({ id: "gain", min: 0, max: 100, title: "Gain", value: 20 })
+    ]);
   },
 
   init: function (song) {
@@ -24,27 +25,22 @@ zound.modules.Compressor = EffectModule.extend({
     this.updateRatio();
     this.updateGain();
 
-    this.pThreshold.on("change", _.bind(this.updateThreshold, this));
-    this.pRatio.on("change", _.bind(this.updateRatio, this));
-    this.pGain.on("change", _.bind(this.updateGain, this));
+    // we could improve that by listening to properties collection change :)
+    this.properties.get("threshold").on("change", _.bind(this.updateThreshold, this));
+    this.properties.get("ratio").on("change", _.bind(this.updateRatio, this));
+    this.properties.get("gain").on("change", _.bind(this.updateGain, this));
   },
 
   updateThreshold: function () {
-
-    this.compressor.threshold.value = this.pThreshold.get("value");
-
+    this.compressor.threshold.value = this.properties.get("threshold").get("value");
   },
 
   updateRatio: function () {
-
-    this.compressor.ratio.value = this.pRatio.get("value");
-
+    this.compressor.ratio.value = this.properties.get("ratio").get("value");
   },
 
   updateGain: function () {
-
-    this.gain.gain.value = this.pGain.get("value") / 100;
-
+    this.gain.gain.value = this.properties.get("gain").get("value") / 100;
   }
 
 });

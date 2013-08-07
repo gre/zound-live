@@ -1,100 +1,141 @@
 
-function song_sample1 () {
-  var song = new zound.models.Song();
-  var pattern = new zound.models.Pattern({
-    id: 0
-  });
-  song.patterns.add(pattern);
-
-  var output = song.createModule(zound.modules.Output, {
+var SONG_SAMPLE_1 = {
+  id: "song_1",
+  bpm: 125,
+  patterns: [
+  {
+    id: 0,
+    length: 32,
+    tracks: _.map(_.range(0, 23), function (i) {
+      return {
+        id: i,
+        notes: i>0 ? [] : [{
+          id: 0,
+          typ: "note",
+          note: 40,
+          module: 1
+        },
+        {
+          id: 4,
+          typ: "off"
+        }]
+      }
+    })
+  }
+  ],
+  modules: [
+  {
+    id: 0,
+    clazz: "Output",
+    title: "Output",
     x: 600,
-    y: 150,
-    title: "Output"
-  });
-
-  var multisynth1 = song.createModule(zound.modules.MultiSynth, {
+    y: 150
+  },
+  {
+    id: 1,
+    clazz: "MultiSynth",
+    title: "Multi1",
     x: 60,
     y: 120,
-    title: "Multi1"
-  });
-
-  var generator1 = song.createModule(zound.modules.Generator, {
+    outputs: [2, 3]
+  },
+  {
+    id: 2,
+    clazz: "Generator",
+    title: "Gen1",
     x: 160,
     y: 60,
-    title: "Gen1"
-  });
-  generator1.pType.set("value", zound.modules.Generator.GENERATOR_TYPES_NAME.indexOf("square"));
-  generator1.pVolume.set("value", 10);
-  generator1.pAttack.set("value", 125);
-  generator1.pDecay.set("value", 500);
-
-  var generator2 = song.createModule(zound.modules.Generator, {
+    properties: {
+      "type": 2,
+      "volume": 10,
+      "attack": 125,
+      "decay": 500
+    },
+    outputs: [4]
+  },
+  {
+    id: 3,
+    clazz: "Generator",
+    title: "Gen2",
     x: 160,
     y: 190,
-    title: "Gen2"
-  });
-  generator2.pType.set("value", zound.modules.Generator.GENERATOR_TYPES_NAME.indexOf("triangle"));
-  generator2.pDecay.set("value", 125);
-
-  var filter1 = song.createModule(zound.modules.Filter, {
+    properties: {
+      "type": 1,
+      "decay": 125
+    },
+    outputs: [9]
+  },
+  {
+    id: 4,
+    clazz: "Filter",
+    title: "Filter1",
     x: 270,
     y: 120,
-    title: "Filter1"
-  });
-  filter1.pFrequency.set("value", 1000);
-  filter1.pQ.set("value", 16);
-
-  var generator3 = song.createModule(zound.modules.Generator, {
+    properties: {
+      "frequency": 1000,
+      "Q": 16
+    },
+    outputs: [9]
+  },
+  {
+    id: 5,
+    clazz: "Generator",
+    title: "Gen3",
     x: 100,
     y: 300,
-    title: "Gen3"
-  });
-  generator3.pType.set("value", zound.modules.Generator.GENERATOR_TYPES_NAME.indexOf("saw"));
-  var filter2 = song.createModule(zound.modules.Filter, {
+    properties: {
+      "type": 3
+    },
+    outputs: [6]
+  },
+  {
+    id: 6,
+    clazz: "Filter",
+    title: "Filter2",
     x: 250,
     y: 300,
-    title: "Filter2"
-  });
-  filter2.pFrequency.set("value", 300);
-  filter2.pQ.set("value", 15);
-
-  var drum1 = song.createModule(zound.modules.Drum, {
+    properties: {
+      "frequency": 300,
+      "Q": 15
+    },
+    outputs: [8]
+  },
+  {
+    id: 7,
+    clazz: "Drum",
+    title: "Drum1",
     x: 370,
     y: 70,
-    title: "Drum1"
-  });
-
-  var delay1 = song.createModule(zound.modules.Delay, {
+    outputs: [9]
+  },
+  {
+    id: 8,
+    clazz: "Delay",
+    title: "Delay",
     x: 380,
     y: 290,
-    title: "Delay"
-  });
-
-  var verb1 = song.createModule(zound.modules.Reverb, {
+    outputs: [9]
+  },
+  {
+    id: 9,
+    clazz: "Reverb",
+    title: "Reverb",
     x: 450,
     y: 180,
-    title: "Reverb"
-  });
-
-  var comp1 = song.createModule(zound.modules.Compressor, {
+    outputs: [10]
+  },
+  {
+    id: 10,
+    clazz: "Compressor",
+    title: "Compr.",
     x: 550,
     y: 250,
-    title: "Compr."
-  });
-  comp1.pThreshold.set("value", -20);
-  comp1.pGain.set("value", 60);
+    properties: {
+      "threshold": -20,
+      "gain": 60
+    },
+    outputs: [0]
+  }
+  ]
+};
 
-  multisynth1.outputs.add(generator1);
-  multisynth1.outputs.add(generator2);
-  generator1.outputs.add(filter1);
-  generator2.outputs.add(verb1);
-  generator3.outputs.add(filter2);
-  drum1.outputs.add(verb1);
-  filter1.outputs.add(verb1);
-  filter2.outputs.add(delay1);
-  delay1.outputs.add(verb1);
-  verb1.outputs.add(comp1);
-  comp1.outputs.add(output);
-
-  return song;
-}

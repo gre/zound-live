@@ -4,16 +4,10 @@ zound.models.Pattern = Backbone.Model.extend({
     length: 32
   },
   initialize: function () {
-    this.tracks = new zound.models.Tracks(_.chain(_.range(0, 23)).map(function (num) {
-      return new zound.models.Track({
-        id: this.id+"-"+num,
-        length: this.get("length"),
-        num: num
-      });
-    }, this).value());
+    this.tracks = new zound.models.Tracks();
   },
   getSlot: function (track, slot) {
-    return this.tracks.at(track).slots.at(slot);
+    return this.tracks.get(track).slots.get(slot);
   }
 });
 

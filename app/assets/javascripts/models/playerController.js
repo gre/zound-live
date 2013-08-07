@@ -1,6 +1,4 @@
 
-// FIXME: PlayerController is only a play/stop controller which .trigger("tick", numline) each tick
-
 zound.models.PlayerController = Backbone.Model.extend({
   defaults: {
     length: 32,

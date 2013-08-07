@@ -1,7 +1,7 @@
 
 zound.models.Song = Backbone.Model.extend({
   defaults: {
-    length: 32,
+    length: 32, // FIXME does this make sense?
     bpm: 125
   },
   initialize: function () {
@@ -23,17 +23,11 @@ zound.models.Song = Backbone.Model.extend({
 
   moduleIdCounter: 0,
 
-  createModule: function (constructor, attributes) {
-    var module = new constructor(attributes);
-    this.addModule(module);
-    return module;
-  },
-
   execAtTime: function (f, t) {
     setTimeout(f, 1000*(t-this.ctx.currentTime));
   },
 
-  addModule: function (module) {
+  addNewModule: function (module) {
     module.set("id", this.moduleIdCounter++);
     this.modules.add(module);
   },
@@ -73,7 +67,7 @@ zound.models.Song = Backbone.Model.extend({
         return track.isListenableFor(CURRENT_USER);
       })
       .each(function (track) {
-      var slot = track.slots.at(lineNumber);
+      var slot = track.slots.get(lineNumber);
       switch (slot.get("typ")) {
       case "note":
         var note = slot.get("note");
@@ -96,4 +90,65 @@ zound.models.Song = Backbone.Model.extend({
     }, this);
   }
 
+}, {
+  fromJSON: function (json) {
+    // Create a song
+    var song = new zound.models.Song({
+      id: json.id,
+      bpm: 125
+    });
+
+    // Create all modules
+    var modules = _.map(json.modules, function (m) {
+      var properties = m.properties; delete m.properties;
+      var outputs = m.outputs; delete m.outputs;
+      var clazz = m.clazz; delete m.clazz;
+      var module = new zound.modules[clazz](m);
+      return {
+        model: module,
+        properties: properties,
+        outputs: outputs
+      };
+    });
+
+    // Plug outputs
+    _.each(modules, function (m) {
+      m.model.outputs.add(_.map(m.outputs, function (id) {
+        return _.find(modules, function (m) {
+          return m.model.id === id;
+        }).model;
+      }));
+    });
+
+    // Set all properties
+    _.each(modules, function (m) {
+      _.each(m.properties, function (value, pid) {
+        m.model.properties.get(pid).set("value", value);
+      });
+    });
+
+    // Add all modules
+    song.modules.add(_.pluck(modules, "model"));
+    
+    // Add all patterns, tracks, notes
+    song.patterns.add(_.map(json.patterns, function (p) {
+      var pattern = new zound.models.Pattern({
+        id: p.id,
+        length: p.length
+      });
+      pattern.tracks.add(_.map(p.tracks, function (t) {
+        var track = new zound.models.Track({
+          id: t.id,
+          length: p.length
+        });
+        _.each(t.notes, function (n) {
+          track.slots.get(n.id).set(n);
+        });
+        return track;
+      }));
+      return pattern;
+    }));
+
+    return song;
+  }
 });

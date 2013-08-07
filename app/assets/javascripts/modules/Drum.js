@@ -30,16 +30,16 @@ zound.modules.Drum = SynthModule.extend({
   initialize: function () {
     SynthModule.prototype.initialize.call(this);
     this.properties.add([
-      this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 50 }),
-      this.pType = new zound.models.ModulePropertySelect({ values: DRUM_TYPES, title: "Kit", value: 5 }),
-      this.pHihatVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "HiHat Volume", value: 100 }),
-      this.pKickVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Kick Volume", value: 100 }),
-      this.pSnareVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Snare Volume", value: 100 }),
-      this.pTom1Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom1 Volume", value: 100 }),
-      this.pTom2Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom2 Volume", value: 100 }),
-      this.pTom3Volume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Tom3 Volume", value: 100 })
+      new zound.models.ModulePropertyRange({ id: "volume", min: 0, max: 100, title: "Volume", value: 50 }),
+      new zound.models.ModulePropertySelect({id: "type", values: DRUM_TYPES, title: "Kit", value: 5 }),
+      new zound.models.ModulePropertyRange({ id: "hihatVolume", min: 0, max: 100, title: "HiHat Volume", value: 100 }),
+      new zound.models.ModulePropertyRange({ id: "kickVolume", min: 0, max: 100, title: "Kick Volume", value: 100 }),
+      new zound.models.ModulePropertyRange({ id: "snareVolume", min: 0, max: 100, title: "Snare Volume", value: 100 }),
+      new zound.models.ModulePropertyRange({ id: "tom1Volume", min: 0, max: 100, title: "Tom1 Volume", value: 100 }),
+      new zound.models.ModulePropertyRange({ id: "tom2Volume", min: 0, max: 100, title: "Tom2 Volume", value: 100 }),
+      new zound.models.ModulePropertyRange({ id: "tom3Volume", min: 0, max: 100, title: "Tom3 Volume", value: 100 })
     ]);
-    this.volumeControls = [this.pHihatVolume, this.pKickVolume, this.pSnareVolume, this.pTom1Volume, this.pTom2Volume, this.pTom3Volume];
+    this.volumeControls = ["hihatVolume", "kickVolume", "snareVolume", "tom1Volume", "tom2Volume", "tom3Volume"];
   },
 
   init: function (song) {
@@ -73,14 +73,14 @@ zound.modules.Drum = SynthModule.extend({
     var gain = song.ctx.createGain();
     sample.connect(gain);
 
-    var l = sounds[this.pType.getText()].length;
+    var l = sounds[this.properties.get("type").getText()].length;
     var i = note % l;
 
-    sample.buffer = this.buffers[this.pType.getText()][i];
+    sample.buffer = this.buffers[this.properties.get("type").getText()][i];
     sample.start(time);
     sample.stop(time + sample.buffer.duration);
 
-    gain.gain.value = this.pVolume.getPercent()*this.volumeControls[i].getPercent();
+    gain.gain.value = this.properties.get("volume").getPercent()*this.properties.get(this.volumeControls[i]).getPercent();
 
     this.connect(gain, song);
     

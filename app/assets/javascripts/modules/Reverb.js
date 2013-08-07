@@ -4,10 +4,11 @@ zound.modules.Reverb = EffectModule.extend({
   
   initialize: function () {
     EffectModule.prototype.initialize.call(this);
-    this.pMix = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Mix", value: 20 });
-    this.pTime = new zound.models.ModulePropertyRange({ min: 1, max: 100, title: "Time", value: 10 });
-    this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 50, title: "Decay", value: 2});
-    this.properties.add([this.pMix, this.pTime, this.pDecay]);
+    this.properties.add([
+      new zound.models.ModulePropertyRange({ id: "mix", min: 0, max: 100, title: "Mix", value: 20 }),
+      new zound.models.ModulePropertyRange({ id: "time", min: 1, max: 100, title: "Time", value: 10 }),
+      new zound.models.ModulePropertyRange({ id: "decay", min: 0, max: 50, title: "Decay", value: 2})
+    ]);
   },
 
   init: function (song) {
@@ -30,13 +31,13 @@ zound.modules.Reverb = EffectModule.extend({
 
     this.updateMix();
 
-    this.pTime.on("change", _.bind(this.buildImpulse, this, song));
-    this.pDecay.on("change", _.bind(this.buildImpulse, this, song));
-    this.pMix.on("change", _.bind(this.updateMix, this, song));
+    this.properties.get("time").on("change", _.bind(this.buildImpulse, this, song));
+    this.properties.get("decay").on("change", _.bind(this.buildImpulse, this, song));
+    this.properties.get("mix").on("change", _.bind(this.updateMix, this, song));
   },
 
   updateMix: function () {
-    var wet = this.pMix.get("value") / 100;
+    var wet = this.properties.get("mix").get("value") / 100;
     var dry = 1 - wet;
 
     this.wetgain.gain.value = wet;
@@ -48,9 +49,9 @@ zound.modules.Reverb = EffectModule.extend({
 
     var ctx = song.ctx,
         rate = ctx.sampleRate,
-        length = rate * (this.pTime.get("value") / 10), //seconds
+        length = rate * (this.properties.get("time").get("value") / 10), //seconds
         reverse = false,
-        decay = (this.pTime.get("value") / 10),
+        decay = (this.properties.get("time").get("value") / 10),
         impulse = ctx.createBuffer(2, length, rate),
         impulseL = impulse.getChannelData(0),
         impulseR = impulse.getChannelData(1),

@@ -16,14 +16,14 @@ zound.modules.Generator = SynthModule.extend({
     SynthModule.prototype.initialize.call(this);
     this.lastNote = null;
     this.properties.add([
-      this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Volume", value: 50 }),
-      this.pType = new zound.models.ModulePropertySelect({ values: GENERATOR_TYPES_NAME, title: "Type" }),
-      this.pAttack = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Attack", value: 10 }),
-      this.pDecay = new zound.models.ModulePropertyRange({ min: 0, max: 1000, title: "Decay", value: 200 }),
-      this.pRelease = new zound.models.ModulePropertyRange({ min: 0, max: 4000, title: "Release", value: 200 }),
-      this.pDecayVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Decay Volume", value: 70 }),
-      this.pSustain = new zound.models.ModulePropertySelect({ values: [ "off", "on" ], title: "Sustain", value: 1 }),
-      this.pGlide = new zound.models.ModulePropertyRange({ min: 0, max: 100, title: "Glide", value: 0 })
+      new zound.models.ModulePropertyRange({ id: "volume", min: 0, max: 100, title: "Volume", value: 50 }),
+      new zound.models.ModulePropertySelect({ id: "type", values: GENERATOR_TYPES_NAME, title: "Type" }),
+      new zound.models.ModulePropertyRange({ id: "attack", min: 0, max: 1000, title: "Attack", value: 10 }),
+      new zound.models.ModulePropertyRange({ id: "decay", min: 0, max: 1000, title: "Decay", value: 200 }),
+      new zound.models.ModulePropertyRange({ id: "release", min: 0, max: 4000, title: "Release", value: 200 }),
+      new zound.models.ModulePropertyRange({ id: "decayVolume", min: 0, max: 100, title: "Decay Volume", value: 70 }),
+      new zound.models.ModulePropertySelect({ id: "sustain", values: [ "off", "on" ], title: "Sustain", value: 1 }),
+      new zound.models.ModulePropertyRange({ id: "glide", min: 0, max: 100, title: "Glide", value: 0 })
     ]);
   },
   noteOn: function (note, song, time) {
@@ -31,18 +31,18 @@ zound.modules.Generator = SynthModule.extend({
     var gain = song.ctx.createGain();
     osc.connect(gain);
 
-    osc.type = GENERATOR_TYPES_OSCVALUE[this.pType.get("value")];
+    osc.type = GENERATOR_TYPES_OSCVALUE[this.properties.get("type").get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
     osc.start(time);
 
-    gain.gain.value = this.pVolume.getPercent();
+    gain.gain.value = this.properties.get("volume").getPercent();
 
     this.connect(gain, song);
 
     // Note envelope (Attack/Delay)
-    var attackDuration = this.pAttack.getValue() / 1000;
-    var decayDuration = this.pDecay.getValue() / 1000;
-    var volume = this.pVolume.getPercent();
+    var attackDuration = this.properties.get("attack").getValue() / 1000;
+    var decayDuration = this.properties.get("decay").getValue() / 1000;
+    var volume = this.properties.get("volume").getPercent();
 
     var data = {
       osc: osc,
@@ -55,14 +55,14 @@ zound.modules.Generator = SynthModule.extend({
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(volume, time+attackDuration);
-    gain.gain.linearRampToValueAtTime(volume*this.pDecayVolume.getPercent(), time+attackDuration+decayDuration);
+    gain.gain.linearRampToValueAtTime(volume*this.properties.get("decayVolume").getPercent(), time+attackDuration+decayDuration);
 
-    if (!this.pSustain.getValue()) {
+    if (!this.properties.get("sustain").getValue()) {
       this.noteOff(data, song, time+attackDuration+decayDuration);
     }
 
     // Glide to note
-    var glideDuration = this.pGlide.getValue() / 100;
+    var glideDuration = this.properties.get("glide").getValue() / 100;
     if (glideDuration > 0 && this.lastNote) {
       osc.frequency.setValueAtTime(zound.AudioMath.noteToFrequency(this.lastNote), time);
       osc.frequency.linearRampToValueAtTime(zound.AudioMath.noteToFrequency(note), time + ((attackDuration + decayDuration) * glideDuration));
@@ -76,7 +76,7 @@ zound.modules.Generator = SynthModule.extend({
   },
 
   noteOff: function (data, song, time) {
-    var releaseTime = this.pRelease.getValue()/1000;
+    var releaseTime = this.properties.get("release").getValue()/1000;
     var gain = data.gain.gain;
     gain.cancelScheduledValues(0);
     gain.setValueAtTime(gain.value, time);

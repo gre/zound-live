@@ -12,6 +12,7 @@ zound.modules.Output = Module.extend({
   },
   initialize: function () {
     Module.prototype.initialize.call(this);
+    // N.B.: this property is not exposed and shared. don't put it in properties.
     this.pVolume = new zound.models.ModulePropertyRange({ min: 0, max: 100, value: 100, title: "Volume" })
   },
   init: function (song) {

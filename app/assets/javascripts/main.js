@@ -8,7 +8,7 @@
   var network = new zound.Network();
   var users = new zound.models.Users([ window.CURRENT_USER ]);
 
-  var song = song_sample1();
+  var song = models.Song.fromJSON(SONG_SAMPLE_1);
   window._song = song; // for DEBUG only
   var pattern = song.patterns.first();
 
@@ -50,7 +50,7 @@
     var title = m.get("title");
     if (title.length > 6) title = title.substring(0,5)+".";
     m.set("title", title+song.moduleIdCounter);
-    song.addModule(m);
+    song.addNewModule(m);
   });
 
   users.on("change:slot", function (user, value) {
@@ -257,8 +257,8 @@
     track.slots.on("change", function (slot, options) {
       if (options.network) return;
       network.send("set-slot", {
-        slot: slot.get("num"), // FIXME
-        track: track.get("num"),
+        slot: slot.id,
+        track: track.id,
         data: slot.toJSON()
       });
     });
@@ -267,12 +267,12 @@
     if (options.network) return;
     if (value===CURRENT_USER.id) {
       network.send("user-track-take", {
-        track: pattern.tracks.indexOf(track)
+        track: track.id
       });
     }
     else if (value===null) {
       network.send("user-track-release", {
-        track: pattern.tracks.indexOf(track)
+        track: track.id
       });
     }
   });
@@ -285,14 +285,12 @@
 
   // Modules
   function bindModule (module) {
-    module.properties.each(function (property, i) {
-      property.on("change", function (property, options) {
-        if (options.network) return;
-        network.send("property-change", {
-          module: module.id,
-          property: i, // FIXME
-          value: property.get("value")
-        });
+    module.properties.on("change", function (property, options) {
+      if (options.network) return;
+      network.send("property-change", {
+        module: module.id,
+        property: property.id,
+        value: property.get("value")
       });
     });
 
@@ -339,10 +337,10 @@
 
   network.on({
     "user-track-take": function (data, user) {
-      pattern.tracks.at(data.track).set("offmode", user, { network: true });
+      pattern.tracks.get(data.track).set("offmode", user, { network: true });
     },
     "user-track-release": function (data, user) {
-      pattern.tracks.at(data.track).set("offmode", null, { network: true });
+      pattern.tracks.get(data.track).set("offmode", null, { network: true });
     },
     "user-connect": function (data) {
       users.add(new zound.models.User({ id: data.user }), { network: true });
@@ -382,7 +380,7 @@
     },
     "property-change": function(data, user) {
       song.modules.get(data.module)
-        .properties.at(data.property)
+        .properties.get(data.property)
           .set("value", data.value, { network: true });
     }
   });
