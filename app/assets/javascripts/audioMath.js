@@ -11,20 +11,28 @@ zound.AudioMath = (function () {
       return NOTE_FREQUENCIES[noteValue];
     },
     
+
     curves: {
-        linear: function (t) { return t },
-        inQuad: function (t) { return t*t },
-        outQuad: function (t) { return t*(2-t) },
-        inOutQuad: function (t) { return t<.5 ? 2*t*t : -1+(4-2*t)*t },
-        inCubic: function (t) { return t*t*t },
-        outCubic: function (t) { return (--t)*t*t+1 },
-        inOutCubic: function (t) { return t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 },
-        inQuart: function (t) { return t*t*t*t },
-        outQuart: function (t) { return 1-(--t)*t*t*t },
-        inOutQuart: function (t) { return t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t },
-        inQuint: function (t) { return t*t*t*t*t },
-        outQuint: function (t) { return 1+(--t)*t*t*t*t },
-        inOutQuint: function (t) { return t<.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t }
+        linear: {
+          fun: function (x) { return x },
+          inv: function (y) { return y }
+        },
+        quad: {
+          fun: function (x) { return x*x },
+          inv: function (y) { return Math.sqrt(y) }
+        },
+        quadOut: {
+          fun: function (x) { return x*(2-x) },
+          inv: function (y) { return 1-Math.sqrt(1-y) }
+        },
+        quadCenter: {
+          fun: function (x) { var a = x-0.5; return (x > 0.5 ? 1 : -1)*2*a*a+0.5 },
+          inv: function (y) { var m = y > 0.5 ? 1 : -1; var a = m*(8*y-4); return 0.5+m*0.25*Math.sqrt(a) }
+        },
+        cubic: {
+          fun: function (x) { return x*x*x },
+          inv: function (y) { return Math.pow(y, 1/3) }
+        }
     }
   };
 }());
