@@ -28,7 +28,8 @@ zound.models.ModulePropertyRange = zound.models.ModuleProperty.extend({
     max: 1,
     value: 0,
     round: true,
-    title: "no title"
+    title: "no title",
+    curve: "linear"
   },
   initialize: function () {
     zound.models.ModuleProperty.prototype.initialize.apply(this, arguments);
@@ -37,7 +38,9 @@ zound.models.ModulePropertyRange = zound.models.ModuleProperty.extend({
     var min = this.get("min");
     var max = this.get("max");
     var round = this.get("round");
-    var value = min+percent*(max-min);
+    var curve = this.get("curve");
+    var curvef = zound.AudioMath.curves[curve] || zound.AudioMath.curves.linear;
+    var value = min+curvef(percent)*(max-min);
     this.set("value", round ? Math.round(value) : value);
   },
   getPercent: function () {
