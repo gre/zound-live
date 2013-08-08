@@ -50,7 +50,9 @@
     var title = m.get("title");
     if (title.length > 6) title = title.substring(0,5)+".";
     m.set("title", title+song.moduleIdCounter);
-    song.addNewModule(m);
+    var id = 1+Math.max.apply(Math, song.modules.pluck("id"));
+    module.set("id", id);
+    song.modules.add(module);
   });
 
   users.on("change:slot", function (user, value) {

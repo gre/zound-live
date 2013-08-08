@@ -27,11 +27,6 @@ zound.models.Song = Backbone.Model.extend({
     setTimeout(f, 1000*(t-this.ctx.currentTime));
   },
 
-  addNewModule: function (module) {
-    module.set("id", this.moduleIdCounter++);
-    this.modules.add(module);
-  },
-
   removeModule: function (moduleId) {
     if (this.modules.get(moduleId) instanceof zound.modules.Output) return;
     this.modules.remove(moduleId);
