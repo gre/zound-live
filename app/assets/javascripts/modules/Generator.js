@@ -24,7 +24,8 @@ zound.modules.Generator = SynthModule.extend({
       new zound.models.ModulePropertyRange({ id: "decayVolume", min: 0, max: 100, title: "Decay Volume", value: 70 }),
       new zound.models.ModulePropertySelect({ id: "sustain", values: [ "off", "on" ], title: "Sustain", value: 1 }),
       new zound.models.ModulePropertyRange({ id: "finetune", min: -100, max: 100, title: "Finetune", value: 0 }),
-      new zound.models.ModulePropertyRange({ id: "notedetune", min: -24, max: 24, title: "Note Detune", value: 0 }),
+      new zound.models.ModulePropertyRange({ id: "notedetune", min: -12, max: 12, title: "Note Detune", value: 0 }),
+      new zound.models.ModulePropertyRange({ id: "octavedetune", min: -2, max: 2, title: "Octave Detune", value: 0 }),
       new zound.models.ModulePropertyRange({ id: "glide", min: 0, max: 100, title: "Glide", value: 0 })
     ]);
     this._notes = [];
@@ -32,10 +33,10 @@ zound.modules.Generator = SynthModule.extend({
     this.properties.on("change:value", function (property, value) {
       var f = (function () {
         switch (property.id) {
-          case "finetune": return function (data) {
-            data.osc.detune.value = this.getDetune();
-          };
-          case "notedetune": return function (data) {
+          case "finetune":
+          case "notedetune":
+          case "octavedetune":
+          return function (data) {
             data.osc.detune.value = this.getDetune();
           };
           // FIXME: other property to sync?
@@ -46,7 +47,9 @@ zound.modules.Generator = SynthModule.extend({
   },
 
   getDetune: function () {
-    return this.properties.get("finetune").get("value") + 100*this.properties.get("notedetune").get("value");
+    return this.properties.get("finetune").get("value") + 
+      100*this.properties.get("notedetune").get("value") +
+      1200*this.properties.get("octavedetune").get("value");
   },
 
   noteOn: function (note, song, time) {

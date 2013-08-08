@@ -63,6 +63,7 @@ var SONG_SAMPLE_1 = {
     properties: {
       "type": 1,
       "decay": 125,
+      "octavedetune": 1,
       "finetune": 3
     },
     outputs: [9]
@@ -86,7 +87,8 @@ var SONG_SAMPLE_1 = {
     x: 100,
     y: 300,
     properties: {
-      "type": 3
+      "type": 3,
+      "octavedetune": -1
     },
     outputs: [6]
   },
