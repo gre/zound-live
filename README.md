@@ -9,7 +9,7 @@ Getting started
 1. Install SBT: http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
 2. In the project, **execute `sbt`**
 3. In the sbt console, **start the server with `run`**
-4. Go to `http://localhost:9000/`
+4. Go to `http://localhost:9000/` with Chrome *(Canary is only required if you want to test the Web MIDI API without polyfill)*
 
 
 Release note
