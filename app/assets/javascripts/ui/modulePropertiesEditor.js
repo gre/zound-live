@@ -7,7 +7,7 @@ zound.ui.ModulePropertyEditor = Backbone.View.extend({
   },
   template: _.template('<span class="title"><%= title %></span><div class="component"></div>'),
   render: function() {
-    this.$el.attr("id", this.model.get("id"));
+    this.$el.attr("id", this.model.cid);
     // FIXME We use an input[type=range] for quick impl. - this can be replaced in the future.
     var granularity = this.model.getValueGranularity();
     if (!isFinite(granularity)) granularity = 1000;
