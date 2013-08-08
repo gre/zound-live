@@ -23,8 +23,10 @@ zound.modules.Generator = SynthModule.extend({
       new zound.models.ModulePropertyRange({ id: "release", min: 0, max: 4000, title: "Release", value: 200 }),
       new zound.models.ModulePropertyRange({ id: "decayVolume", min: 0, max: 100, title: "Decay Volume", value: 70 }),
       new zound.models.ModulePropertySelect({ id: "sustain", values: [ "off", "on" ], title: "Sustain", value: 1 }),
+      new zound.models.ModulePropertyRange({ id: "finetune", min: -100, max: 100, title: "Finetune", value: 0 }),
       new zound.models.ModulePropertyRange({ id: "glide", min: 0, max: 100, title: "Glide", value: 0 })
     ]);
+    // FIXME: some properties need to impact on all current notes
   },
   noteOn: function (note, song, time) {
     var osc = song.ctx.createOscillator();
@@ -33,6 +35,7 @@ zound.modules.Generator = SynthModule.extend({
 
     osc.type = GENERATOR_TYPES_OSCVALUE[this.properties.get("type").get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
+    osc.detune.value = this.properties.get("finetune").get("value");
     osc.start(time);
 
     gain.gain.value = this.properties.get("volume").getPercent();

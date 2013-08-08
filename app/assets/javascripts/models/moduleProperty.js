@@ -47,7 +47,7 @@ zound.models.ModulePropertyRange = zound.models.ModuleProperty.extend({
     var value = this.get("value");
     var min = this.get("min");
     var max = this.get("max");
-    return (value-min)/(max-min);
+    return (value-min)/(max-min); // FIXME: we need the reverse of curvef
   },
   getText: function () {
     var value = this.get("value");
