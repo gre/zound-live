@@ -3,6 +3,15 @@ ZOUND Live
 
 Audio modular collaborative tracker using web technologies.
 
+Getting started
+---
+
+1. Install SBT: http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
+2. In the project, **execute `sbt`**
+3. In the sbt console, **start the server with `run`**
+4. Go to `http://localhost:9000/`
+
+
 Release note
 ---
 
