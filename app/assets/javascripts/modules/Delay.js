@@ -6,7 +6,7 @@ zound.modules.Delay = EffectModule.extend({
     EffectModule.prototype.initialize.call(this);
     this.properties.add([
       new zound.models.ModulePropertyRange({ id: "mix", min: 0, max: 100, title: "Mix", value: 20 }),
-      new zound.models.ModulePropertyRange({ id: "time", min: 0, max: 100, title: "Time", value: 24 }),
+      new zound.models.ModulePropertyRange({ id: "time", min: 0, max: 100, round: false, title: "Time", value: 24 }),
       new zound.models.ModulePropertyRange({ id: "feedback", min: 0, max: 100, title: "Feedback", value: 40})
     ]);
   },

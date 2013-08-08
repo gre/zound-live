@@ -23,7 +23,7 @@ zound.modules.Filter = EffectModule.extend({
     this.properties.add([
       new zound.models.ModulePropertySelect({ id: "type", values: FILTER_TYPES_NAME, title: "Type" }),
       new zound.models.ModulePropertyRange({ id: "frequency", curve: "inCubic", min: 10, max: 22050, title: "Frequency", value: 22050 }),
-      new zound.models.ModulePropertyRange({ id: "Q", min: 0, max: 20, value: 1, title: "Resonance" })
+      new zound.models.ModulePropertyRange({ id: "Q", min: 0, max: 20, value: 1, title: "Resonance", round: false })
       // new zound.models.ModulePropertyRange({ id: "gain", min: -40, max: 40, title: "gain", value: 0 });
     ]);
     // FIXME: Use of Gain is useless for low and high pass. Removed until more filter support
