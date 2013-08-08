@@ -24,10 +24,31 @@ zound.modules.Generator = SynthModule.extend({
       new zound.models.ModulePropertyRange({ id: "decayVolume", min: 0, max: 100, title: "Decay Volume", value: 70 }),
       new zound.models.ModulePropertySelect({ id: "sustain", values: [ "off", "on" ], title: "Sustain", value: 1 }),
       new zound.models.ModulePropertyRange({ id: "finetune", min: -100, max: 100, title: "Finetune", value: 0 }),
+      new zound.models.ModulePropertyRange({ id: "notedetune", min: -24, max: 24, title: "Note Detune", value: 0 }),
       new zound.models.ModulePropertyRange({ id: "glide", min: 0, max: 100, title: "Glide", value: 0 })
     ]);
-    // FIXME: some properties need to impact on all current notes
+    this._notes = [];
+
+    this.properties.on("change:value", function (property, value) {
+      var f = (function () {
+        switch (property.id) {
+          case "finetune": return function (data) {
+            data.osc.detune.value = this.getDetune();
+          };
+          case "notedetune": return function (data) {
+            data.osc.detune.value = this.getDetune();
+          };
+          // FIXME: other property to sync?
+        }
+      }());
+      f && _.each(this._notes, f, this);
+    }, this);
   },
+
+  getDetune: function () {
+    return this.properties.get("finetune").get("value") + 100*this.properties.get("notedetune").get("value");
+  },
+
   noteOn: function (note, song, time) {
     var osc = song.ctx.createOscillator();
     var gain = song.ctx.createGain();
@@ -35,7 +56,7 @@ zound.modules.Generator = SynthModule.extend({
 
     osc.type = GENERATOR_TYPES_OSCVALUE[this.properties.get("type").get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
-    osc.detune.value = this.properties.get("finetune").get("value");
+    osc.detune.value = this.getDetune();
     osc.start(time);
 
     gain.gain.value = this.properties.get("volume").getPercent();
@@ -75,10 +96,14 @@ zound.modules.Generator = SynthModule.extend({
     song.execAtTime(_.bind(function () {
       this.trigger("noteOn");
     }, this), time);
+
+    this._notes.push(data);
     return data;
   },
 
   noteOff: function (data, song, time) {
+    var i = this._notes.indexOf(data);
+    this._notes.splice(i, 1);
     var releaseTime = this.properties.get("release").getValue()/1000;
     var gain = data.gain.gain;
     gain.cancelScheduledValues(0);

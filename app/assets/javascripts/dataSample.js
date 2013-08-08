@@ -37,7 +37,7 @@ var SONG_SAMPLE_1 = {
     title: "Multi1",
     x: 60,
     y: 120,
-    outputs: [2, 3]
+    outputs: [2, 3, 5]
   },
   {
     id: 2,
@@ -49,7 +49,8 @@ var SONG_SAMPLE_1 = {
       "type": 2,
       "volume": 10,
       "attack": 125,
-      "decay": 500
+      "decay": 500,
+      "finetune": -5
     },
     outputs: [4]
   },
@@ -61,7 +62,8 @@ var SONG_SAMPLE_1 = {
     y: 190,
     properties: {
       "type": 1,
-      "decay": 125
+      "decay": 125,
+      "finetune": 3
     },
     outputs: [9]
   },
@@ -95,7 +97,7 @@ var SONG_SAMPLE_1 = {
     x: 250,
     y: 300,
     properties: {
-      "frequency": 300,
+      "frequency": 400,
       "Q": 15
     },
     outputs: [8]
