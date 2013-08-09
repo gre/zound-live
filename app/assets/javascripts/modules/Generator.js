@@ -52,6 +52,7 @@ zound.modules.Generator = SynthModule.extend({
       1200*this.properties.get("octavedetune").get("value");
   },
 
+  // FIXME: should probably give a frequency instead of a "note"
   noteOn: function (note, song, time) {
     var osc = song.ctx.createOscillator();
     var gain = song.ctx.createGain();
