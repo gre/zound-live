@@ -1,15 +1,6 @@
 (function (SynthModule) {
 
-var OscillatorNode = zound.dummyAudioContext.createOscillator();
-
-var GENERATOR_TYPES = [
-  ["sine", OscillatorNode.SINE],
-  ["triangle", OscillatorNode.TRIANGLE],
-  ["square", OscillatorNode.SQUARE],
-  ["saw", OscillatorNode.SAWTOOTH]
-];
-var GENERATOR_TYPES_NAME = _.pluck(GENERATOR_TYPES, 0);
-var GENERATOR_TYPES_OSCVALUE = _.pluck(GENERATOR_TYPES, 1);
+var GENERATOR_TYPES = ["sine","triangle","square","sawtooth"];
 
 zound.modules.Generator = SynthModule.extend({
   initialize: function () {
@@ -17,7 +8,7 @@ zound.modules.Generator = SynthModule.extend({
     this.lastNote = null;
     this.properties.add([
       new zound.models.ModulePropertyRange({ id: "volume", min: 0, max: 100, title: "Volume", value: 50 }),
-      new zound.models.ModulePropertySelect({ id: "type", values: GENERATOR_TYPES_NAME, title: "Type" }),
+      new zound.models.ModulePropertySelect({ id: "type", values: GENERATOR_TYPES, title: "Type" }),
       new zound.models.ModulePropertyRange({ id: "attack", min: 0, max: 1000, title: "Attack", value: 10 }),
       new zound.models.ModulePropertyRange({ id: "decay", min: 0, max: 1000, title: "Decay", value: 200 }),
       new zound.models.ModulePropertyRange({ id: "release", min: 0, max: 4000, title: "Release", value: 200 }),
@@ -57,7 +48,7 @@ zound.modules.Generator = SynthModule.extend({
     var gain = song.ctx.createGain();
     osc.connect(gain);
 
-    osc.type = GENERATOR_TYPES_OSCVALUE[this.properties.get("type").get("value")];
+    osc.type = GENERATOR_TYPES[this.properties.get("type").get("value")];
     osc.frequency.value = zound.AudioMath.noteToFrequency(note);
     osc.detune.value = this.getDetune();
     osc.start(time);
@@ -118,10 +109,6 @@ zound.modules.Generator = SynthModule.extend({
       this.trigger("noteOff");
     }, this), time+releaseTime+0.1);
   }
-}, {
-  GENERATOR_TYPES: GENERATOR_TYPES,
-  GENERATOR_TYPES_NAME: GENERATOR_TYPES_NAME,
-  GENERATOR_TYPES_OSCVALUE: GENERATOR_TYPES_OSCVALUE
 });
 
 }(zound.models.SynthModule));

@@ -1,14 +1,6 @@
 (function (EffectModule) {
 
-var OscillatorNode = zound.dummyAudioContext.createOscillator();
-var LFO_TYPES = [
-  ["sine", OscillatorNode.SINE],
-  ["triangle", OscillatorNode.TRIANGLE],
-  ["square", OscillatorNode.SQUARE],
-  ["saw", OscillatorNode.SAWTOOTH]
-];
-var LFO_TYPES_NAME = _.pluck(LFO_TYPES, 0);
-var LFO_TYPES_OSCVALUE = _.pluck(LFO_TYPES, 1);
+var LFO_TYPES = ["sine", "square", "sawtooth"];
 
 var BiquadFilterNode = zound.dummyAudioContext.createBiquadFilter();
 
@@ -36,9 +28,9 @@ zound.modules.Filter = EffectModule.extend({
       new zound.models.ModulePropertyRange({ id: "Q", min: 0, max: 20, value: 1, title: "Resonance", round: false }),
       // new zound.models.ModulePropertyRange({ id: "gain", min: -40, max: 40, title: "gain", value: 0 });
       //new zound.models.ModulePropertyRange({ id: "lfomix", min: 0, max: 100, value: 100, title: "LFO mix" }),
-      new zound.models.ModulePropertyRange({ id: "lfofreq", min: 0.001, value: 10, max: 50, curve: "quad", title: "LFO freq", round: false }),
+      new zound.models.ModulePropertyRange({ id: "lfofreq", min: 0.001, value: 5, max: 20, curve: "quad", title: "LFO freq", round: false }),
       new zound.models.ModulePropertyRange({ id: "lfopower", min: 0, value: 0, max: 5000, title: "LFO power" }),
-      new zound.models.ModulePropertySelect({ id: "lfotype", values: LFO_TYPES_NAME, title: "LFO Type" })
+      new zound.models.ModulePropertySelect({ id: "lfotype", values: LFO_TYPES, title: "LFO Type" })
     ]);
     // FIXME: Use of Gain is useless for low and high pass. Removed until more filter support
   },
