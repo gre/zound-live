@@ -6,6 +6,7 @@ zound.modules.SimpleFM = SynthModule.extend({
     this.lastNote = null;
     this.properties.add([
       new zound.models.ModulePropertyRange({ id: "volume", min: 0, max: 100, title: "Osc. Volume", value: 50 }),
+      new zound.models.ModulePropertyRange({ id: "finetune", min: -100, max: 100, title: "Finetune", value: 0 }),
       new zound.models.ModulePropertyRange({ id: "m_volume", min: 0, max: 100, title: "Modulator", value: 50 }),
 
       new zound.models.ModulePropertyRange({ id: "freq_mul", min: 1, max: 20, title: "Osc. Freq. mul / 4", value: 4 }),
@@ -26,6 +27,9 @@ zound.modules.SimpleFM = SynthModule.extend({
     this.properties.on("change:value", function (property, value) {
       var f = (function () {
         switch (property.id) {
+          case "finetune": return function (data) {
+            data.osc.detune.value = this.getDetune();
+          };
           case "freq_mul": return function (data) {
             data.osc.frequency.value = this.computeFreqMul(data.noteFreq, value);
           };
@@ -36,6 +40,10 @@ zound.modules.SimpleFM = SynthModule.extend({
       }());
       f && _.each(this._notes, f, this);
     }, this);
+  },
+
+  getDetune: function () {
+    return this.properties.get("finetune").get("value");
   },
 
   computeFreqMul: function (freq, mul) {
@@ -70,6 +78,7 @@ zound.modules.SimpleFM = SynthModule.extend({
     // Init nodes
     var osc = song.ctx.createOscillator();
     osc.type = "sine";
+    osc.detune.value = this.getDetune();
     osc.frequency.value = this.computeFreqMul(noteFreq, this.properties.get("freq_mul").get("value"));
 
     var gain = song.ctx.createGain();
