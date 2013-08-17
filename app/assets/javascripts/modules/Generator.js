@@ -21,8 +21,7 @@ zound.modules.Generator = SynthModule.extend({
       new zound.models.ModulePropertyRange({ id: "attack", min: 0, max: 1000, title: "Attack", value: 10 }),
       new zound.models.ModulePropertyRange({ id: "decay", min: 0, max: 1000, title: "Decay", value: 200 }),
       new zound.models.ModulePropertyRange({ id: "release", min: 0, max: 4000, title: "Release", value: 200 }),
-      new zound.models.ModulePropertyRange({ id: "decayVolume", min: 0, max: 100, title: "Decay Volume", value: 70 }),
-      new zound.models.ModulePropertySelect({ id: "sustain", values: [ "off", "on" ], title: "Sustain", value: 1 }),
+      new zound.models.ModulePropertyRange({ id: "sustain", min: 0, max: 100, title: "Sustain", value: 70 }),
       new zound.models.ModulePropertyRange({ id: "finetune", min: -100, max: 100, curve: "quadCenter", title: "Finetune", value: 0 }),
       new zound.models.ModulePropertyRange({ id: "notedetune", min: -12, max: 12, curve: "quadCenter", title: "Note Detune", value: 0 }),
       new zound.models.ModulePropertyRange({ id: "octavedetune", min: -2, max: 2, curve: "quadCenter", title: "Octave Detune", value: 0 }),
@@ -83,9 +82,9 @@ zound.modules.Generator = SynthModule.extend({
     gain.gain.cancelScheduledValues(time);
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(volume, time+attackDuration);
-    gain.gain.linearRampToValueAtTime(volume*this.properties.get("decayVolume").getPercent(), time+attackDuration+decayDuration);
+    gain.gain.linearRampToValueAtTime(volume*this.properties.get("sustain").getPercent(), time+attackDuration+decayDuration);
 
-    if (!this.properties.get("sustain").getValue()) {
+    if (this.properties.get("sustain").getValue() === 0) {
       this.noteOff(data, song, time+attackDuration+decayDuration);
     }
 
