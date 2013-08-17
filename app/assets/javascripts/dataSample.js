@@ -139,6 +139,16 @@ var SONG_SAMPLE_1 = {
       "gain": 60
     },
     outputs: [0]
+  },
+  {
+    id: 11,
+    clazz: "SimpleFM",
+    title: "FM 1",
+    x: 520,
+    y: 60,
+    properties: {
+    },
+    outputs: [9]
   }
   ]
 };

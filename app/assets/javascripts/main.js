@@ -26,6 +26,7 @@
 
   var availableModules = new models.Modules([
     new modules.Generator({ title: "Generator" }),
+    new modules.SimpleFM({ title: "SimpleFM" }),
     new modules.Drum({ title: "Drum" }),
     new modules.MultiSynth({ title: "MultiSynth" }),
     new modules.Filter({ title: "Filter" }),
