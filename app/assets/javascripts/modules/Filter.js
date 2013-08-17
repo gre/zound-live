@@ -29,7 +29,7 @@ zound.modules.Filter = EffectModule.extend({
       // new zound.models.ModulePropertyRange({ id: "gain", min: -40, max: 40, title: "gain", value: 0 });
       //new zound.models.ModulePropertyRange({ id: "lfomix", min: 0, max: 100, value: 100, title: "LFO mix" }),
       new zound.models.ModulePropertyRange({ id: "lfofreq", min: 0.001, value: 5, max: 20, curve: "quad", title: "LFO freq", round: false }),
-      new zound.models.ModulePropertyRange({ id: "lfopower", min: 0, value: 0, max: 5000, title: "LFO power" }),
+      new zound.models.ModulePropertyRange({ id: "lfopower", min: 0, value: 0, max: 1, round: false, title: "LFO power" }),
       new zound.models.ModulePropertySelect({ id: "lfotype", values: LFO_TYPES, title: "LFO Type" })
     ]);
     // FIXME: Use of Gain is useless for low and high pass. Removed until more filter support
@@ -37,12 +37,12 @@ zound.modules.Filter = EffectModule.extend({
 
   // FIXME in the future, this should be a separated module and we should be able to connect a module to any other module property!
   // in that case we have to make a LFO module and connect to the Filter frequency
-  createLFO: function (ctx, lfofreqP, lfopowerP, lfotypeP) {
+  createLFO: function (ctx, lfofreqP, lfopowerP, lfotypeP, filterFreqP) {
     var lfo = ctx.createOscillator();
     var lfoGain = ctx.createGain();
     lfo.connect(lfoGain);
     function syncPower () {
-      lfoGain.gain.value = lfopowerP.get("value");
+      lfoGain.gain.value = lfopowerP.getPercent() * filterFreqP.get("value");
     }    
     function syncFreq () {
       lfo.frequency.value = lfofreqP.get("value");
@@ -54,7 +54,8 @@ zound.modules.Filter = EffectModule.extend({
     syncPower();
     syncType();
     lfofreqP.on("change:value", syncFreq);
-    lfopowerP.on("change:value", syncPower); // FIXME this can tick is power > filter.freq, need a better way to "select" the range to modify anyway.
+    lfopowerP.on("change:value", syncPower);
+    filterFreqP.on("change:value", syncPower);
     lfotypeP.on("change:value", syncType);
     lfo.start(ctx.currentTime); // FIXME we may use a lfophase property
     return lfoGain;
@@ -73,7 +74,7 @@ zound.modules.Filter = EffectModule.extend({
     this.updateQ();
     //this.updateGain();
 
-    var lfo = this.createLFO(song.ctx, this.properties.get("lfofreq"), this.properties.get("lfopower"), this.properties.get("lfotype"));
+    var lfo = this.createLFO(song.ctx, this.properties.get("lfofreq"), this.properties.get("lfopower"), this.properties.get("lfotype"), this.properties.get("frequency"));
     
     lfo.connect(this.filter.frequency);
 
