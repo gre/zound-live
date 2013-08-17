@@ -55,7 +55,7 @@ zound.models.ModulePropertyRange = zound.models.ModuleProperty.extend({
     return this.get("round") ? value : value.toFixed(2);
   },
   getValueGranularity: function () {
-    return this.get("max")-this.get("min");
+    return this.get("round") && this.get("curve")==="linear" ? this.get("max")-this.get("min") : Infinity;
   }
 });
 
