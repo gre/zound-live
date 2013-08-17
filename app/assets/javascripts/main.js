@@ -26,7 +26,7 @@
 
   var availableModules = new models.Modules([
     new modules.Generator({ title: "Generator" }),
-    new modules.SimpleFM({ title: "SimpleFM" }),
+    new modules.SimpleFM({ title: "FM" }),
     new modules.Drum({ title: "Drum" }),
     new modules.MultiSynth({ title: "MultiSynth" }),
     new modules.Filter({ title: "Filter" }),
@@ -50,10 +50,10 @@
     var m = module.clone();
     var title = m.get("title");
     if (title.length > 6) title = title.substring(0,5)+".";
-    m.set("title", title+song.moduleIdCounter);
     var id = 1+Math.max.apply(Math, song.modules.pluck("id"));
-    module.set("id", id);
-    song.modules.add(module);
+    m.set("title", title+id);
+    m.set("id", id);
+    song.modules.add(m);
   });
 
   users.on("change:slot", function (user, value) {
